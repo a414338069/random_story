@@ -1,0 +1,28 @@
+=== Build ===
+
+> web@0.0.0 build /Users/haochen/developer/private_project/random_story/web
+> vue-tsc -b && vite build
+
+vite v8.0.10 building client environment for production...
+[2Ktransforming...✓ 33 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                        0.45 kB │ gzip:  0.29 kB
+dist/assets/index-DkCXbZmz.css         0.16 kB │ gzip:  0.13 kB
+dist/assets/GameMain-B2qHXLt2.js       0.21 kB │ gzip:  0.19 kB
+dist/assets/GameOver-CWUbRwWz.js       0.21 kB │ gzip:  0.19 kB
+dist/assets/TitleScreen-OOAym7gv.js    0.22 kB │ gzip:  0.19 kB
+dist/assets/TalentSelect-CTbw8AXA.js   0.22 kB │ gzip:  0.19 kB
+dist/assets/index-BD99ZpE0.js         93.26 kB │ gzip: 36.00 kB
+
+✓ built in 201ms
+
+=== Routes ===
+      path: '/',
+      name: 'title',
+      path: '/select',
+      name: 'talent-select',
+      path: '/game',
+      name: 'game',
+      path: '/gameover',
+      name: 'game-over',
