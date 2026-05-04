@@ -1,0 +1,17 @@
+role: "user"
+content: |
+  ## 当前玩家状态
+  - 境界：{realm}
+  - 年龄：{age}岁
+  - 修为：{cultivation}
+  - 门派：{faction}
+  - 灵石：{spirit_stones}
+  - 已历事件：{event_count}个
+  
+  ## 事件模板
+  {event_template}
+  
+  ## 最近事件摘要
+  {recent_events}
+  
+  请根据以上信息生成事件叙事和选项。
