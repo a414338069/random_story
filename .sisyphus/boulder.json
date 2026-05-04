@@ -8,7 +8,8 @@
     "ses_20db24645ffe267bjjxYmdiYUE",
     "ses_20daed2d4ffeudn40vHi2sEY27",
     "ses_20da5d51affeHCx4WA0Y7OJrot",
-    "ses_20d9bb942ffeNiLRZ0CVKcCvWP"
+    "ses_20d9bb942ffeNiLRZ0CVKcCvWP",
+    "ses_20d988a7affeD7rlOlWAUeeJSq"
   ],
   "plan_name": "rebirth-backend-mvp",
   "worktree_path": null,
@@ -48,6 +49,15 @@
       "agent": "Sisyphus-Junior",
       "category": "quick",
       "updated_at": "2026-05-04T09:51:44.417Z"
+    },
+    "todo:5": {
+      "task_key": "todo:5",
+      "task_label": "5",
+      "task_title": "天赋卡系统 — 20 张卡数据 + 抽卡逻辑",
+      "session_id": "ses_20d988a7affeD7rlOlWAUeeJSq",
+      "agent": "Sisyphus-Junior",
+      "category": "quick",
+      "updated_at": "2026-05-04T09:56:36.642Z"
     }
   },
   "agent": "atlas"

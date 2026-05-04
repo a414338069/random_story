@@ -392,7 +392,7 @@ Max Concurrent: 3 (Wave 2 & 3)
   - Message: `feat: Pydantic 数据模型 — 请求/响应 schemas`
   - Files: `app/models/*.py, tests/test_models.py`
 
-- [ ] 4. 配置管理 — pydantic-settings + .env
+- [x] 4. 配置管理 — pydantic-settings + .env
 
   **What to do**:
   - 创建 `app/config.py`：使用 pydantic-settings BaseSettings
@@ -442,7 +442,7 @@ Max Concurrent: 3 (Wave 2 & 3)
   - Message: `feat: 配置管理 — pydantic-settings + .env`
   - Files: `app/config.py, app/dependencies.py, .env.example, tests/test_config.py`
 
-- [ ] 5. 天赋卡系统 — 20 张卡数据 + 抽卡逻辑
+- [x] 5. 天赋卡系统 — 20 张卡数据 + 抽卡逻辑
 
   **What to do**:
   - 创建 `app/data/talents.yaml`：20 张天赋卡完整数据（凡品6/灵品6/玄品4/仙品3/神品1）

@@ -124,3 +124,28 @@ tests/
 - `app/config.py` — Settings(BaseSettings) 从 .env 加载配置，含 7 个字段
 - `app/dependencies.py` — AIServiceProtocol + get_config() + get_db() + get_ai_service()
 - `tests/test_config.py` — 19 项测试全覆盖（默认值、环境变量覆盖、.env 文件加载、DI 函数）
+
+# Task 5: 天赋卡系统 — 20张天赋卡YAML数据 + 抽卡逻辑服务
+
+## 完成时间
+2026-05-04
+
+## 关键决策
+- `draw_cards()` 使用两阶段抽卡算法：先按品级权重 `random.choices(weights=rarity)` 选品级，再从该品级均匀随机选卡
+- 使用 `_talents_cache` 模块级缓存避免每次调用重复读 YAML
+- `effects` 统一结构为 `{"attr_bonuses": {...}, "modifiers": {...}}`，双面卡额外有 `positive_effects`/`negative_effects`
+- 双面卡(l06/x04/s03)同时保留 `effects: {}` 保证所有卡统一有 `effects` 字段
+- 无需 Pydantic 模型，YAML 字典直接使用（简化，不需要序列化验证）
+- `validate_selection()` 返回 `tuple[bool, str]` 而非抛出异常，便于上层使用
+
+## 注意事项
+- `tests/test_services/` 子目录需要 `__init__.py` 才能正确导入模块
+- 抽卡 `random.seed()` 在不同品级数量下稳定可复现
+- YAML rarity 值（0.4/0.3/0.2/0.08/0.02）放在每张卡上，两阶段算法会自动按品级权重分配
+- 20000 次抽卡 × 3张 = 60000 样本量的分布测试全部通过（±3% tolerance）
+
+## 文件清单
+- `app/data/talents.yaml` — 20张天赋卡结构数据（凡品6/灵品6/玄品4/仙品3/神品1）
+- `app/services/talent_service.py` — load_talents() + draw_cards() + validate_selection()
+- `tests/test_services/__init__.py` — 测试包初始化
+- `tests/test_services/test_talent.py` — 23 项测试全覆盖（数据验证 + 抽卡逻辑 + 概率分布）
