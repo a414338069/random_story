@@ -1,0 +1,18 @@
+=== Type check ===
+=== types.ts exports ===
+1:export interface Attributes {
+8:export interface PlayerStatePydantic {
+35:export interface GameStateDict {
+56:export interface NormalizedGameState {
+78:export interface TalentCard {
+87:export interface EventOption {
+93:export interface EventResponse {
+99:export interface ChooseResponse {
+107:export interface GameStartRequest {
+119:export interface GameStartResponse {
+124:export interface EndGameResponse {
+131:export interface LeaderboardEntry {
+139:export type LoopPhase = 'idle' | 'fetching' | 'typing' | 'choosing' | 'submitting' | 'aftermath' | 'gameover'
+=== normalize.ts exports ===
+3:export function normalizeFromPydantic(state: PlayerStatePydantic): NormalizedGameState {
+32:export function normalizeFromDict(state: GameStateDict): NormalizedGameState {
