@@ -337,3 +337,75 @@ cultivation_gain = base × (1 + comprehension × 0.1) × technique_modifier
 ## 文件清单
 - `app/services/game_service.py` — start_game + get_next_event + process_choice + get_state + end_game + check_game_over + _calc_cultivation_gain
 - `tests/test_services/test_game_service.py` — 43 项测试全覆盖
+
+# Task 17: API 端点 GET /state + POST /end + GET /leaderboard
+
+## 完成时间
+2026-05-04
+
+## 关键决策
+- 创建 `app/routers/game.py` 作为游戏 API 路由器，prefix=`/api/v1/game`
+- `get_state` 端点不指定 `response_model`，因为 in-memory dict 结构与 `PlayerState` Pydantic 模型（扁平 snake_case）不一致（in-memory 使用嵌套 camelCase attributes dict）
+- `end_game` 端点不指定 `response_model`，因为 `GameEndResponse` 现有模型定义（`final_state`+`reason`）与 `end_game()` 服务返回（`ending`+`score`+`grade`）不匹配；直接返回 dict 避免破坏已有模型测试
+- 新增 `EndGameRequest` 模型（仅 `session_id` 字段），因为 `EventRequest` 现有模型使用 `player_id` 而非 `session_id`
+- 使用 `try/except ValueError` 处理 `get_state()` 和 `end_game()` 的 session 不存在情况，转换为 404 HTTP 响应
+- 注册 router 到 `app/main.py` 使用 `app.include_router(game.router)`
+
+## 注意事项
+- `game_service.get_state()` 在 session 不存在时 raise `ValueError`（不返回 None），需要在端点中 try/except
+- `game_service.end_game()` 同样 raise `ValueError`，但 spec 中检查 `result is None` 作为冗余保护
+- 测试用 `httpx.AsyncClient(transport=ASGITransport(app=app))` 而非 TestClient，避免同步包装
+- `tests/test_api/__init__.py` 需要创建（空文件），否则 pytest 不会发现包内测试
+- `LeaderboardEntry` 模型在 Task 3 中已预定义，MVP 返回空列表即可
+
+## 文件清单
+- `app/models/game.py` — 新增 `EndGameRequest` 模型
+- `app/routers/game.py` — 3 个端点（state、end、leaderboard）
+- `app/main.py` — 注册 `game` router
+- `tests/test_api/__init__.py` — 测试包初始化
+- `tests/test_api/test_game_endpoints.py` — 5 项 API 测试
+
+# Task 12: AI 服务 — DeepSeek API 封装 + JSON 模式 + 重试
+
+## 完成时间
+2026-05-04
+
+## 关键决策
+- `DeepSeekService` 直接使用 `openai.OpenAI` client（DeepSeek API 兼容 OpenAI SDK），通过 `response_format={"type": "json_object"}` 强制 JSON 模式
+- Settings 字段名使用大写（`DEEPSEEK_API_KEY`, `DEEPSEEK_MODEL`, `DEEPSEEK_BASE_URL`），与 config.py 中 pydantic Settings 定义一致
+- 重试逻辑：`_max_retries = 2`（共 3 次尝试），指数退避 `2^attempt + 1`（1s, 3s），空 content 重试间隔固定 1s
+- 三类异常处理：`APIError/APIConnectionError`（重试）→ `json.JSONDecodeError`（立即 fallback）→ 全部重试失败（fallback 空结果）
+- `MockAIService` 含 `call_count` 追踪，便于上层测试验证 AI 被调用次数
+- 不修改 `app/dependencies.py`（任务约束），Protocol 合规通过 `hasattr + callable` 检查
+
+## 注意事项
+- `AIServiceProtocol` 在 dependencies.py 中没有 `@runtime_checkable` 装饰器，不能用 `isinstance()` 做 Protocol 检查，会抛 `TypeError`
+- 测试 mock `app.services.ai_service.OpenAI`（模块路径），不是 `openai.OpenAI`（包路径），否则 mock 不生效
+- `APIError` 构造需要 `request` 和 `body` 参数，测试中用 `MagicMock()` 填充
+- DeepSeek 空 content 已知问题：偶发返回 `content=""` 或 `content=None`，重试可恢复
+- fallback 结果结构为 `{"narrative": "", "options": []}`，上层服务需要处理空 narrative
+
+## 文件清单
+- `app/services/ai_service.py` — DeepSeekService + MockAIService
+- `tests/test_services/test_ai_service.py` — 9 项测试（Mock ×3 + 重试 ×2 + JSON 解析 ×2 + Protocol ×2）
+
+# Task 15: API 端点 — POST /game/start 创建游戏
+
+## 完成时间
+2026-05-04
+
+## 关键决策
+- `GameStartRequest.attributes` 使用 Pydantic `Attributes` 模型（snake_case），`start_game()` 服务层期望 camelCase keys（`rootBone`/`comprehension`/`mindset`/`luck`），router 中手动转换 bridge
+- `GameStartResponse.state` 类型为 `PlayerState`（非 `initial_state`），需要将 `start_game()` 返回的 dict 中嵌套的 `attributes` dict 展平为 `PlayerState` 的扁平字段
+- 不需要新建模型或修改现有模型，现有 `GameStartRequest`/`GameStartResponse`/`PlayerState` 完全满足需求
+- `GameStartResponse(state=PlayerState(...))` 构造时，`PlayerState` 中 `start_game` dict 未提供的字段（`health`/`qi`/`score`/`ending_id`/`last_active_at`/`created_at`/`updated_at`）使用默认值
+
+## 注意事项
+- `app/routers/game.py` 已在 Task 17 中创建（GET /state + POST /end + GET /leaderboard），只需在同一个 `router` 对象上添加 `@router.post("/start")` 装饰器
+- `app/main.py` 已包含 `app.include_router(game.router)`，不需要额外注册
+- Pydantic 验证优先于服务层验证：`Attributes.validate_sum()` 在请求进入 handler 前就返回 422，`start_game()` 内部的 `if total != 10` 是冗余校验
+- 测试使用 `httpx.AsyncClient(transport=ASGITransport(app=app))`，与 Task 17 的测试风格一致
+
+## 文件变更
+- `app/routers/game.py` — 新增 `POST /start` 端点（同时保留现有 GET /state, POST /end, GET /leaderboard）
+- `tests/test_api/test_game_start.py` — 5 项 API 测试（成功创建 ×1 + 无效属性总和 ×1 + 无效性别 ×1 + 无效天赋卡ID ×1 + 缺少必填字段 ×1）
