@@ -1,0 +1,18 @@
+id: "test_jindan_001"
+type: "adventure"
+title: "金丹奇遇"
+trigger_conditions:
+  min_realm: "金丹"
+  max_realm: "金丹"
+  min_age: 100
+  max_age: 1000
+  required_faction: null
+weight: 1.0
+prompt_template: "你在修炼中遇到了奇遇..."
+fallback_narrative: "你在洞府中发现了一枚丹药。"
+default_options:
+  - id: "opt1"
+    text: "服用丹药"
+    consequences:
+      cultivation_gain: 50
+      age_advance: true

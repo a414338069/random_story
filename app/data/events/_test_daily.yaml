@@ -1,0 +1,23 @@
+id: "test_daily_001"
+type: "daily"
+title: "山间修炼"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "渡劫飞升"
+  min_age: 0
+  max_age: 9999
+  required_faction: null
+weight: 1.0
+prompt_template: "你是一位{realm}境界的修士，今年{age}岁，正在山间修炼..."
+fallback_narrative: "你在山间静心修炼，修为有所增长。"
+default_options:
+  - id: "opt1"
+    text: "继续修炼"
+    consequences:
+      cultivation_gain: 10
+      age_advance: true
+  - id: "opt2"
+    text: "下山历练"
+    consequences:
+      spirit_stones_gain: 5
+      age_advance: true
