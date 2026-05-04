@@ -291,3 +291,49 @@ tests/
 ## 文件清单
 - `app/services/breakthrough.py` — BreakthroughResult + get_realm_penalty() + calculate_success_rate() + attempt_breakthrough()
 - `tests/test_services/test_breakthrough.py` — 32 项测试全覆盖（惩罚 ×9 + 成功率 ×12 + 成功路径 ×2 + 失败路径 ×5 + 天赋效果 ×2 + 边界条件 ×2）
+
+# Task 11: 游戏服务 — 生命周期 + 状态推进 + 修为公式
+
+## 完成时间
+2026-05-04
+
+## 关键决策
+- 状态存储使用模块级 `_games: dict[str, dict]` dict（MVP 不做数据库集成，T15-T17 负责）
+- session_id 使用 `uuid.uuid4().hex[:16]` 生成 16 字符 Hex 字符串
+- player_state 使用 dict 而非 Pydantic PlayerState（game_service 内部使用 dict，仅在 end_game 结算时构建 PlayerState 传给 scoring）
+- 与 event_engine 的接口适配：game_service 维护嵌套 attributes dict（`{"rootBone": ..., "comprehension": ..., "mindset": ..., "luck": ...}`），但 event_engine 的 `calculate_weights` 和 `filter_templates` 期望扁平结构（顶层 `luck`/`realm`/`age`/`faction`/`cultivation`）。通过 `_to_engine_context()` 辅助函数将玩家状态扁平化为 event_engine 需要的格式
+- `_current_event` 存储在玩家状态中（get_next_event 写入，process_choice 读取后删除），存储 `{id, type, title, options}`
+- `get_next_event` 不调用 AI，只调用 event_engine 选择模板并构建上下文（AI 调用在上层 API）
+- `process_choice` 不调用 AI，只处理数值结算
+
+## 修为公式
+```
+cultivation_gain = base × (1 + comprehension × 0.1) × technique_modifier
+```
+- base 按事件类型: daily=10, adventure=30, bottleneck=5
+- technique_modifier: 无功法=0.5, 凡品=1.0, 灵品=1.5, 玄品=2.0, 仙品=3.0
+- 多功法取平均: `sum(mods) / len(mods)`
+
+## 修为溢出处理
+- 当 cultivation >= next_realm.cultivation_req 时触发溢出
+- 凡人→练气: 100 为阈值（练气的 cultivation_req），超出部分带入 realm_progress
+- realm_progress = overflow / next_realm_cultivation_req
+- 渡劫飞升（最高境界）get_next_realm 返回 None，跳过溢出处理
+
+## 游戏结束条件（check_game_over）
+- age >= lifespan → True
+- event_count >= 60 → True
+- ascended == True → True
+- 否则 False
+
+## 注意事项
+- 凡人 spirit_stone_cap=0，测试灵石增加时需要切换到 练气（cap=1000）
+- end_game 时构建 PlayerState 对象传给 scoring 函数（determine_ending、calculate_score），因为 scoring 接受 Pydantic 模型而非 dict
+- end_game 不修改 scoring 的实现（不修改已有服务）
+- process_choice 中 `del state["_current_event"]` 防止后续误用
+- 属性校验复用 `talent_service.validate_selection()`，不重复实现
+- 性别校验用 `in ("男", "女")`，与 Pydantic Literal 约束一致
+
+## 文件清单
+- `app/services/game_service.py` — start_game + get_next_event + process_choice + get_state + end_game + check_game_over + _calc_cultivation_gain
+- `tests/test_services/test_game_service.py` — 43 项测试全覆盖
