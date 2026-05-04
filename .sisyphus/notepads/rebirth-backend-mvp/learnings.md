@@ -409,3 +409,31 @@ cultivation_gain = base × (1 + comprehension × 0.1) × technique_modifier
 ## 文件变更
 - `app/routers/game.py` — 新增 `POST /start` 端点（同时保留现有 GET /state, POST /end, GET /leaderboard）
 - `tests/test_api/test_game_start.py` — 5 项 API 测试（成功创建 ×1 + 无效属性总和 ×1 + 无效性别 ×1 + 无效天赋卡ID ×1 + 缺少必填字段 ×1）
+
+# Task 14: 缓存服务 — 内存 LRU + SQLite 双层缓存
+
+## 完成时间
+2026-05-04
+
+## 关键决策
+- 双层缓存架构：内存 LRU (`OrderedDict`) 作为 L1，SQLite (`ai_cache` 表) 作为 L2，兼顾速度和持久性
+- 缓存 key 格式：`template_id:realm:category`，定界符用冒号 (`:`)，避免与字段内容冲突
+- LRU 淘汰策略：`OrderedDict.move_to_end()` + `popitem(last=False)`，O(1) 复杂度
+- TTL 为 30 分钟（1800 秒），内存和 SQLite 共享相同 TTL 判定逻辑
+- SQLite 的 `created_at` 显式存为 Unix 时间戳字符串（`str(time.time())`），避免 SQLite 默认 TIMESTAMP 格式（`YYYY-MM-DD HH:MM:SS`）的浮点数转换问题
+- `hit_count` 字段暂不更新（超出范围，仅保留 schema 中已有的列定义）
+- `get_cached()` 的 `category` 参数默认为空字符串，`set_cached()` 要求显式提供（调用方必须确认分类）
+- SQLite 回填内存缓存：当内存未命中但 SQLite 命中时，自动将结果写回 LRU 缓存，后续查询直接走内存
+
+## 注意事项
+- `sqlite3.Row` 不是 `dict` 的子类，`isinstance(row, dict)` 返回 False，需要用索引访问或显式判断 `sqlite3.Row`
+- 测试 SQLite 时需要用内存数据库 (`:memory:`) + 手动创建 `ai_cache` 表，不依赖 `init_db()`
+- TTL 测试通过 `mock time.time` 实现，比 `time.sleep` 快且可靠
+- LRU 测试需要 `clear_cache()` 保证隔离，否则 101 条写入可能因前序测试残留数据导致误判
+- `INSERT OR REPLACE` 依赖 `cache_key` 的 UNIQUE 约束实现幂等更新
+- `db.execute()` 返回的 `Cursor` 不自动提交，需要显式 `db.commit()`
+- 异常处理使用 `except Exception: pass` 包裹所有 SQLite 操作，确保 SQLite 故障不会影响主流程
+
+## 文件清单
+- `app/services/cache_service.py` — get_cached() + set_cached() + clear_cache() + _make_key()
+- `tests/test_services/test_cache_service.py` — 7 项测试（miss + hit + TTL过期 + LRU淘汰 + SQLite回填 + key格式 ×2）
