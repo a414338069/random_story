@@ -7,7 +7,8 @@
     "ses_20db7feebffeJWzf2WowmmdgPK",
     "ses_20db24645ffe267bjjxYmdiYUE",
     "ses_20daed2d4ffeudn40vHi2sEY27",
-    "ses_20da5d51affeHCx4WA0Y7OJrot"
+    "ses_20da5d51affeHCx4WA0Y7OJrot",
+    "ses_20d9bb942ffeNiLRZ0CVKcCvWP"
   ],
   "plan_name": "rebirth-backend-mvp",
   "worktree_path": null,
@@ -38,6 +39,15 @@
       "agent": "Sisyphus-Junior",
       "category": "quick",
       "updated_at": "2026-05-04T09:46:41.195Z"
+    },
+    "todo:4": {
+      "task_key": "todo:4",
+      "task_label": "4",
+      "task_title": "配置管理 — pydantic-settings + .env",
+      "session_id": "ses_20d9bb942ffeNiLRZ0CVKcCvWP",
+      "agent": "Sisyphus-Junior",
+      "category": "quick",
+      "updated_at": "2026-05-04T09:51:44.417Z"
     }
   },
   "agent": "atlas"

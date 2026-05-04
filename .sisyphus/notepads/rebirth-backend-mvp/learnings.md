@@ -100,3 +100,27 @@ tests/
 - `app/models/event.py` — EventOption, EventResponse, EventRequest, EventChooseRequest
 - `app/models/game.py` — GameStartRequest, GameStartResponse, GameEndResponse, LeaderboardEntry
 - `tests/test_models.py` — 38 项测试全覆盖
+
+# Task 4: 配置管理 — pydantic-settings + .env + 依赖注入
+
+## 完成时间
+2026-05-04
+
+## 关键决策
+- `Settings._env_file=None` 用于测试默认值场景，避免被工作目录下的 `.env` 文件干扰
+- `get_config()` 使用 `@lru_cache` 实现单例模式，确保全应用共享同一个 Settings 实例
+- `get_db()` 直接委托给 `app.database.get_db()`，保持一致的行为（row_factory、pragmas）
+- `AIServiceProtocol` 定义为 `typing.Protocol`，在依赖中只定义接口不实现逻辑，后续由具体 AI service 实现
+- `get_ai_service()` 返回 stub 占位实现，后续替换为真实 `OpenAIService`
+
+## 注意事项
+- pydantic-settings v2 使用 `SettingsConfigDict(env_file=".env")` 声明配置源
+- `Settings` 构造函数支持 `_env_file` 参数动态指定 .env 路径，便于测试
+- 环境变量优先级高于 .env 文件（pydantic-settings 默认行为）
+- 不设置 `DEEPSEEK_API_KEY` 不会报错（字段类型为 `str = ""`）
+- `issubclass(MyProtocol, typing.Protocol)` 在 Python 3.11+ 可以正确判断 Protocol 类型
+
+## 文件清单
+- `app/config.py` — Settings(BaseSettings) 从 .env 加载配置，含 7 个字段
+- `app/dependencies.py` — AIServiceProtocol + get_config() + get_db() + get_ai_service()
+- `tests/test_config.py` — 19 项测试全覆盖（默认值、环境变量覆盖、.env 文件加载、DI 函数）
