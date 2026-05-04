@@ -1,12 +1,3 @@
-=== Project Structure ===
-src/App.vue
-src/main.ts
-
-=== package.json dependencies ===
-deps: @vicons/ionicons5, naive-ui, vue, vue-router
-devDeps: @playwright/test, @types/node, @vitejs/plugin-vue, @vue/test-utils, @vue/tsconfig, jsdom, playwright, typescript, vite, vitest, vue-tsc
-
-=== vite.config.ts proxy ===
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
