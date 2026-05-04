@@ -506,7 +506,7 @@ Max Concurrent: 3 (Wave 2 & 3)
   - Message: `feat: 天赋卡系统 — 20 张卡数据 + 抽卡逻辑`
   - Files: `app/data/talents.yaml, app/services/talent_service.py, tests/test_services/test_talent.py`
 
-- [ ] 6. 境界系统 — 9 层配置 + 子阶段 + 时间跨度
+- [x] 6. 境界系统 — 9 层配置 + 子阶段 + 时间跨度
 
   **What to do**:
   - 创建 `app/data/realms.yaml`：9 层境界完整配置

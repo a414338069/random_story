@@ -149,3 +149,34 @@ tests/
 - `app/services/talent_service.py` — load_talents() + draw_cards() + validate_selection()
 - `tests/test_services/__init__.py` — 测试包初始化
 - `tests/test_services/test_talent.py` — 23 项测试全覆盖（数据验证 + 抽卡逻辑 + 概率分布）
+
+# Task 6: 境界系统 — 9层境界YAML配置 + realm服务
+
+## 完成时间
+2026-05-04
+
+## 关键决策
+- 凡人/渡劫飞升的 `stages: null` 在 PyYAML 中解析为 Python None，通过 `if not stages` 统一处理
+- `get_stage_name` 使用通用公式 `int(progress * len(stages))` 均匀分割进度，适用于练气9层和筑基4阶段
+- `spirit_stone_cap`/`technique_slots` 按境界指数级增长：凡人0→大乘100万灵石/7格功法
+- 渡劫飞升作为最高境界，`cultivation_req: null`，`can_breakthrough` 对 null req 返回 False
+- YAML 中 `time_span: null` 使用 YAML 的 null 字面量，对应 Python None
+- `get_next_realm("渡劫飞升")→None` 通过查找 order+1 实现，找不到时返回 None
+
+## 境界数据
+| 境界 | 寿元 | 时间跨度 | 子阶段 | 突破需求 |
+|------|------|---------|--------|---------|
+| 凡人 | 80 | 5年 | 无 | 0 |
+| 练气 | 120 | 1年 | 9层 | 100 |
+| 筑基 | 200 | 5年 | 初/中/后/圆满 | 300 |
+| 金丹 | 500 | 10年 | 初/中/后/圆满 | 1000 |
+| 元婴 | 1000 | 20年 | 初/中/后/圆满 | 3000 |
+| 化神 | 3000 | 50年 | 初/中/后/圆满 | 10000 |
+| 合体 | 8000 | 100年 | 初/中/后/圆满 | 30000 |
+| 大乘 | 20000 | 200年 | 初/中/后/圆满 | 100000 |
+| 渡劫飞升 | ∞ | ∞ | 无 | null（最高） |
+
+## 文件清单
+- `app/data/realms.yaml` — 9层境界配置数据
+- `app/services/realm_service.py` — load_realms() + get_realm_config() + get_stage_name() + can_breakthrough() + get_next_realm()
+- `tests/test_services/test_realm.py` — 30 项测试全覆盖（数据验证 + 子阶段映射 + 突破判断 + 境界链条）

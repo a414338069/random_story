@@ -9,7 +9,8 @@
     "ses_20daed2d4ffeudn40vHi2sEY27",
     "ses_20da5d51affeHCx4WA0Y7OJrot",
     "ses_20d9bb942ffeNiLRZ0CVKcCvWP",
-    "ses_20d988a7affeD7rlOlWAUeeJSq"
+    "ses_20d988a7affeD7rlOlWAUeeJSq",
+    "ses_20d93e476ffe5BsP0CTvmTrYNP"
   ],
   "plan_name": "rebirth-backend-mvp",
   "worktree_path": null,
@@ -58,6 +59,15 @@
       "agent": "Sisyphus-Junior",
       "category": "quick",
       "updated_at": "2026-05-04T09:56:36.642Z"
+    },
+    "todo:6": {
+      "task_key": "todo:6",
+      "task_label": "6",
+      "task_title": "境界系统 — 9 层配置 + 子阶段 + 时间跨度",
+      "session_id": "ses_20d93e476ffe5BsP0CTvmTrYNP",
+      "agent": "Sisyphus-Junior",
+      "category": "quick",
+      "updated_at": "2026-05-04T10:03:37.880Z"
     }
   },
   "agent": "atlas"
