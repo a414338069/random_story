@@ -1,0 +1,66 @@
+=== useTypewriter exports ===
+4:  const displayed = ref('')
+5:  const isTyping = ref(false)
+6:  const isComplete = ref(false)
+8:  let rafId: number | null = null
+9:  let startTime = 0
+10:  let fullText = ''
+11:  let charsPerMs = 0
+12:  let resolvePromise: (() => void) | null = null
+14:  function typeText(text: string, charsPerSec: number = 30): Promise<void> {
+15:    return new Promise((resolve) => {
+16:      cancel()
+17:      fullText = text
+18:      displayed.value = ''
+19:      isTyping.value = true
+20:      isComplete.value = false
+21:      charsPerMs = charsPerSec / 1000
+22:      startTime = performance.now()
+23:      resolvePromise = resolve
+25:      rafId = requestAnimationFrame(tick)
+26:    })
+27:  }
+29:  function tick(now: number) {
+30:    if (!isTyping.value) return
+32:    const elapsed = now - startTime
+33:    const charsToShow = Math.floor(elapsed * charsPerMs)
+35:    if (charsToShow >= fullText.length) {
+36:      displayed.value = fullText
+37:      isTyping.value = false
+38:      isComplete.value = true
+39:      rafId = null
+40:      resolvePromise?.()
+41:      resolvePromise = null
+42:      return
+43:    }
+45:    displayed.value = fullText.slice(0, charsToShow)
+46:    rafId = requestAnimationFrame(tick)
+47:  }
+49:  function skipToEnd() {
+50:    if (!isTyping.value) return
+51:    displayed.value = fullText
+52:    isTyping.value = false
+53:    isComplete.value = true
+54:    if (rafId !== null) {
+55:      cancelAnimationFrame(rafId)
+56:      rafId = null
+57:    }
+58:    resolvePromise?.()
+59:    resolvePromise = null
+60:  }
+62:  function cancel() {
+63:    if (rafId !== null) {
+64:      cancelAnimationFrame(rafId)
+65:      rafId = null
+66:    }
+67:    isTyping.value = false
+68:    resolvePromise = null
+69:  }
+71:  return {
+72:    displayed,
+73:    isTyping,
+74:    isComplete,
+75:    typeText,
+76:    skipToEnd,
+77:    cancel,
+78:  }
