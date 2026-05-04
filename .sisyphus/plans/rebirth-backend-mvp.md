@@ -274,7 +274,7 @@ Max Concurrent: 3 (Wave 2 & 3)
   - Message: `feat: 初始化项目结构 + uv 配置 + FastAPI 骨架`
   - Files: `pyproject.toml, app/main.py, app/__init__.py, tests/test_health.py, .gitignore, .env.example`
 
-- [ ] 2. 数据库层 — SQLite 连接 + schema.sql + 4 表建表
+- [x] 2. 数据库层 — SQLite 连接 + schema.sql + 4 表建表
 
   **What to do**:
   - 创建 `schema.sql`：4 张表（players, event_logs, ai_cache, event_templates）

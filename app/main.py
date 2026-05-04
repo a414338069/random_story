@@ -1,7 +1,20 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="重生模拟器 Backend API", version="0.1.0")
+from app.database import get_db, init_db
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    db = get_db()
+    init_db(db)
+    yield
+    db.close()
+
+
+app = FastAPI(title="重生模拟器 Backend API", version="0.1.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
