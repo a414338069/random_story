@@ -170,6 +170,11 @@ def process_choice(session_id: str, option_id: str) -> dict:
     _handle_cultivation_overflow(state, new_cultivation)
 
     state["spirit_stones"] = max(0, state["spirit_stones"] + spirit_stones_gain)
+
+    faction_assign = consequences.get("faction_assign")
+    if faction_assign and isinstance(faction_assign, str):
+        state["faction"] = faction_assign
+
     realm_config = get_realm_config(state["realm"])
     if realm_config:
         cap = realm_config.get("spirit_stone_cap", 0)

@@ -1,0 +1,31 @@
+id: "bottleneck_000_sect_join"
+type: "bottleneck"
+title: "门派选择"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 10
+  max_age: 12
+  required_faction: null
+weight: 10.0
+prompt_template: "你已年满{age}岁，有修仙门派前来招收弟子..."
+fallback_narrative: "三大修仙门派前来收徒，你需要在万剑山庄、逍遥派、金刚寺中做出选择，也可以选择自由修炼不加入任何门派。"
+default_options:
+  - id: "sect_sword"
+    text: "加入万剑山庄"
+    consequences:
+      faction_assign: "万剑山庄"
+      cultivation_gain: 20
+      age_advance: true
+  - id: "sect_xiaoyao"
+    text: "加入逍遥派"
+    consequences:
+      faction_assign: "逍遥派"
+      cultivation_gain: 20
+      age_advance: true
+  - id: "sect_jingang"
+    text: "加入金刚寺"
+    consequences:
+      faction_assign: "金刚寺"
+      cultivation_gain: 20
+      age_advance: true

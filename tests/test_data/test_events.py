@@ -27,7 +27,7 @@ def _load_templates():
 class TestEventTemplates:
     def test_all_files_parse(self):
         templates = _load_templates()
-        assert len(templates) == 28, f"Expected 28 templates, got {len(templates)}"
+        assert len(templates) == 29, f"Expected 29 templates, got {len(templates)}"
 
     def test_required_fields_present(self):
         for t in _load_templates():
