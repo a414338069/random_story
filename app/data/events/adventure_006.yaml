@@ -1,0 +1,24 @@
+id: "adventure_006"
+type: "adventure"
+title: "域外天魔"
+trigger_conditions:
+  min_realm: "大乘"
+  max_realm: "渡劫飞升"
+  min_age: 3000
+  max_age: 9999
+  required_faction: null
+weight: 0.3
+prompt_template: "域外天魔降临，天地震动，你作为大能必须挺身而出..."
+fallback_narrative: "你与域外天魔展开惊天大战，虽身受重伤但也得到了天道馈赠。"
+default_options:
+  - id: "opt1"
+    text: "迎战天魔"
+    consequences:
+      cultivation_gain: 200
+      age_advance: true
+      health_change: -30
+  - id: "opt2"
+    text: "布阵防御"
+    consequences:
+      cultivation_gain: 120
+      age_advance: true

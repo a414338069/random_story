@@ -1,0 +1,23 @@
+id: "daily_007"
+type: "daily"
+title: "合体融道"
+trigger_conditions:
+  min_realm: "合体"
+  max_realm: "合体"
+  min_age: 2000
+  max_age: 3000
+  required_faction: null
+weight: 1.0
+prompt_template: "你{age}岁，已臻合体之境，元婴与肉身合一..."
+fallback_narrative: "你体内元婴与肉身彻底融合，天地法则在你周身流转不息。"
+default_options:
+  - id: "opt1"
+    text: "稳固境界"
+    consequences:
+      cultivation_gain: 100
+      age_advance: true
+  - id: "opt2"
+    text: "参悟天道"
+    consequences:
+      cultivation_gain: 80
+      age_advance: true

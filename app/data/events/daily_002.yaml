@@ -1,0 +1,23 @@
+id: "daily_002"
+type: "daily"
+title: "引气入体"
+trigger_conditions:
+  min_realm: "练气"
+  max_realm: "练气"
+  min_age: 15
+  max_age: 50
+  required_faction: null
+weight: 1.0
+prompt_template: "你是一名{age}岁的练气期修士，正在尝试引气入体..."
+fallback_narrative: "你盘膝而坐，引导天地灵气在经脉中流转，修为缓缓增长。"
+default_options:
+  - id: "opt1"
+    text: "静心修炼"
+    consequences:
+      cultivation_gain: 15
+      age_advance: true
+  - id: "opt2"
+    text: "练习法术"
+    consequences:
+      cultivation_gain: 10
+      age_advance: true

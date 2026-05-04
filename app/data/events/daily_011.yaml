@@ -1,0 +1,25 @@
+id: "daily_011"
+type: "daily"
+title: "坊市交易"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "渡劫飞升"
+  min_age: 0
+  max_age: 9999
+  required_faction: null
+weight: 1.0
+prompt_template: "你来到修士坊市，各种法器丹药琳琅满目..."
+fallback_narrative: "你在坊市中逛了一圈，用灵石换了一些修炼所需的物资。"
+default_options:
+  - id: "opt1"
+    text: "购买丹药"
+    consequences:
+      cultivation_gain: 15
+      age_advance: true
+      spirit_stones_gain: -10
+  - id: "opt2"
+    text: "摆摊售卖"
+    consequences:
+      cultivation_gain: 5
+      age_advance: true
+      spirit_stones_gain: 15

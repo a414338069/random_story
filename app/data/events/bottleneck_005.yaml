@@ -1,0 +1,23 @@
+id: "bottleneck_005"
+type: "bottleneck"
+title: "拜入宗门"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 10
+  max_age: 12
+  required_faction: null
+weight: 10.0
+prompt_template: "一个修仙宗门正在附近的城镇招收弟子，你决定前去一试..."
+fallback_narrative: "你参加了宗门的入门考核，虽然资质平平，但你的毅力打动了长老。"
+default_options:
+  - id: "opt1"
+    text: "加入宗门"
+    consequences:
+      cultivation_gain: 30
+      age_advance: true
+  - id: "opt2"
+    text: "婉言谢绝"
+    consequences:
+      cultivation_gain: 5
+      age_advance: true

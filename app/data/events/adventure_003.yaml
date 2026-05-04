@@ -1,0 +1,24 @@
+id: "adventure_003"
+type: "adventure"
+title: "妖兽巢穴"
+trigger_conditions:
+  min_realm: "金丹"
+  max_realm: "金丹"
+  min_age: 200
+  max_age: 600
+  required_faction: null
+weight: 0.5
+prompt_template: "你追踪一头受伤的妖兽来到它的巢穴，发现里面堆满了宝物..."
+fallback_narrative: "你闯入妖兽巢穴，经过一番激战后发现了大量修炼资源和灵石。"
+default_options:
+  - id: "opt1"
+    text: "收取宝物"
+    consequences:
+      cultivation_gain: 60
+      age_advance: true
+      spirit_stones_gain: 50
+  - id: "opt2"
+    text: "搜寻幼崽"
+    consequences:
+      cultivation_gain: 30
+      age_advance: true

@@ -1,0 +1,24 @@
+id: "adventure_001"
+type: "adventure"
+title: "山中遇险"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 10
+  max_age: 30
+  required_faction: null
+weight: 0.6
+prompt_template: "你在山中砍柴时，突然遇到了一头凶猛的妖兽..."
+fallback_narrative: "你在山中遇到一头妖兽，拼尽全力才逃脱，但也在危机中激发了潜能。"
+default_options:
+  - id: "opt1"
+    text: "奋力搏斗"
+    consequences:
+      cultivation_gain: 20
+      age_advance: true
+      health_change: -10
+  - id: "opt2"
+    text: "巧妙躲避"
+    consequences:
+      cultivation_gain: 15
+      age_advance: true

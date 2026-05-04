@@ -1,0 +1,23 @@
+id: "daily_006"
+type: "daily"
+title: "化神悟道"
+trigger_conditions:
+  min_realm: "化神"
+  max_realm: "化神"
+  min_age: 1000
+  max_age: 2000
+  required_faction: null
+weight: 1.0
+prompt_template: "你身为{age}岁的化神大能，距离飞升又近一步..."
+fallback_narrative: "你端坐于云端之上，神识融入天地法则，感悟大道玄妙。"
+default_options:
+  - id: "opt1"
+    text: "感悟法则"
+    consequences:
+      cultivation_gain: 80
+      age_advance: true
+  - id: "opt2"
+    text: "炼制丹药"
+    consequences:
+      cultivation_gain: 60
+      age_advance: true

@@ -1,0 +1,24 @@
+id: "daily_010"
+type: "daily"
+title: "山间采集"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "渡劫飞升"
+  min_age: 0
+  max_age: 9999
+  required_faction: null
+weight: 1.0
+prompt_template: "你在山中采集药草，发现了几株罕见的灵药..."
+fallback_narrative: "你在深山中采集到了不少珍稀灵药，准备带回丹房炼制。"
+default_options:
+  - id: "opt1"
+    text: "细心采摘"
+    consequences:
+      cultivation_gain: 10
+      age_advance: true
+  - id: "opt2"
+    text: "搜寻更多"
+    consequences:
+      cultivation_gain: 15
+      age_advance: true
+      spirit_stones_gain: 5

@@ -1,0 +1,23 @@
+id: "daily_009"
+type: "daily"
+title: "渡劫准备"
+trigger_conditions:
+  min_realm: "渡劫飞升"
+  max_realm: "渡劫飞升"
+  min_age: 5000
+  max_age: 9999
+  required_faction: null
+weight: 1.0
+prompt_template: "你{age}岁，天劫随时将至，成败在此一举..."
+fallback_narrative: "你沐浴更衣，焚香祷告，将毕生修为调整至巅峰状态以迎接天劫。"
+default_options:
+  - id: "opt1"
+    text: "调整状态"
+    consequences:
+      cultivation_gain: 200
+      age_advance: true
+  - id: "opt2"
+    text: "炼制法宝"
+    consequences:
+      cultivation_gain: 150
+      age_advance: true

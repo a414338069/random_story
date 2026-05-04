@@ -1,0 +1,23 @@
+id: "daily_005"
+type: "daily"
+title: "元婴养神"
+trigger_conditions:
+  min_realm: "元婴"
+  max_realm: "元婴"
+  min_age: 500
+  max_age: 1000
+  required_faction: null
+weight: 1.0
+prompt_template: "你{age}岁，元婴已成，神识覆盖百里..."
+fallback_narrative: "你闭目养神，体内的元婴与你心神合一，天地灵气汹涌而来。"
+default_options:
+  - id: "opt1"
+    text: "淬炼元婴"
+    consequences:
+      cultivation_gain: 60
+      age_advance: true
+  - id: "opt2"
+    text: "神游太虚"
+    consequences:
+      cultivation_gain: 50
+      age_advance: true

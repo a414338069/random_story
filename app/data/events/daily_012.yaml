@@ -1,0 +1,23 @@
+id: "daily_012"
+type: "daily"
+title: "论道切磋"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "渡劫飞升"
+  min_age: 0
+  max_age: 9999
+  required_faction: null
+weight: 1.0
+prompt_template: "你与同修论道切磋，互相印证修炼心得..."
+fallback_narrative: "与同道交流修炼心得，你受益匪浅，许多困惑迎刃而解。"
+default_options:
+  - id: "opt1"
+    text: "虚心请教"
+    consequences:
+      cultivation_gain: 20
+      age_advance: true
+  - id: "opt2"
+    text: "展示见解"
+    consequences:
+      cultivation_gain: 15
+      age_advance: true

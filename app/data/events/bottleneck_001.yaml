@@ -1,0 +1,30 @@
+id: "bottleneck_001"
+type: "bottleneck"
+title: "练气瓶颈"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "练气"
+  min_age: 10
+  max_age: 100
+  required_faction: null
+weight: 2.0
+prompt_template: "你感觉体内有灵气汇聚，似乎到了突破的边缘..."
+fallback_narrative: "你全力冲击瓶颈，经脉在灵气的冲击下拓宽了几分，距离突破不远了。"
+default_options:
+  - id: "opt1"
+    text: "强行突破"
+    consequences:
+      cultivation_gain: 30
+      age_advance: true
+      health_change: -10
+  - id: "opt2"
+    text: "稳固根基"
+    consequences:
+      cultivation_gain: 20
+      age_advance: true
+  - id: "opt3"
+    text: "服用丹药"
+    consequences:
+      cultivation_gain: 40
+      age_advance: true
+      spirit_stones_gain: -20

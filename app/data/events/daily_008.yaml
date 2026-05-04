@@ -1,0 +1,23 @@
+id: "daily_008"
+type: "daily"
+title: "大乘冲关"
+trigger_conditions:
+  min_realm: "大乘"
+  max_realm: "大乘"
+  min_age: 3000
+  max_age: 5000
+  required_faction: null
+weight: 1.0
+prompt_template: "你{age}岁，大乘圆满，只待天劫降临..."
+fallback_narrative: "你运转功法，周身灵力如江海奔腾，大乘期的瓶颈微微松动。"
+default_options:
+  - id: "opt1"
+    text: "积蓄灵力"
+    consequences:
+      cultivation_gain: 150
+      age_advance: true
+  - id: "opt2"
+    text: "推演天机"
+    consequences:
+      cultivation_gain: 120
+      age_advance: true

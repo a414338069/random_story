@@ -1,0 +1,23 @@
+id: "adventure_002"
+type: "adventure"
+title: "古修洞府"
+trigger_conditions:
+  min_realm: "练气"
+  max_realm: "筑基"
+  min_age: 20
+  max_age: 200
+  required_faction: null
+weight: 0.5
+prompt_template: "你在野外发现了一处古修洞府的遗迹，禁制已经松动..."
+fallback_narrative: "你发现了一处上古修士留下的洞府，在里面找到了珍贵的功法残篇。"
+default_options:
+  - id: "opt1"
+    text: "探索洞府"
+    consequences:
+      cultivation_gain: 40
+      age_advance: true
+  - id: "opt2"
+    text: "谨慎退出"
+    consequences:
+      cultivation_gain: 10
+      age_advance: true

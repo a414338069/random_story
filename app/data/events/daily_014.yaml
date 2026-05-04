@@ -1,0 +1,23 @@
+id: "daily_014"
+type: "daily"
+title: "静坐冥想"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "渡劫飞升"
+  min_age: 0
+  max_age: 9999
+  required_faction: null
+weight: 1.0
+prompt_template: "你选择了一处灵脉之地，闭目静坐冥想..."
+fallback_narrative: "你心神沉入识海，感受着天地灵气的脉动，心境愈发通透澄明。"
+default_options:
+  - id: "opt1"
+    text: "深度冥想"
+    consequences:
+      cultivation_gain: 25
+      age_advance: true
+  - id: "opt2"
+    text: "小憩片刻"
+    consequences:
+      cultivation_gain: 10
+      age_advance: true

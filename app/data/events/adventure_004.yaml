@@ -1,0 +1,24 @@
+id: "adventure_004"
+type: "adventure"
+title: "宗门论剑"
+trigger_conditions:
+  min_realm: "元婴"
+  max_realm: "元婴"
+  min_age: 500
+  max_age: 1200
+  required_faction: null
+weight: 0.5
+prompt_template: "宗门百年一度的论剑大会即将开始，各路高手云集..."
+fallback_narrative: "你在论剑大会上连战连捷，名声大噪，也获得了丰厚的修炼资源。"
+default_options:
+  - id: "opt1"
+    text: "全力参赛"
+    consequences:
+      cultivation_gain: 80
+      age_advance: true
+      spirit_stones_gain: 100
+  - id: "opt2"
+    text: "暗中观战"
+    consequences:
+      cultivation_gain: 40
+      age_advance: true

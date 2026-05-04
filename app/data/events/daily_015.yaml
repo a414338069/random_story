@@ -1,0 +1,23 @@
+id: "daily_015"
+type: "daily"
+title: "翻阅古籍"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "渡劫飞升"
+  min_age: 0
+  max_age: 9999
+  required_faction: null
+weight: 1.0
+prompt_template: "你在藏经阁中找到了一本上古修炼心得..."
+fallback_narrative: "你翻阅前人留下的修炼笔记，学到了许多精妙的修炼技巧。"
+default_options:
+  - id: "opt1"
+    text: "仔细研读"
+    consequences:
+      cultivation_gain: 20
+      age_advance: true
+  - id: "opt2"
+    text: "抄录备份"
+    consequences:
+      cultivation_gain: 15
+      age_advance: true

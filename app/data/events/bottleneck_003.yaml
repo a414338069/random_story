@@ -1,0 +1,30 @@
+id: "bottleneck_003"
+type: "bottleneck"
+title: "金丹瓶颈"
+trigger_conditions:
+  min_realm: "筑基"
+  max_realm: "金丹"
+  min_age: 80
+  max_age: 500
+  required_faction: null
+weight: 2.0
+prompt_template: "你丹田中的灵力已经饱和，结丹的时机已经成熟..."
+fallback_narrative: "你将全身灵力汇聚丹田，凝气成液、聚液成丹，向金丹大道迈出关键一步。"
+default_options:
+  - id: "opt1"
+    text: "凝结金丹"
+    consequences:
+      cultivation_gain: 80
+      age_advance: true
+      health_change: -20
+  - id: "opt2"
+    text: "继续积累"
+    consequences:
+      cultivation_gain: 50
+      age_advance: true
+  - id: "opt3"
+    text: "寻找丹引"
+    consequences:
+      cultivation_gain: 100
+      age_advance: true
+      spirit_stones_gain: -100

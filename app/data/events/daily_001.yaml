@@ -1,0 +1,23 @@
+id: "daily_001"
+type: "daily"
+title: "砍柴挑水"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 0
+  max_age: 15
+  required_faction: null
+weight: 1.0
+prompt_template: "你是一个{age}岁的凡人少年，在山间劳作..."
+fallback_narrative: "你每日砍柴挑水，虽然辛苦但也锻炼了体魄，隐约感受到天地间灵气的存在。"
+default_options:
+  - id: "opt1"
+    text: "继续劳作"
+    consequences:
+      cultivation_gain: 5
+      age_advance: true
+  - id: "opt2"
+    text: "偷偷修炼"
+    consequences:
+      cultivation_gain: 10
+      age_advance: true
