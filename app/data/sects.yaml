@@ -1,0 +1,50 @@
+sects:
+  # ====== 1. 万剑山庄 ======
+  - name: 万剑山庄
+    type: 门派
+    weapon: 剑
+    attribute: 金
+    join_conditions:
+      rootBone: { operator: ">=", value: 3 }
+      comprehension: { operator: ">=", value: 3 }
+      logic: OR
+    techniques:
+      - name: 万剑诀
+        grade: 灵品
+        attribute: 金
+
+  # ====== 2. 逍遥派 ======
+  - name: 逍遥派
+    type: 门派
+    weapon: 扇
+    attribute: 水
+    join_conditions:
+      comprehension: { operator: ">=", value: 4 }
+      logic: SINGLE
+    techniques:
+      - name: 逍遥游
+        grade: 灵品
+        attribute: 水
+
+  # ====== 3. 金刚寺 ======
+  - name: 金刚寺
+    type: 门派
+    weapon: 拳杖
+    attribute: 土
+    join_conditions:
+      rootBone: { operator: ">=", value: 4 }
+      mindset: { operator: ">=", value: 3 }
+      logic: AND
+    techniques:
+      - name: 金刚不坏体
+        grade: 灵品
+        attribute: 土
+
+  # ====== 4. 散修 ======
+  - name: 散修
+    type: 散修
+    weapon: null
+    attribute: null
+    join_conditions:
+      logic: ALWAYS
+    techniques: []
