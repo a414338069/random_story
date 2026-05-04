@@ -1,0 +1,31 @@
+=== useGameState exports ===
+12:  const isAlive = computed(() => {
+13:    return gameState.value?.isAlive ?? false
+14:  })
+16:  function update(state: NormalizedGameState) {
+17:    gameState.value = { ...state }
+18:  }
+20:  function setSession(id: string) {
+21:    sessionId.value = id
+22:    sessionStorage.setItem('gameSessionId', id)
+23:  }
+25:  function setPhase(p: LoopPhase) {
+26:    phase.value = p
+27:  }
+29:  function reset() {
+30:    gameState.value = null
+31:    sessionId.value = null
+32:    phase.value = 'idle'
+33:    score.value = 0
+34:    ending.value = ''
+35:    grade.value = ''
+36:    sessionStorage.removeItem('gameSessionId')
+37:  }
+39:  return {
+40:    gameState,
+41:    sessionId,
+42:    phase,
+43:    score,
+44:    ending,
+45:    grade,
+46:    isAlive,
