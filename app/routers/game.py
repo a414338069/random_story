@@ -1,9 +1,17 @@
-"""Game API router — start, state query, end game, leaderboard."""
+"""Game API router — start, state query, end game, leaderboard, events."""
 from fastapi import APIRouter, HTTPException
 
 from app.models.game import EndGameRequest, GameStartRequest, GameStartResponse, LeaderboardEntry
 from app.models.player import PlayerState
-from app.services.game_service import get_state, end_game, start_game
+from app.models.event import EventRequest, ChooseRequest
+from app.services.game_service import (
+    get_state,
+    end_game,
+    start_game,
+    get_next_event,
+    process_choice,
+    check_game_over,
+)
 
 router = APIRouter(prefix="/api/v1/game", tags=["game"])
 
@@ -78,3 +86,45 @@ async def end_game_endpoint(request: EndGameRequest):
 async def get_leaderboard():
     """排行榜"""
     return []
+
+
+@router.post("/event/choose")
+async def post_event_choose(request: ChooseRequest):
+    try:
+        state = get_state(request.session_id)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="Game session not found")
+
+    cultivation_before = state["cultivation"]
+    age_before = state["age"]
+
+    try:
+        new_state = process_choice(request.session_id, request.option_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    return {
+        "state": new_state,
+        "aftermath": {
+            "cultivation_change": new_state["cultivation"] - cultivation_before,
+            "age_advance": new_state["age"] - age_before,
+        },
+    }
+
+
+@router.post("/event")
+async def post_event(request: EventRequest):
+    try:
+        state = get_state(request.player_id)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="Game session not found")
+
+    if not state["is_alive"] or check_game_over(state):
+        raise HTTPException(status_code=400, detail="Game is already over")
+
+    event = get_next_event(request.player_id)
+    return {
+        "narrative": event["narrative"],
+        "options": event["options"],
+        "metadata": {"isFallback": True},
+    }

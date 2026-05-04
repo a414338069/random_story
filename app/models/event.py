@@ -50,3 +50,10 @@ class EventChooseRequest(BaseModel):
     player_id: str
     event_id: str
     option_id: str
+
+
+class ChooseRequest(BaseModel):
+    """Request to choose an option in a current event."""
+
+    session_id: str
+    option_id: str
