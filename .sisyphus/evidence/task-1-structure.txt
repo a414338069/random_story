@@ -1,0 +1,55 @@
+=== Project Structure ===
+app/:
+__init__.py
+__pycache__
+data
+main.py
+models
+routers
+services
+
+app//__pycache__:
+__init__.cpython-311.pyc
+main.cpython-311.pyc
+
+app//data:
+__init__.py
+events
+prompts
+
+app//data/events:
+__init__.py
+
+app//data/prompts:
+__init__.py
+
+app//models:
+__init__.py
+
+app//routers:
+__init__.py
+
+app//services:
+__init__.py
+
+tests/:
+__init__.py
+__pycache__
+test_health.py
+
+tests//__pycache__:
+__init__.cpython-311.pyc
+test_health.cpython-311-pytest-9.0.3.pyc
+
+=== pyproject.toml deps ===
+dependencies = [
+    "fastapi>=0.115.0",
+    "openai>=1.0.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "pyyaml>=6.0",
+    "uvicorn[standard]>=0.34.0",
+]
+
+[project.scripts]
+rebirth-backend = "rebirth_backend:main"

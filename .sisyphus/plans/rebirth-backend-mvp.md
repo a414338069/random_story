@@ -205,7 +205,7 @@ Max Concurrent: 3 (Wave 2 & 3)
 
 ## TODOs
 
-- [ ] 1. 项目骨架 + pyproject.toml + uv 配置
+- [x] 1. 项目骨架 + pyproject.toml + uv 配置
 
   **What to do**:
   - 用 `uv init` 创建 Python 项目，Python 3.11+
