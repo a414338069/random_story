@@ -30,6 +30,12 @@ class GameEndResponse(BaseModel):
     reason: str = ""
 
 
+class EndGameRequest(BaseModel):
+    """Request body for ending a game session."""
+
+    session_id: str
+
+
 class LeaderboardEntry(BaseModel):
     """A single entry on the leaderboard."""
 
