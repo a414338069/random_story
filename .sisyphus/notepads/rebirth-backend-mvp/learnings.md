@@ -73,3 +73,30 @@ tests/
 - `schema.sql` — 4 张表 DDL（players, event_logs, ai_cache, event_templates）
 - `app/database.py` — get_db() 连接工厂 + init_db() 自动建表
 - `tests/test_database.py` — 16 项测试（建表验证 + 各表 Schema + CRUD + UNIQUE/FK 约束）
+
+# Task 3: Pydantic 数据模型 — 创建所有 API 请求/响应的 Pydantic v2 schemas
+
+## 完成时间
+2026-05-04
+
+## 关键决策
+- `Attributes` 使用 `model_validator(mode='after')` 校验四项属性总和==10，放在 Attributes 自身而非 GameStartRequest，自然保护所有引用它的模型
+- `EventResponse.narrative` 使用 `field_validator` 校验 20-500 字（强业务约束，用 validator 比 Field 更语义清晰）
+- `EventResponse.options` 同时使用 `Field(min_length=2, max_length=3)` + `field_validator` 双重校验
+- `PlayerState` 映射 players 表所有字段，`is_alive` 用 bool（Pydantic v2 自动处理 bool↔int 转换）
+- `talent_ids`/`techniques`/`inventory` 在模型中为 `list[str]`，DB 存储 JSON TEXT，转换在 service 层处理
+- `GameStartRequest.talent_card_ids` 用 `Field(min_length=3, max_length=3)` 确保精确 3 张天赋卡
+- `gender` 使用 `Literal["男","女"]` 编译期约束
+
+## 注意事项
+- `Attributes` 不支持无参构造（默认 sum=0≠10），必须在创建时提供有效的属性分配
+- 中文字符计数用 Python 的 `len()` 即可（每个中文字算 1 个字符）
+- Pydantic v2 的 `model_dump()` 和 `model_validate()` 支持 JSON 序列化/反序列化 round-trip
+- `Optional[str] = None` 在不传时序列化为 `null`，符合 JSON 规范
+- 字段注解类型的顺序很重要：`Optional[str]` 与有默认值的 `Field()` 配合时，类型注解中没有 `= None` 会导致 JSON schema 中 type 错误；使用 `Optional[str] = None` 或 `str = Field(default=None)` 均可
+
+## 文件清单
+- `app/models/player.py` — Attributes, Technique, InventoryItem, SectInfo, PlayerState
+- `app/models/event.py` — EventOption, EventResponse, EventRequest, EventChooseRequest
+- `app/models/game.py` — GameStartRequest, GameStartResponse, GameEndResponse, LeaderboardEntry
+- `tests/test_models.py` — 38 项测试全覆盖

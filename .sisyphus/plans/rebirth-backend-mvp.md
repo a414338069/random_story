@@ -338,7 +338,7 @@ Max Concurrent: 3 (Wave 2 & 3)
   - Message: `feat: 数据库层 — SQLite 连接 + schema.sql + 4 表建表`
   - Files: `app/database.py, schema.sql, tests/test_database.py`
 
-- [ ] 3. Pydantic 数据模型 — 请求/响应 schemas
+- [x] 3. Pydantic 数据模型 — 请求/响应 schemas
 
   **What to do**:
   - 创建 `app/models/player.py`：PlayerState, Attributes, Technique, Inventory
