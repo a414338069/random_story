@@ -180,3 +180,114 @@ tests/
 - `app/data/realms.yaml` — 9层境界配置数据
 - `app/services/realm_service.py` — load_realms() + get_realm_config() + get_stage_name() + can_breakthrough() + get_next_realm()
 - `tests/test_services/test_realm.py` — 30 项测试全覆盖（数据验证 + 子阶段映射 + 突破判断 + 境界链条）
+
+# Task 7: 门派系统 — 3门派YAML + sect服务
+
+## 完成时间
+2026-05-04
+
+## 关键决策
+- `join_conditions` 使用结构化 YAML 表示（`logic: OR/AND/SINGLE/ALWAYS`），避免硬编码判断
+- `check_join_conditions` 接收 camelCase 键名的 dict (`rootBone`, `comprehension`, `mindset`, `luck`)
+- 万剑山庄使用 `logic: OR` 支持任一条满足即可
+- 逍遥派使用 `logic: SINGLE`（只有一个条件）
+- 金刚寺使用 `logic: AND` 要求全部满足
+- 散修使用 `logic: ALWAYS` 无条件加入
+- 在数据层（YAML）编码门派配置，业务逻辑保持通用
+
+## 注意事项
+- 门派加入为强制脚本事件(10-12岁触发)，校验逻辑在此实现，事件触发在其他任务中
+- 散修的 `techniques: []` 为空列表，`weapon`/`attribute` 为 null
+- 未实现隐秘传承/进阶功法/门派贡献/任务系统（超出范围）
+
+## 文件清单
+- `app/data/sects.yaml` — 4 个门派配置（万剑山庄、逍遥派、金刚寺、散修）
+- `app/services/sect_service.py` — load_sects() + check_join_conditions() + get_sect_techniques()
+- `tests/test_services/test_sect.py` — 25 项测试全覆盖（数据验证 + 4条加入路线 + 散修无条件 + 功法查询）
+
+# Task 8: 事件引擎 — 事件加载 + 筛选 + 权值 + 随机选择
+
+## 完成时间
+2026-05-04
+
+## 关键决策
+- `load_templates()` 使用 `glob.glob("*.yaml")` 扫描 `app/data/events/` 目录，自动发现所有事件模板
+- `_templates_cache` 模块级缓存，避免重复 I/O（与 talent_service、realm_service 一致）
+- 境界比较使用 `_get_realm_order()` 获取 order 字段（1-based: 凡人=1, 渡劫飞升=9），通过 `get_realm_config()` 查询
+- `calculate_weights()` 返回 `list[tuple[dict, float]]` 便于 `random.choices` 直接使用
+- 瓶颈权重：`cultivation_req` 为 None 或 0 时权重=1.0（`"if req is None or req == 0"`），避免除零
+- `select_event()` 空池返回硬编码 `FALLBACK_EVENT`，不抛异常
+- `build_event_context()` 使用 `str.format()` 替换 `{realm}` 和 `{age}` 占位符
+- 未知事件类型默认权重=1.0
+
+## 注意事项
+- 测试数据文件以 `_` 前缀命名（`_test_daily.yaml`、`_test_jindan.yaml`），便于区分测试数据和生产数据
+- realm_service 的 `get_realm_config()` 返回 `dict` 或 `None`，需要判空处理
+- `cultivation_req=0`（凡人）和 `cultivation_req=None`（渡劫飞升）统一处理为权重=1.0
+- `random.choices` 的 `k=1` 返回 `list`，需要取 `[0]` 拿到元素
+- `zip(*weighted_templates)` 解包会产生 `tuple`，需要用 `list()` 转换后传参
+
+## 事件权重公式
+| 事件类型 | 权重公式 | 说明 |
+|---------|---------|------|
+| daily | 1.0 | 默认基准权重 |
+| adventure | 0.3 + luck × 0.05 | 气运越高，奇遇概率越大（0.3–0.8） |
+| bottleneck | 0.5 + (cultivation/req) × 0.5 | 修为越接近突破门槛，瓶颈事件概率越大（0.5–1.0） |
+
+## 文件清单
+- `app/data/events/_test_daily.yaml` — 通用日常测试事件（全境界通用）
+- `app/data/events/_test_jindan.yaml` — 金丹限定测试事件（境界/年龄过滤）
+- `app/services/event_engine.py` — load_templates() + filter_templates() + calculate_weights() + select_event() + build_event_context() + should_force_non_daily()
+- `tests/test_services/test_event_engine.py` — 24 项测试全覆盖
+
+# Task 10: 评分系统 — 8结局判定 + 分数 + 等级
+
+## 完成时间
+2026-05-04
+
+## 关键决策
+- `determine_ending(player_state, age, ascended=False)` 签名比 spec 多 `age` 和 `ascended` 两个参数，因为 `PlayerState` 模型中没有这些字段（Task 3 已完成，不可修改）
+- `calculate_score(player_state, ending, age, technique_grades)` 多 `age` 和 `technique_grades` 两个参数，因为 `PlayerState.techniques` 是 `list[str]`（技术 ID 列表），不含 grade 信息
+- `technique_grades` 接受显式的品级字符串（如 `["灵品", "玄品"]`），让调用方（game_service）负责从 YAML/sect 数据中查找 grade
+- 境界 order 使用 YAML 1-indexed 转 0-indexed：`(yaml_order - 1) / 8 * 50`，因为 YAML 配置中 order=1（凡人）至 order=9（渡劫飞升），而评分公式要求 0-indexed（凡人=0，渡劫飞升=8）
+- `get_grade()` 使用阈值降序查找，先匹配最高分区间
+
+## 注意事项
+- `PlayerState.lifespan` 类型为 `int`，但 YAML 中渡劫飞升的 lifespan 为 `"无限"`（字符串）。game_service 在设置渡劫飞升玩家的 lifespan 时需要处理此转换（如使用很大的 int 值）
+- 评分是纯算术，不需要 `random` 模块，也不调用 `random.seed()`
+- 8 种结局全部定义在 `_ENDING_BONUS` 映射中，但 MVP 只触发 3 种（飞升成仙/功德圆满/寿终正寝），其余 5 种有默认 bonus=0.3
+- 境界分最大 50 分（渡劫飞升），寿命分最大 20 分（完全活满），功法分最大 20 分（仙品功法），结局分最大 10 分（飞升成仙）
+- `_get_realm_order()` 使用 `get_realm_config()` 查询，unknown realm 返回 0
+- `_has_infinite_lifespan(realm)` 检查 YAML 中该境界的 lifespan 是否为字符串 `"无限"`，用于：1) `determine_ending` 中阻止触发寿终/功德圆满（无限寿命无法自然死亡）；2) `calculate_score` 中给寿命分满分 20
+- 即使 `PlayerState.lifespan` 存为 int 无法直接表示 `"无限"`，通过 `_has_infinite_lifespan()` 检查 realm YAML 配置来正确识别渡劫飞升的无限寿命状态
+- `test_breakthrough.py` 引用了未实现的 `app.services.breakthrough`，执行 `pytest -q` 时会报错（不影响其他测试，是预留给 Task N 的占位文件）
+
+## 文件清单
+- `app/services/scoring.py` — determine_ending() + calculate_score() + get_grade() + _has_infinite_lifespan()
+- `tests/test_services/test_scoring.py` — 49 项测试全覆盖（结局判定 ×8 + 评分确定性 + 4 维度组件 + 等级映射 ×21 参数化 + 渡劫飞升无限寿命 ×2）
+
+# Task 9: 突破系统 — 成功率计算 + 境界升降 + 百折不挠天赋
+
+## 完成时间
+2026-05-04
+
+## 关键决策
+- `attempt_breakthrough()` 接收 `player_state: dict` 而非 Pydantic 模型，便于 service 层灵活调用
+- `calculate_success_rate()` 公式：0.50 + rootBone×0.05 + comprehension×0.03 + mindset×0.02 - realm_penalty + pill_bonus(0.15)，上下限 0.05-0.95
+- 成功 → 境界提升（get_next_realm），cultivation 归零；`渡劫飞升` 作为目标境界，成功标志 `ascended=True`
+- 失败 → cultivation 损失 20-50%（random.uniform），10% 概率境界跌落（_get_prev_realm）
+- 百折不挠（id=f06）通过名称匹配而非硬编码 ID：`_has_talent()` 从 `load_talents()` 构建 name→id 映射，查 player_state 的 talent_ids
+- 百折不挠效果：失败时 loss_ratio 减免 0.10（不低于 0）
+- 已在渡劫飞升的玩家：直接返回 `success=True, ascended=True`，不修改任何属性
+- `BreakthroughResult` 为 `@dataclass`，5 个字段：success, new_realm, cultivation_loss, realm_dropped, ascended
+
+## 注意事项
+- `get_realm_penalty()` 从 REALM_PENALTY 字典查找，未知境界返回 0.0
+- 成功时不调用 `random.uniform`（loss_ratio），避免浪费随机序列
+- 境界跌落从 `_get_prev_realm()` 通过 `order-1` 查找，凡人（order=1）返回 None — 不会跌落到非法境界
+- 测试使用 `pytest.approx(0.15)` 处理浮点精度（0.50 - 0.35 = 0.15000000000000002）
+- 测试用 `random.seed()` 固定随机性，关键 seed：seed=1（凡人成功→练气），seed=22（练气失败+跌落），seed=2（凡人失败但无跌落 + cultivation_loss 验证）
+
+## 文件清单
+- `app/services/breakthrough.py` — BreakthroughResult + get_realm_penalty() + calculate_success_rate() + attempt_breakthrough()
+- `tests/test_services/test_breakthrough.py` — 32 项测试全覆盖（惩罚 ×9 + 成功率 ×12 + 成功路径 ×2 + 失败路径 ×5 + 天赋效果 ×2 + 边界条件 ×2）
