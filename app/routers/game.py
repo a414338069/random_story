@@ -1,9 +1,11 @@
 """Game API router — start, state query, end game, leaderboard, events."""
 from fastapi import APIRouter, HTTPException
 
+from app.database import get_db
 from app.models.game import EndGameRequest, GameStartRequest, GameStartResponse, LeaderboardEntry
 from app.models.player import PlayerState
 from app.models.event import EventRequest, ChooseRequest
+from app.repositories import game_repo
 from app.services.game_service import (
     get_state,
     end_game,
@@ -44,6 +46,8 @@ async def create_game(request: GameStartRequest):
             luck=result["attributes"]["luck"],
             realm=result["realm"],
             realm_progress=result.get("realm_progress", 0.0),
+            cultivation=result.get("cultivation", 0.0),
+            age=result.get("age", 0),
             health=100.0,
             qi=0.0,
             lifespan=result.get("lifespan", 100),
@@ -85,7 +89,21 @@ async def end_game_endpoint(request: EndGameRequest):
 @router.get("/leaderboard", response_model=list[LeaderboardEntry])
 async def get_leaderboard():
     """排行榜"""
-    return []
+    conn = get_db()
+    try:
+        rows = game_repo.get_leaderboard(conn)
+        return [
+            LeaderboardEntry(
+                rank=i + 1,
+                player_name=row["name"],
+                score=row["score"],
+                realm=row["realm"],
+                ending_id=row.get("ending_id"),
+            )
+            for i, row in enumerate(rows)
+        ]
+    finally:
+        conn.close()
 
 
 @router.post("/event/choose")
@@ -126,5 +144,5 @@ async def post_event(request: EventRequest):
     return {
         "narrative": event["narrative"],
         "options": event["options"],
-        "metadata": {"isFallback": True},
+        "metadata": {"isFallback": event.get("is_fallback", False)},
     }

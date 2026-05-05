@@ -1,11 +1,13 @@
 """End-to-end integration tests: complete game lifecycle."""
 
 import random
+from unittest.mock import patch
 
 import pytest
 from httpx import AsyncClient, ASGITransport
 
 from app.main import app
+from app.services.breakthrough import BreakthroughResult
 from app.services.game_service import (
     check_game_over,
     end_game,
@@ -100,8 +102,14 @@ class TestE2EGameLoop:
 
         print(f"Mage build: {events_played} events, Score: {result['score']}, Grade: {result['grade']}")
 
-    def test_scoring_deterministic(self):
+    @patch("app.services.game_service._get_ai_service")
+    @patch("app.services.game_service.attempt_breakthrough")
+    def test_scoring_deterministic(self, mock_breakthrough, mock_ai):
         """Same attributes should produce same score."""
+        mock_breakthrough.return_value = BreakthroughResult(
+            success=True, new_realm="练气", cultivation_loss=0, realm_dropped=False, ascended=False,
+        )
+        mock_ai.side_effect = Exception("AI disabled for deterministic test")
         random.seed(42)
 
         def run_game():

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { NButton } from 'naive-ui'
 import StatusBar from '@/components/StatusBar.vue'
 import NarrativeBox from '@/components/NarrativeBox.vue'
@@ -20,6 +20,21 @@ const {
   handleReturnHome,
 } = useGameLoop()
 
+// 选项点击反馈状态
+const selectedOptionId = ref<string | null>(null)
+const optionsDisabled = ref(false)
+
+function onOptionClick(optionId: string) {
+  if (optionsDisabled.value || selectedOptionId.value) return
+  selectedOptionId.value = optionId
+  optionsDisabled.value = true
+  // 200ms 延迟提交，增加触感反馈
+  setTimeout(() => {
+    handleChoose(optionId)
+    // 提交后不清除状态，保持禁用直到下次事件
+  }, 200)
+}
+
 onMounted(() => {
   advanceEvent()
 })
@@ -37,7 +52,8 @@ function skipTypewriter() {
 
     <div class="gm-content">
       <div v-if="phase === 'fetching' || (loading && phase === 'typing')" class="gm-loading">
-        天命推演中…
+        <div class="gm-ink-drop" />
+        <p class="gm-loading-text">天命推演中...</p>
       </div>
 
       <div v-else-if="error" class="gm-error">
@@ -70,7 +86,9 @@ function skipTypewriter() {
             v-for="opt in currentEvent.options"
             :key="opt.id"
             :option="opt"
-            @click="handleChoose(opt.id)"
+            :disabled="optionsDisabled"
+            :pressed="selectedOptionId === opt.id"
+            @click="onOptionClick(opt.id)"
           />
         </div>
       </template>
@@ -104,7 +122,31 @@ function skipTypewriter() {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 24px;
+}
+
+.gm-ink-drop {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  animation: inkDrop 1.6s ease-out infinite;
+  background: radial-gradient(
+    circle at 40% 40%,
+    rgba(44, 44, 44, 0.9) 0%,
+    rgba(44, 44, 44, 0.4) 30%,
+    rgba(74, 124, 124, 0.3) 60%,
+    transparent 70%
+  );
+  filter: blur(0.5px);
+}
+
+.gm-loading-text {
+  font-family: var(--font-family);
+  font-size: 1.05rem;
+  color: var(--ink-black);
+  letter-spacing: 3px;
+  opacity: 0;
+  animation: textFadeIn 0.6s ease 0.5s forwards;
 }
 
 .gm-error-text {
@@ -143,6 +185,38 @@ function skipTypewriter() {
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes inkDrop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+    box-shadow: 0 0 0 0 rgba(74, 124, 124, 0.4);
+  }
+  20% {
+    transform: scale(0.3);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 0.9;
+    box-shadow: 0 0 20px 8px rgba(74, 124, 124, 0.15);
+  }
+  70% {
+    transform: scale(1.1);
+    opacity: 0.6;
+    box-shadow: 0 0 40px 16px rgba(74, 124, 124, 0.05);
+  }
+  100% {
+    transform: scale(1.3);
+    opacity: 0;
+    box-shadow: 0 0 60px 24px transparent;
+  }
+}
+
+@keyframes textFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 </style>

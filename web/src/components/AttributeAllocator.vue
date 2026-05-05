@@ -70,7 +70,7 @@ function setValue(key: keyof typeof props.modelValue, val: number) {
 .attr-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
 .attr-label {
@@ -80,20 +80,29 @@ function setValue(key: keyof typeof props.modelValue, val: number) {
 }
 
 .attr-btn {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: var(--border-radius, 4px);
   background: #fff;
   font-size: 1.2rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background var(--transition-fast, 0.2s ease),
+              transform 0.1s ease;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
 .attr-btn:hover {
   background: #f0f0f0;
+}
+
+.attr-btn:active {
+  background: #ddd;
+  transform: scale(0.92);
 }
 
 .attr-input {

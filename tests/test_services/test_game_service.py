@@ -4,9 +4,11 @@ RED phase: All tests should fail initially.
 """
 
 import random
+from unittest.mock import patch
 
 import pytest
 
+from app.services.breakthrough import BreakthroughResult
 from app.services.game_service import (
     start_game,
     get_next_event,
@@ -297,8 +299,12 @@ class TestCultivationFormula:
 
 
 class TestCultivationOverflow:
-    def test_cultivation_overflow_to_progress(self):
+    @patch("app.services.game_service.attempt_breakthrough")
+    def test_cultivation_overflow_to_progress(self, mock_breakthrough):
         """修为超过 cultivation_req → 溢出部分转为 realm_progress."""
+        mock_breakthrough.return_value = BreakthroughResult(
+            success=True, new_realm="练气", cultivation_loss=0, realm_dropped=False, ascended=False,
+        )
         random.seed(42)
         result = start_game("测试", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
         sid = result["session_id"]

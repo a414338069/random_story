@@ -3,11 +3,22 @@ import type { EventOption } from '@/core/types'
 
 defineProps<{
   option: EventOption
+  disabled?: boolean
+  pressed?: boolean
+}>()
+
+defineEmits<{
+  click: []
 }>()
 </script>
 
 <template>
-  <button class="option-card">
+  <button
+    class="option-card"
+    :class="{ 'option-card--pressed': pressed, 'option-card--disabled': disabled }"
+    :disabled="disabled"
+    @click="$emit('click')"
+  >
     <span class="oc-text">{{ option.text }}</span>
     <span v-if="option.consequence_preview" class="oc-preview">
       {{ option.consequence_preview }}
@@ -32,14 +43,22 @@ defineProps<{
   min-height: 44px;
 }
 
-.option-card:hover {
+.option-card:hover:not(.option-card--disabled) {
   border-color: #4a7c7c;
   background: rgba(74, 124, 124, 0.05);
   transform: translateX(4px);
 }
 
-.option-card:active {
-  transform: translateX(2px);
+.option-card--pressed {
+  transform: scale(0.97);
+  background: rgba(74, 124, 124, 0.12);
+  border-color: #4a7c7c;
+}
+
+.option-card--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .oc-text {
