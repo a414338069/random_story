@@ -5,6 +5,7 @@ This is the core orchestration layer: it calls all other services
 the player's game session.
 """
 
+import os
 import uuid
 
 from app.services.talent_service import validate_selection
@@ -17,7 +18,11 @@ from app.services.event_engine import (
     build_event_context,
 )
 from app.services.scoring import determine_ending, calculate_score, get_grade
+from app.services.breakthrough import attempt_breakthrough, BreakthroughResult
+from app.services.ai_service import DeepSeekService, MockAIService
 from app.models.player import PlayerState
+from app.repositories import game_repo
+from app.database import get_db, init_db
 
 _games: dict[str, dict] = {}
 
@@ -65,13 +70,33 @@ def start_game(name: str, gender: str, talent_card_ids: list[str], attributes: d
         "event_count": 0,
         "ascended": False,
     }
+
+    conn = get_db()
+    init_db(conn)
+    try:
+        game_repo.save_player(conn, _games[session_id])
+        conn.commit()
+    finally:
+        conn.close()
+
     return _games[session_id]
 
 
 def get_state(session_id: str) -> dict:
-    if session_id not in _games:
+    if session_id in _games:
+        return _games[session_id]
+
+    conn = get_db()
+    try:
+        state = game_repo.load_player(conn, session_id)
+    finally:
+        conn.close()
+
+    if state is None:
         raise ValueError(f"无效的 session_id: {session_id}")
-    return _games[session_id]
+
+    _games[session_id] = state
+    return state
 
 
 def _to_engine_context(state: dict) -> dict:
@@ -85,6 +110,45 @@ def _to_engine_context(state: dict) -> dict:
     }
 
 
+def _get_ai_service():
+    """Return the appropriate AI service based on environment configuration.
+
+    Uses MockAIService when DEEPSEEK_API_KEY is not set (e.g. tests / CI),
+    otherwise uses the real DeepSeekService.
+    """
+    if os.environ.get("DEEPSEEK_API_KEY"):
+        return DeepSeekService()
+    return MockAIService()
+
+
+def _build_ai_prompt(event_ctx: dict, state: dict) -> str:
+    """Build a context-rich prompt for AI narrative generation."""
+    player = event_ctx.get("player", {})
+    attrs = state.get("attributes", {})
+
+    parts = [
+        "请为以下修仙世界事件生成叙事：",
+        "",
+        f"【当前境界】{player.get('realm', '')}",
+        f"【角色年龄】{player.get('age', 0)}岁",
+        f"【属性面板】根骨={attrs.get('rootBone', 0)}, 悟性={attrs.get('comprehension', 0)}, "
+        f"心性={attrs.get('mindset', 0)}, 气运={attrs.get('luck', 0)}",
+        f"【所属势力】{state.get('faction', '无')}",
+        f"【事件类型】{event_ctx.get('event_type', '')}",
+        f"【事件标题】{event_ctx.get('title', '')}",
+        f"【事件模板】{event_ctx.get('prompt', '')}",
+    ]
+
+    breakthrough_msg = state.get("_breakthrough_msg")
+    if breakthrough_msg:
+        parts.append(f"【特殊状态】{breakthrough_msg}")
+
+    parts.append("")
+    parts.append("请根据以上信息生成沉浸式的修仙事件叙事和选项。")
+
+    return "\n".join(parts)
+
+
 def get_next_event(session_id: str) -> dict:
     state = get_state(session_id)
     ctx = _to_engine_context(state)
@@ -96,18 +160,46 @@ def get_next_event(session_id: str) -> dict:
 
     event_ctx = build_event_context(chosen, ctx)
 
+    narrative = event_ctx["fallback_narrative"]
+    options = event_ctx["default_options"]
+    is_fallback = True
+
+    try:
+        ai_service = _get_ai_service()
+        prompt = _build_ai_prompt(event_ctx, state)
+        ai_result = ai_service.generate_event(prompt=prompt, context=state)
+
+        if ai_result and isinstance(ai_result, dict) and ai_result.get("narrative"):
+            narrative = ai_result["narrative"]
+            ai_options = ai_result.get("options", [])
+            if ai_options:
+                cleaned = []
+                for opt in ai_options:
+                    if isinstance(opt, dict):
+                        cleaned.append({
+                            "id": opt.get("id", ""),
+                            "text": opt.get("text", ""),
+                            "consequences": opt.get("consequences", {}),
+                        })
+                if cleaned:
+                    options = cleaned
+            is_fallback = False
+    except Exception:
+        pass
+
     state["_current_event"] = {
         "id": chosen.get("id", ""),
         "type": chosen.get("type", ""),
         "title": event_ctx["title"],
-        "options": event_ctx["default_options"],
+        "options": options,
     }
 
     return {
         "event_id": chosen.get("id", ""),
         "title": event_ctx["title"],
-        "narrative": event_ctx["fallback_narrative"],
-        "options": event_ctx["default_options"],
+        "narrative": narrative,
+        "options": options,
+        "is_fallback": is_fallback,
     }
 
 
@@ -136,9 +228,28 @@ def _handle_cultivation_overflow(state: dict, new_cultivation: float) -> None:
     next_req = next_config.get("cultivation_req", 0) if next_config else 0
 
     if next_req and new_cultivation >= next_req:
-        overflow = new_cultivation - next_req
-        state["cultivation"] = overflow
-        state["realm_progress"] = overflow / next_req
+        # 修为达到下一境界门槛，触发突破判定
+        state["cultivation"] = new_cultivation  # 临时写入供 attempt_breakthrough 读取
+        result = attempt_breakthrough(state)
+
+        if result.success:
+            old_realm = state["realm"]
+            state["realm"] = result.new_realm
+            overflow = new_cultivation - next_req
+            state["cultivation"] = overflow
+            state["realm_progress"] = overflow / next_req
+            if result.ascended:
+                state["ascended"] = True
+            state["_breakthrough_msg"] = f"突破成功！从{old_realm}晋升至{result.new_realm}！"
+        else:
+            cultivation_after = max(0, new_cultivation - result.cultivation_loss)
+            state["cultivation"] = cultivation_after
+            state["realm_progress"] = 0.0
+            if result.realm_dropped:
+                state["realm"] = result.new_realm
+                state["_breakthrough_msg"] = f"突破失败！修为跌落至{result.new_realm}，损失{result.cultivation_loss:.0f}点修为！"
+            else:
+                state["_breakthrough_msg"] = f"突破失败！损失{result.cultivation_loss:.0f}点修为！"
     else:
         state["cultivation"] = new_cultivation
 
@@ -164,7 +275,11 @@ def process_choice(session_id: str, option_id: str) -> dict:
     comprehension = state["attributes"]["comprehension"]
     technique_grades = state["technique_grades"]
 
-    cultivation_gain = _calc_cultivation_gain(event_type, comprehension, technique_grades)
+    explicit_gain = consequences.get("cultivation_gain")
+    if explicit_gain is not None:
+        cultivation_gain = explicit_gain * (1 + comprehension * 0.03)
+    else:
+        cultivation_gain = _calc_cultivation_gain(event_type, comprehension, technique_grades)
     new_cultivation = state["cultivation"] + cultivation_gain
 
     _handle_cultivation_overflow(state, new_cultivation)
@@ -186,7 +301,26 @@ def process_choice(session_id: str, option_id: str) -> dict:
             state["age"] += time_span
 
     state["event_count"] += 1
+
+    event_log_data = {
+        "event_index": state["event_count"],
+        "event_type": current_event.get("type", ""),
+        "narrative": current_event.get("title", ""),
+        "options": current_event.get("options", []),
+        "chosen_option_id": option_id,
+        "consequences": consequences,
+    }
+
     del state["_current_event"]
+
+    conn = get_db()
+    init_db(conn)
+    try:
+        game_repo.save_player(conn, state)
+        game_repo.save_event_log(conn, session_id, event_log_data)
+        conn.commit()
+    finally:
+        conn.close()
 
     return state
 
@@ -237,6 +371,14 @@ def end_game(session_id: str) -> dict:
     ending = determine_ending(player, age=age, ascended=ascended)
     score = calculate_score(player, ending, age=age, technique_grades=technique_grades)
     grade = get_grade(score)
+
+    conn = get_db()
+    init_db(conn)
+    try:
+        game_repo.save_player(conn, state)
+        conn.commit()
+    finally:
+        conn.close()
 
     return {
         "session_id": session_id,

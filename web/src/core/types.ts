@@ -16,6 +16,8 @@ export interface PlayerStatePydantic {
   luck: number
   realm: string
   realm_progress: number
+  cultivation: number
+  age: number
   health: number
   qi: number
   lifespan: number

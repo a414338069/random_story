@@ -1,7 +1,15 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useGameState } from '@/composables/useGameState'
+import { useAnimatedNumber } from '@/composables/useAnimatedNumber'
 
 const { gameState } = useGameState()
+
+const cultivationSource = computed(() => gameState.value?.cultivation ?? 0)
+const spiritStonesSource = computed(() => gameState.value?.spiritStones ?? 0)
+
+const cultivation = useAnimatedNumber(cultivationSource, 600)
+const spiritStones = useAnimatedNumber(spiritStonesSource, 600)
 </script>
 
 <template>
@@ -16,11 +24,23 @@ const { gameState } = useGameState()
     </span>
     <span class="sb-item">
       <span class="sb-label">修为</span>
-      <span class="sb-value">{{ gameState.cultivation.toFixed(0) }}</span>
+      <span
+        class="sb-value"
+        :class="{
+          'sb-value--up': cultivation.direction.value === 'up',
+          'sb-value--down': cultivation.direction.value === 'down',
+        }"
+      >{{ cultivation.formatted() }}</span>
     </span>
     <span class="sb-item">
       <span class="sb-label">灵石</span>
-      <span class="sb-value">{{ gameState.spiritStones }}</span>
+      <span
+        class="sb-value"
+        :class="{
+          'sb-value--up': spiritStones.direction.value === 'up',
+          'sb-value--down': spiritStones.direction.value === 'down',
+        }"
+      >{{ spiritStones.formatted() }}</span>
     </span>
     <span class="sb-item">
       <span class="sb-label">事件</span>
@@ -59,5 +79,16 @@ const { gameState } = useGameState()
 .sb-value {
   font-size: 0.95rem;
   font-weight: 700;
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.sb-value--up {
+  color: #4ade80;
+  text-shadow: 0 0 6px rgba(74, 222, 128, 0.4);
+}
+
+.sb-value--down {
+  color: #f87171;
+  text-shadow: 0 0 6px rgba(248, 113, 113, 0.4);
 }
 </style>

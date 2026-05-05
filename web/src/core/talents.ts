@@ -25,23 +25,34 @@ export function drawCards(count: number): TalentCard[] {
 
 export function getGradeColor(grade: string): string {
   switch (grade) {
-    case '凡品': return '#9e9e9e'
-    case '灵品': return '#4caf50'
-    case '玄品': return '#3f51b5'
-    case '仙品': return '#9c27b0'
-    case '神品': return '#ff8f00'
-    default: return '#9e9e9e'
+    case '凡品': return '#8a8a8a'
+    case '灵品': return '#5b8fbf'
+    case '玄品': return '#7c5ba5'
+    case '仙品': return '#c9a76e'
+    case '神品': return '#c23a2b'
+    default: return '#8a8a8a'
   }
 }
 
 export function getGradeBgColor(grade: string): string {
   switch (grade) {
-    case '凡品': return 'rgba(158,158,158,0.1)'
-    case '灵品': return 'rgba(76,175,80,0.1)'
-    case '玄品': return 'rgba(63,81,181,0.1)'
-    case '仙品': return 'rgba(156,39,176,0.1)'
-    case '神品': return 'rgba(255,143,0,0.1)'
-    default: return 'rgba(158,158,158,0.1)'
+    case '凡品': return 'rgba(138,138,138,0.06)'
+    case '灵品': return 'rgba(91,143,191,0.08)'
+    case '玄品': return 'rgba(124,91,165,0.08)'
+    case '仙品': return 'rgba(201,167,110,0.10)'
+    case '神品': return 'rgba(194,58,43,0.08)'
+    default: return 'rgba(138,138,138,0.06)'
+  }
+}
+
+export function getGradeClass(grade: string): string {
+  switch (grade) {
+    case '凡品': return 'grade-common'
+    case '灵品': return 'grade-uncommon'
+    case '玄品': return 'grade-rare'
+    case '仙品': return 'grade-legendary'
+    case '神品': return 'grade-mythic'
+    default: return 'grade-common'
   }
 }
 

@@ -10,7 +10,7 @@ import './styles/mobile.css'
 <template>
   <NConfigProvider :locale="zhCN" :theme-overrides="themeOverrides">
     <NMessageProvider>
-      <div id="app-root">
+      <div id="app-root" class="rice-paper">
         <router-view v-slot="{ Component }">
           <transition name="fade" mode="out-in">
             <component :is="Component" />

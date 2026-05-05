@@ -59,6 +59,8 @@ class PlayerState(BaseModel):
 
     realm: str = ""
     realm_progress: float = Field(default=0.0, ge=0.0)
+    cultivation: float = Field(default=0.0, ge=0.0)
+    age: int = Field(default=0, ge=0)
 
     health: float = Field(default=100.0, ge=0.0)
     qi: float = Field(default=0.0, ge=0.0)

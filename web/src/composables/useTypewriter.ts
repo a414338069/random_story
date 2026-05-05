@@ -1,49 +1,70 @@
 import { ref } from 'vue'
 
+/** Punctuation pause durations (ms) */
+const PUNCT_PAUSE: Record<string, number> = {
+  '。': 160,
+  '！': 200,
+  '？': 200,
+  '，': 80,
+  '；': 120,
+  '：': 120,
+  '…': 100,
+  '—': 80,
+  '.': 160,
+  '!': 200,
+  '?': 200,
+  ',': 80,
+  ';': 120,
+  ':': 120,
+}
+
 export function useTypewriter() {
   const displayed = ref('')
   const isTyping = ref(false)
   const isComplete = ref(false)
 
-  let rafId: number | null = null
-  let startTime = 0
+  let timerId: ReturnType<typeof setTimeout> | null = null
   let fullText = ''
-  let charsPerMs = 0
+  let currentIndex = 0
+  let baseInterval = 0
   let resolvePromise: (() => void) | null = null
 
   function typeText(text: string, charsPerSec: number = 30): Promise<void> {
     return new Promise((resolve) => {
       cancel()
       fullText = text
+      currentIndex = 0
       displayed.value = ''
       isTyping.value = true
       isComplete.value = false
-      charsPerMs = charsPerSec / 1000
-      startTime = performance.now()
+      baseInterval = 1000 / charsPerSec
       resolvePromise = resolve
 
-      rafId = requestAnimationFrame(tick)
+      scheduleNext()
     })
   }
 
-  function tick(now: number) {
+  function scheduleNext() {
     if (!isTyping.value) return
 
-    const elapsed = now - startTime
-    const charsToShow = Math.floor(elapsed * charsPerMs)
+    const char = fullText[currentIndex]
+    const pause = PUNCT_PAUSE[char] ?? baseInterval
 
-    if (charsToShow >= fullText.length) {
-      displayed.value = fullText
-      isTyping.value = false
-      isComplete.value = true
-      rafId = null
-      resolvePromise?.()
-      resolvePromise = null
-      return
-    }
+    timerId = setTimeout(() => {
+      currentIndex++
+      displayed.value = fullText.slice(0, currentIndex)
 
-    displayed.value = fullText.slice(0, charsToShow)
-    rafId = requestAnimationFrame(tick)
+      if (currentIndex >= fullText.length) {
+        isTyping.value = false
+        isComplete.value = true
+        timerId = null
+        resolvePromise?.()
+        resolvePromise = null
+        return
+      }
+
+      scheduleNext()
+    }, pause)
   }
 
   function skipToEnd() {
@@ -51,18 +72,18 @@ export function useTypewriter() {
     displayed.value = fullText
     isTyping.value = false
     isComplete.value = true
-    if (rafId !== null) {
-      cancelAnimationFrame(rafId)
-      rafId = null
+    if (timerId !== null) {
+      clearTimeout(timerId)
+      timerId = null
     }
     resolvePromise?.()
     resolvePromise = null
   }
 
   function cancel() {
-    if (rafId !== null) {
-      cancelAnimationFrame(rafId)
-      rafId = null
+    if (timerId !== null) {
+      clearTimeout(timerId)
+      timerId = null
     }
     isTyping.value = false
     resolvePromise = null

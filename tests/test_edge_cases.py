@@ -1,10 +1,12 @@
 """Edge case tests: boundary conditions, fallbacks, and constraint enforcement."""
 
 import random
+from unittest.mock import patch
 
 import pytest
 
 from app.services.ai_service import MockAIService
+from app.services.breakthrough import BreakthroughResult
 from app.services.game_service import (
     check_game_over,
     end_game,
@@ -123,8 +125,15 @@ class TestEdgeCases:
             process_choice(sid, event["options"][0]["id"])
             assert get_state(sid)["faction"] == ""
 
-    def test_realm_never_regresses(self):
+    @patch("app.services.game_service.attempt_breakthrough")
+    def test_realm_never_regresses(self, mock_breakthrough):
         """Realm never decreases during gameplay."""
+        def _always_succeed(state, use_pill=False):
+            return BreakthroughResult(
+                success=True, new_realm=state.get("realm", "凡人"), cultivation_loss=0,
+                realm_dropped=False, ascended=False,
+            )
+        mock_breakthrough.side_effect = _always_succeed
         random.seed(42)
         session = start_game(
             name="上进",
