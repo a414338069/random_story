@@ -2,7 +2,7 @@ import yaml
 from pathlib import Path
 
 EVENTS_DIR = Path(__file__).parent / "events"
-VALID_TYPES = {"daily", "adventure", "bottleneck"}
+VALID_TYPES = {"daily", "adventure", "bottleneck", "narrative", "combat", "social", "economy", "emotional", "heavenly", "fortune", "sect", "stones", "explore", "birth", "childhood", "youth"}
 REALMS = ["凡人", "练气", "筑基", "金丹", "元婴", "化神", "合体", "大乘", "渡劫飞升"]
 
 def validate_all_templates() -> bool:
@@ -25,8 +25,13 @@ def validate_all_templates() -> bool:
         if len(narr) < 20:
             errors.append(f"{f.name}: fallback_narrative too short ({len(narr)} chars)")
         opts = data.get("default_options", [])
-        if not (2 <= len(opts) <= 3):
-            errors.append(f"{f.name}: options count {len(opts)} not in 2-3")
+        is_narrative_only = data.get("narrative_only", False)
+        if is_narrative_only:
+            if len(opts) != 0:
+                errors.append(f"{f.name}: narrative_only event should have empty options")
+        else:
+            if not (2 <= len(opts) <= 3):
+                errors.append(f"{f.name}: options count {len(opts)} not in 2-3")
         templates.append(data)
 
     for realm in REALMS:

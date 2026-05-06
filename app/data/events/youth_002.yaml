@@ -1,0 +1,24 @@
+id: "youth_002"
+type: "daily"
+narrative_only: false
+title: "拜师学艺"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "练气"
+  min_age: 12
+  max_age: 16
+  required_faction: null
+weight: 6.0
+prompt_template: "你{age}岁了。一位游方修士路过你们村子，你察觉到他身上有和后山灵气相似却又浓郁百倍的气息。他似乎也注意到了你。你面临选择：是鼓起勇气上前请求拜师，还是默默观察等待时机？200字以内，第二人称。"
+fallback_narrative: "你{age}岁了。一位身穿青灰道袍的中年人路过村子，在村口茶摊歇脚。旁人只当他是个普通道士，你却感到他周身萦绕着一股令人窒息的灵压——比后山的灵气浓郁了不知多少倍。他似乎察觉到了你的注视，微微侧头看了你一眼，嘴角浮现一丝意味深长的笑。你的心跳加速了。"
+default_options:
+  - id: "opt_a"
+    text: "上前跪拜，恳求拜入其门下"
+    consequences:
+      cultivation_gain: 3
+      age_advance: true
+  - id: "opt_b"
+    text: "远远跟随，暗中观察他的行踪"
+    consequences:
+      cultivation_gain: 2
+      age_advance: true

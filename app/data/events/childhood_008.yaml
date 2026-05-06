@@ -1,0 +1,14 @@
+id: "childhood_008"
+type: "narrative"
+narrative_only: true
+title: "发现古籍残页"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 6
+  max_age: 11
+  required_faction: null
+weight: 6.0
+prompt_template: "你{age}岁了。你在村子的废墟或阁楼里翻到了一张泛黄的古籍残页。上面画着打坐的小人和一些你看不懂的符号。描述你发现残页的过程和你试图理解它的尝试——你是否感受到了什么？200字以内，第二人称。"
+fallback_narrative: "你{age}岁了，正是对什么都好奇的年纪。那天你帮母亲打扫祖屋阁楼，在一堆落灰的杂物中翻到了一张泛黄的纸。纸上画着一个盘膝而坐的小人，旁边标注着你完全看不懂的符号和线条。你盯着那些符号，越看越入迷，竟觉得它们在微微闪烁。你学着纸上小人的样子盘腿坐下，闭上眼睛——恍惚间，你感到有什么东西在体内缓缓流动，如同春水解冻。等你睁开眼，天已经黑了。那张残页不知何时从指间滑落，上面的符号似乎比之前更清晰了几分。"
+default_options: []

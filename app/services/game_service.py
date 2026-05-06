@@ -19,7 +19,7 @@ from app.services.event_engine import (
     build_event_context,
 )
 from app.services.scoring import determine_ending, calculate_score, get_grade
-from app.services.breakthrough import attempt_breakthrough, BreakthroughResult
+from app.services.breakthrough import attempt_breakthrough, BreakthroughResult, build_breakthrough_event
 from app.services.ai_service import DeepSeekService, MockAIService
 from app.services.life_stage import get_life_stage, get_cultivation_multiplier, can_attempt_breakthrough
 from app.models.player import PlayerState
@@ -185,6 +185,11 @@ def _build_ai_prompt(
 
 def get_next_event(session_id: str) -> dict:
     state = get_state(session_id)
+
+    # 检查是否有待处理的突破事件
+    if state.get("_pending_breakthrough"):
+        return build_breakthrough_event(state)
+
     ctx = _to_engine_context(state)
 
     templates = load_templates()
@@ -427,31 +432,12 @@ def _handle_cultivation_overflow(state: dict, new_cultivation: float) -> None:
             state["realm_progress"] = (next_req - 1) / next_req
             return
 
-        # 修为达到下一境界门槛，触发突破判定
-        state["cultivation"] = new_cultivation  # 临时写入供 attempt_breakthrough 读取
-        result = attempt_breakthrough(state)
-
-        if result.success:
-            old_realm = state["realm"]
-            state["realm"] = result.new_realm
-            new_realm_config = get_realm_config(result.new_realm)
-            if new_realm_config and isinstance(new_realm_config.get("lifespan"), (int, float)):
-                state["lifespan"] = new_realm_config["lifespan"]
-            overflow = new_cultivation - next_req
-            state["cultivation"] = overflow
-            state["realm_progress"] = overflow / next_req
-            if result.ascended:
-                state["ascended"] = True
-            state["_breakthrough_msg"] = f"突破成功！从{old_realm}晋升至{result.new_realm}！"
-        else:
-            cultivation_after = max(0, new_cultivation - result.cultivation_loss)
-            state["cultivation"] = cultivation_after
-            state["realm_progress"] = 0.0
-            if result.realm_dropped:
-                state["realm"] = result.new_realm
-                state["_breakthrough_msg"] = f"突破失败！修为跌落至{result.new_realm}，损失{result.cultivation_loss:.0f}点修为！"
-            else:
-                state["_breakthrough_msg"] = f"突破失败！损失{result.cultivation_loss:.0f}点修为！"
+        # 修为达到下一境界门槛，暂停突破等待玩家选择
+        state["_breakthrough_cultivation"] = new_cultivation
+        state["_breakthrough_next_req"] = next_req
+        state["cultivation"] = next_req - 1
+        state["realm_progress"] = (next_req - 1) / next_req
+        state["_pending_breakthrough"] = True
     else:
         state["cultivation"] = new_cultivation
 
@@ -576,6 +562,43 @@ def process_choice(session_id: str, option_id: str | None = None) -> dict:
     }
 
     return state
+
+
+def handle_breakthrough_choice(state: dict, use_pill: bool) -> dict:
+    result = attempt_breakthrough(state, use_pill=use_pill)
+    state.pop("_pending_breakthrough", None)
+
+    if result.success:
+        old_realm = state["realm"]
+        state["realm"] = result.new_realm
+        new_realm_config = get_realm_config(result.new_realm)
+        if new_realm_config and isinstance(new_realm_config.get("lifespan"), (int, float)):
+            state["lifespan"] = new_realm_config["lifespan"]
+        next_req = state.pop("_breakthrough_next_req", 0)
+        pre_cap_cult = state.pop("_breakthrough_cultivation", 0)
+        overflow = max(0, pre_cap_cult - next_req)
+        state["cultivation"] = overflow
+        state["realm_progress"] = overflow / next_req if next_req else 0.0
+        if result.ascended:
+            state["ascended"] = True
+        state["_breakthrough_msg"] = f"突破成功！从{old_realm}晋升至{result.new_realm}！"
+    else:
+        cultivation_after = max(0, state["cultivation"] - result.cultivation_loss)
+        state["cultivation"] = cultivation_after
+        state["realm_progress"] = 0.0
+        if result.realm_dropped:
+            state["realm"] = result.new_realm
+            state["_breakthrough_msg"] = f"突破失败！修为跌落至{result.new_realm}，损失{result.cultivation_loss:.0f}点修为！"
+        else:
+            state["_breakthrough_msg"] = f"突破失败！损失{result.cultivation_loss:.0f}点修为！"
+
+    return {
+        "success": result.success,
+        "new_realm": result.new_realm,
+        "cultivation_loss": result.cultivation_loss,
+        "realm_dropped": result.realm_dropped,
+        "ascended": result.ascended,
+    }
 
 
 def check_game_over(player_state: dict) -> bool:

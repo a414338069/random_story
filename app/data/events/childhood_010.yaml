@@ -1,0 +1,14 @@
+id: "childhood_010"
+type: "narrative"
+narrative_only: true
+title: "梦中仙人"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 7
+  max_age: 11
+  required_faction: null
+weight: 6.0
+prompt_template: "你{age}岁了。最近你总是在做同一个梦——梦里有一位白袍仙人站在云端，对你微笑。描述这个反复出现的梦境——仙人长什么样？他对你说了什么或做了什么？你醒来后又有什么感受？200字以内，第二人称。"
+fallback_narrative: "你{age}岁了。近来你总是做同一个梦：一座高耸入云的山峰上，一位白衣仙人负手而立，衣袂在风中猎猎作响。他转过身来，面容模糊却让你感到无比亲切。他伸出一根手指点了点你的眉心，每次你都觉得额头一凉，随即浑身说不出的舒畅。你想开口问他你是谁，他只是微微一笑，化作一道白光消散在天际。你从梦中醒来，枕头上有一片湿润的痕迹——不知是汗还是泪。而你的眉心，隐隐有一丝温热挥之不去。"
+default_options: []

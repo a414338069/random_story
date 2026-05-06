@@ -17,9 +17,11 @@ from app.services.game_service import (
     get_state,
     end_game,
     check_game_over,
+    handle_breakthrough_choice,
     _calc_cultivation_gain,
     _build_ai_prompt,
     _check_breakthrough_warning,
+    _handle_cultivation_overflow,
     _games,
 )
 
@@ -304,12 +306,8 @@ class TestCultivationFormula:
 
 
 class TestCultivationOverflow:
-    @patch("app.services.game_service.attempt_breakthrough")
-    def test_cultivation_overflow_to_progress(self, mock_breakthrough):
-        """修为超过 cultivation_req → 溢出部分转为 realm_progress."""
-        mock_breakthrough.return_value = BreakthroughResult(
-            success=True, new_realm="练气", cultivation_loss=0, realm_dropped=False, ascended=False,
-        )
+    def test_cultivation_overflow_sets_pending_breakthrough(self):
+        """修为超过 cultivation_req → cap at next_req-1，设置 _pending_breakthrough."""
         random.seed(42)
         result = start_game("测试", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
         sid = result["session_id"]
@@ -319,9 +317,11 @@ class TestCultivationOverflow:
         _games[sid]["cultivation"] = 95  # 凡人 cultivation_req = 100
         new_state = process_choice(sid, "opt1")
         # adventure + comprehension=3 + no technique = 30 * 1.3 * 0.5 = 19.5
-        # 95 + 19.5 = 114.5 → 100 progress → realm progress = 14.5 / 100 = 0.145
-        assert new_state["cultivation"] == pytest.approx(14.5, abs=0.01)
-        assert new_state["realm_progress"] == pytest.approx(0.145, abs=0.001)
+        # 95 + 19.5 = 114.5 >= 100 → cap at 99, set _pending_breakthrough
+        assert new_state["_pending_breakthrough"] is True
+        assert new_state["cultivation"] == pytest.approx(99.0, abs=0.01)
+        assert new_state["realm_progress"] == pytest.approx(0.99, abs=0.001)
+        assert new_state["realm"] == "凡人"  # realm should NOT change
 
     def test_no_overflow_when_below_req(self):
         """正常修炼不溢出."""
@@ -336,6 +336,7 @@ class TestCultivationOverflow:
         # 10 + 6.5 = 16.5 < 100, no overflow
         assert new_state["cultivation"] == pytest.approx(16.5)
         assert new_state["realm_progress"] == 0.0
+        assert "_pending_breakthrough" not in new_state
 
 
 # ---------------------------------------------------------------------------
@@ -666,4 +667,130 @@ class TestProcessChoiceNarrative:
         assert choice_result["aftermath"]["narrative"]
         assert "继续修炼" in choice_result["aftermath"]["narrative"]
         assert "修为" in choice_result["aftermath"]["narrative"]
+
+
+# ============================================================================
+# T4: get_next_event returns breakthrough event when pending
+# ============================================================================
+
+
+class TestGetNextEventBreakthrough:
+    def test_get_next_event_returns_breakthrough_event_when_pending(self):
+        """当 _pending_breakthrough=True 时，get_next_event 返回突破事件"""
+        random.seed(42)
+        result = start_game("测试", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
+        sid = result["session_id"]
+        _games[sid]["_pending_breakthrough"] = True
+        _games[sid]["age"] = 20
+
+        event = get_next_event(sid)
+        assert event["event_id"] == "breakthrough_pending"
+        assert event["title"] == "境界突破"
+        assert event["is_breakthrough"] is True
+        assert event["has_options"] is True
+        assert len(event["options"]) == 2
+        assert event["options"][0]["id"] == "use_pill"
+        assert event["options"][1]["id"] == "direct"
+
+    def test_get_next_event_bypasses_ai_when_breakthrough_pending(self):
+        """突破事件不调用 AI"""
+        random.seed(42)
+        result = start_game("测试", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
+        sid = result["session_id"]
+        _games[sid]["_pending_breakthrough"] = True
+        _games[sid]["age"] = 20
+
+        with patch("app.services.game_service._get_ai_service") as mock_ai:
+            event = get_next_event(sid)
+            mock_ai.assert_not_called()
+
+
+# ============================================================================
+# T4: handle_breakthrough_choice()
+# ============================================================================
+
+
+class TestHandleBreakthroughChoice:
+    def test_handle_breakthrough_choice_success(self):
+        """突破成功 → realm 提升 + cultivation 重置"""
+        random.seed(42)
+        result = start_game("测试", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
+        sid = result["session_id"]
+        _games[sid]["age"] = 20
+        _games[sid]["cultivation"] = 99
+        _games[sid]["_pending_breakthrough"] = True
+        _games[sid]["_breakthrough_next_req"] = 100
+        _games[sid]["_breakthrough_cultivation"] = 115
+
+        random.seed(1)  # success seed
+        outcome = handle_breakthrough_choice(_games[sid], use_pill=False)
+
+        assert outcome["success"] is True
+        assert outcome["new_realm"] == "练气"
+        assert outcome["cultivation_loss"] == 0.0
+        assert outcome["realm_dropped"] is False
+        assert outcome["ascended"] is False
+        assert "_pending_breakthrough" not in _games[sid]
+        assert _games[sid]["realm"] == "练气"
+        assert _games[sid]["cultivation"] == pytest.approx(15.0, abs=0.01)  # 115-100 overflow
+
+    def test_handle_breakthrough_choice_failure(self):
+        """突破失败 → cultivation 损失"""
+        random.seed(42)
+        result = start_game("测试", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
+        sid = result["session_id"]
+        _games[sid]["age"] = 20
+        _games[sid]["cultivation"] = 99
+        _games[sid]["_pending_breakthrough"] = True
+        _games[sid]["_breakthrough_next_req"] = 100
+        _games[sid]["_breakthrough_cultivation"] = 115
+
+        random.seed(2)  # failure seed
+        outcome = handle_breakthrough_choice(_games[sid], use_pill=False)
+
+        assert outcome["success"] is False
+        assert outcome["cultivation_loss"] > 0
+        assert "_pending_breakthrough" not in _games[sid]
+        assert _games[sid]["cultivation"] < 99  # loss applied
+
+    def test_handle_breakthrough_choice_with_pill(self):
+        """use_pill=True → 传递给 attempt_breakthrough → +15% 成功率"""
+        random.seed(42)
+        result = start_game("测试", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
+        sid = result["session_id"]
+        _games[sid]["age"] = 20
+        _games[sid]["cultivation"] = 99
+        _games[sid]["_pending_breakthrough"] = True
+        _games[sid]["_breakthrough_next_req"] = 100
+        _games[sid]["_breakthrough_cultivation"] = 115
+
+        # Verify use_pill is passed through — we can't easily test the rate change
+        # without mocking, but we verify the outcome dict has correct structure
+        random.seed(1)
+        outcome = handle_breakthrough_choice(_games[sid], use_pill=True)
+        assert "success" in outcome
+        assert "new_realm" in outcome
+        assert "cultivation_loss" in outcome
+        assert "realm_dropped" in outcome
+        assert "ascended" in outcome
+        assert "_pending_breakthrough" not in _games[sid]
+
+    def test_handle_breakthrough_choice_clears_flag_on_both_outcomes(self):
+        """无论成功失败，_pending_breakthrough 都会被清除"""
+        random.seed(42)
+        result = start_game("测试", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
+        sid = result["session_id"]
+        _games[sid]["age"] = 20
+        _games[sid]["cultivation"] = 99
+        _games[sid]["_pending_breakthrough"] = True
+
+        random.seed(1)
+        handle_breakthrough_choice(_games[sid], use_pill=False)
+        assert "_pending_breakthrough" not in _games[sid]
+
+        # Try again with failure seed
+        _games[sid]["_pending_breakthrough"] = True
+        random.seed(2)
+        handle_breakthrough_choice(_games[sid], use_pill=False)
+        assert "_pending_breakthrough" not in _games[sid]
 

@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 from app.services.realm_service import get_realm_config, get_next_realm, load_realms
 from app.services.talent_service import load_talents
+from app.services.life_stage import get_breakthrough_penalty
 
 REALM_PENALTY = {
     "凡人": 0.0,
@@ -38,12 +39,17 @@ def calculate_success_rate(player_state: dict, use_pill: bool = False) -> float:
     comprehension = player_state.get("comprehension", 0)
     mindset = player_state.get("mindset", 0)
     realm = player_state.get("realm", "凡人")
+    age = player_state.get("age", 16)  # 默认 16（突破最低年龄）
 
     penalty = get_realm_penalty(realm)
     rate = 0.50 + root_bone * 0.05 + comprehension * 0.03 + mindset * 0.02 - penalty
 
     if use_pill:
         rate += PILL_BONUS
+
+    # 年龄惩罚
+    age_penalty = get_breakthrough_penalty(age)
+    rate *= (1 - age_penalty)
 
     return max(0.05, min(0.95, rate))
 
@@ -124,3 +130,17 @@ def attempt_breakthrough(player_state: dict, use_pill: bool = False) -> Breakthr
         realm_dropped=False,
         ascended=False,
     )
+
+
+def build_breakthrough_event(player_state: dict) -> dict:
+    return {
+        "event_id": "breakthrough_pending",
+        "title": "境界突破",
+        "narrative": "你的修为已达瓶颈，丹田中灵力如潮水般涌动，周身经脉隐隐作痛。一道无形的屏障横亘在前，这是通往下一境界的壁障。",
+        "options": [
+            {"id": "use_pill", "text": "服用突破丹（成功率 +15%）", "consequence_preview": None},
+            {"id": "direct", "text": "凭自身实力突破", "consequence_preview": None},
+        ],
+        "is_breakthrough": True,
+        "has_options": True,
+    }

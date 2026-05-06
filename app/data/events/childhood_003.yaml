@@ -1,0 +1,14 @@
+id: "childhood_003"
+type: "narrative"
+narrative_only: true
+title: "第一次笑"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 0
+  max_age: 1
+  required_faction: null
+weight: 10.0
+prompt_template: "你是一个不到一岁的婴儿。描述你第一次对这个世界露出笑容的场景——是什么逗笑了你？是母亲温暖的怀抱，还是窗外掠过的一只灵鸟？用温馨细腻的笔触描写这个瞬间，100字以内，第二人称。"
+fallback_narrative: "你出生不久，还只能躺在襁褓中看着模糊的世界。一天午后，母亲抱着你在院中晒太阳，一缕金色的阳光穿过树叶洒在你脸上。你不自觉地眯起眼睛，嘴角微微上扬——这是你来到这个世界后的第一个笑容。母亲惊喜地叫来父亲，两人相视而笑，仿佛看到了世间最美的风景。"
+default_options: []

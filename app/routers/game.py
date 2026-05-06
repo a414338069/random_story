@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException
 from app.database import get_db
 from app.models.game import EndGameRequest, GameStartRequest, GameStartResponse, LeaderboardEntry
 from app.models.player import PlayerState
-from app.models.event import EventRequest, ChooseRequest, ChooseResponse, BreakthroughInfo
+from app.models.event import EventRequest, ChooseRequest, ChooseResponse, BreakthroughInfo, AftermathResponse
 from app.repositories import game_repo
 from app.services.game_service import (
     get_state,
@@ -12,6 +12,7 @@ from app.services.game_service import (
     start_game,
     get_next_event,
     process_choice,
+    handle_breakthrough_choice,
     check_game_over,
 )
 
@@ -113,6 +114,29 @@ async def post_event_choose(request: ChooseRequest):
     except ValueError:
         raise HTTPException(status_code=404, detail="Game session not found")
 
+    # 突破选项：use_pill / direct → 走 handle_breakthrough_choice
+    if request.option_id in ("use_pill", "direct"):
+        use_pill = request.option_id == "use_pill"
+        result = handle_breakthrough_choice(state, use_pill=use_pill)
+
+        breakthrough_msg = state.get("_breakthrough_msg", "")
+        breakthrough_info = BreakthroughInfo(
+            message=breakthrough_msg,
+            new_realm=result["new_realm"],
+            success=result["success"],
+            use_pill=use_pill,
+        )
+
+        return ChooseResponse(
+            state=state,
+            aftermath=AftermathResponse(
+                cultivation_change=state["cultivation"],
+                age_advance=0,
+                narrative=breakthrough_msg,
+                breakthrough=breakthrough_info,
+            ),
+        )
+
     cultivation_before = state["cultivation"]
     age_before = state["age"]
 
@@ -161,5 +185,6 @@ async def post_event(request: EventRequest):
         "options": event["options"],
         "has_options": len(event.get("options", [])) > 0,
         "title": event.get("title"),
+        "is_breakthrough": event.get("is_breakthrough", False),
         "metadata": {"isFallback": event.get("is_fallback", False)},
     }

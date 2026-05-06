@@ -1,0 +1,14 @@
+id: "childhood_004"
+type: "narrative"
+narrative_only: true
+title: "蹒跚学步"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 1
+  max_age: 2
+  required_faction: null
+weight: 9.0
+prompt_template: "你一岁多了，正在学走路。描述你蹒跚学步的场景——你是否比别的孩子学得更快？是否在某个瞬间展现出异常的平衡感？父母看到你迈出第一步时的反应如何？150字以内，第二人称。"
+fallback_narrative: "你抓住桌角，颤颤巍巍地站了起来。母亲在一旁张开双臂鼓励着你，眼中满是期待。你深吸一口气，松开手，迈出了人生中的第一步——然后第二步、第三步。你没有像其他孩子那样摔倒，而是稳稳地走到了母亲怀中。父亲在门口看到这一幕，愣了一下，低声自语道：'这孩子……身子骨倒是异于常人。'"
+default_options: []
