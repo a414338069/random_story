@@ -2,7 +2,7 @@ import yaml
 from pathlib import Path
 
 EVENTS_DIR = Path(__file__).parent.parent.parent / "app" / "data" / "events"
-VALID_TYPES = {"daily", "adventure", "bottleneck"}
+VALID_TYPES = {"daily", "adventure", "bottleneck", "narrative", "combat", "economy", "emotional", "heavenly", "fortune", "sect", "social", "stones", "explore"}
 REALMS = ["凡人", "练气", "筑基", "金丹", "元婴", "化神", "合体", "大乘", "渡劫飞升"]
 REQUIRED_KEYS = {"id", "type", "title", "fallback_narrative", "default_options", "weight", "trigger_conditions", "prompt_template"}
 
@@ -27,7 +27,7 @@ def _load_templates():
 class TestEventTemplates:
     def test_all_files_parse(self):
         templates = _load_templates()
-        assert len(templates) == 29, f"Expected 29 templates, got {len(templates)}"
+        assert len(templates) == 76, f"Expected 76 templates, got {len(templates)}"
 
     def test_required_fields_present(self):
         for t in _load_templates():
@@ -46,7 +46,11 @@ class TestEventTemplates:
     def test_options_count(self):
         for t in _load_templates():
             opts = t["default_options"]
-            assert 2 <= len(opts) <= 3, f"{t['_filename']}: options count {len(opts)} not in 2-3"
+            # narrative_only events (birth/childhood) have 0 options
+            if t.get("narrative_only"):
+                assert len(opts) == 0, f"{t['_filename']}: narrative_only event should have 0 options, got {len(opts)}"
+            else:
+                assert 2 <= len(opts) <= 3, f"{t['_filename']}: options count {len(opts)} not in 2-3"
 
     def test_each_realm_has_daily(self):
         templates = _load_templates()

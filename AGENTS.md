@@ -45,7 +45,7 @@ random_story/
 │       ├── realms.yaml         # 9级境界配置
 │       ├── sects.yaml          # 门派配置
 │       ├── talents.yaml        # 天赋配置
-│       ├── events/             # 64+ YAML 事件模板
+│       ├── events/             # 76 YAML 事件模板
 │       ├── prompts/            # system.yaml + user.yaml
 │       └── validate_data.py    # 数据校验 CLI
 ├── web/                        # 前端 (Vue 3)
@@ -107,9 +107,10 @@ random_story/
 - 9级境界: 凡人→练气→筑基→金丹→元婴→化神→合体→大乘→渡劫飞升
 - 用字统一: **"练气"** (非"炼气") — AI 输出纠正已在 SYSTEM_PROMPT
 - 灵石: 凡人上限50, 练气1000, 按境界递增
-- 事件模板 64+ YAML: 14大类 (daily/adventure/combat/social/economy/emotional/heavenly/fortune/sect/stones/explore/bottleneck/birth/childhood)
-- 安静年机制: 连续2+事件后25%概率触发 narrative_only 无选项事件
-- 突破: cultivation 溢出触发, 前端 waiting_click 模式等待玩家点击
+- 事件模板 76 YAML: 16大类 (daily/adventure/combat/social/economy/emotional/heavenly/fortune/sect/stones/explore/bottleneck/birth/childhood/youth)
+- 生命阶段: INFANT(0-3) / CHILD(4-11) / YOUTH(12-15) / CULTIVATOR(16+), 修炼乘数 0.0/0.0/0.5/1.0
+- 安静年机制: 连续2+有选项事件后25%概率触发 narrative_only 无选项事件, 不受生命阶段影响
+- 突破: 独立交互事件 (build_breakthrough_event), 含 use_pill/direct 两选项, 前端 breakthrough_choosing 阶段
 
 ### 已知技术债
 - `dependencies.py`: `_StubAIService` 死代码 (从未被调用)

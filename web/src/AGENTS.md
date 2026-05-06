@@ -81,7 +81,7 @@ interface EventLogEntry {
   consequence_narrative: string
   cultivation_change: number
   spirit_stones_change: number
-  phase: 'normal' | 'breakthrough' | 'quiet_year'  // 事件阶段
+  phase: 'normal' | 'breakthrough' | 'quiet_year' | 'breakthrough_choosing'  // 事件阶段
 }
 
 interface BreakthroughInfo {
@@ -112,7 +112,8 @@ TitleScreen → TalentSelect → GameMain → GameOver
 - **核心游戏界面**
 - StatusBar (顶部) + NarrativeLog (中间) + OptionCard (底部)
 - 游戏循环由 `useGameLoop` composable 驱动
-- 突破提示: `waiting_click` 模式 + 金色脉冲动画 + "点击继续"
+- 突破: 突破作为独立交互事件，前端进入 `breakthrough_choosing` 阶段，展示选项卡片 (use_pill/direct)
+- 突破等待: 选择后进入 `waiting_click` 模式 + 金色脉冲动画 + "点击继续"
 - 安静年: 仅显示叙事，无选项卡片
 
 ### GameOver.vue
@@ -127,6 +128,8 @@ TitleScreen → TalentSelect → GameMain → GameOver
 ```
 IDLE → FETCHING_EVENT → SHOWING_EVENT → CHOOSING → PROCESSING
                                                         ↓
+                                          BREAKTHROUGH_CHOOSING (可选) → PROCESSING
+                                                        ↓
                                               BREAKTHROUGH_WAIT (可选)
                                                         ↓
                                                      IDLE
@@ -138,15 +141,26 @@ IDLE → FETCHING_EVENT → SHOWING_EVENT → CHOOSING → PROCESSING
 |------|------|
 | `fetchNextEvent()` | 调用 `POST /api/v1/game/event` 获取下一事件 |
 | `chooseOption(optionId)` | 调用 `POST /api/v1/game/event/choose` 处理选择 |
+| `handleBreakthroughClick()` | 突破预警时触发 → 调用 `getNextEvent` 获取突破事件 |
+| `confirmBreakthroughChoice(optionId)` | 突破选择提交 → 调用 `chooseOption` 处理 use_pill/direct |
 | `handleBreakthrough()` | 处理突破动画 → 等待玩家点击 → 继续 |
 | `checkGameOver()` | 检查 `is_alive` 和 `age >= lifespan` |
 
-### 突破流程
+### 突破流程（新模式）
 
-1. `process_choice` 返回 `breakthrough` 信息
-2. 设置 `waiting_click = true`, 显示金色脉冲动画
-3. 玩家点击"点击继续"
-4. 动画完成 → 继续获取下一事件
+突破作为独立交互事件分两步：
+
+**第一步 — 突破选择：**
+1. `getNextEvent` 返回突破事件（`_pending_breakthrough` flag 触发）
+2. 前端进入 `BREAKTHROUGH_CHOOSING` 阶段，显示含选项的突破叙事
+3. 选项: `use_pill`（消耗丹药+15%成功率）或 `direct`（直接突破，无加成）
+4. 玩家选择 → `confirmBreakthroughChoice(optionId)` → `POST /event/choose`
+
+**第二步 — 突破结果：**
+5. `chooseOption` 返回突破结果（成功/失败）
+6. 设置 `waiting_click = true`, 显示金色脉冲动画 + 结果文本
+7. 玩家点击"点击继续"
+8. 动画完成 → aftermath 持久化到 EventLogEntry → 继续获取下一事件`
 
 ## API 客户端 (api/)
 

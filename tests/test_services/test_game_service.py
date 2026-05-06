@@ -127,7 +127,9 @@ class TestGetNextEvent:
         """get_next_event 返回有效事件 dict."""
         random.seed(42)
         result = start_game("测试", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
-        event = get_next_event(result["session_id"])
+        sid = result["session_id"]
+        _games[sid]["age"] = 20   # CULTIVATOR stage for events with options
+        event = get_next_event(sid)
         assert "event_id" in event
         assert "title" in event
         assert "narrative" in event

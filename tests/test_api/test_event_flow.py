@@ -1,7 +1,7 @@
 import pytest
 from httpx import AsyncClient, ASGITransport
 from app.main import app
-from app.services.game_service import start_game
+from app.services.game_service import start_game, _games
 
 
 @pytest.fixture
@@ -10,11 +10,13 @@ def client():
 
 
 def _create_test_game():
-    return start_game(
+    game = start_game(
         name="测试仙人", gender="男",
         talent_card_ids=["f01", "f02", "f03"],
         attributes={"rootBone": 3, "comprehension": 3, "mindset": 2, "luck": 2},
     )
+    _games[game["session_id"]]["age"] = 20   # CULTIVATOR stage for events with options
+    return game
 
 
 @pytest.mark.asyncio

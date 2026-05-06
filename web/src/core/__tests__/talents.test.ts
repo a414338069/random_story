@@ -27,19 +27,21 @@ describe('drawCards', () => {
 
 describe('getGradeColor', () => {
   it('should return correct color for each grade', () => {
-    expect(getGradeColor('凡品')).toBe('#9e9e9e')
-    expect(getGradeColor('灵品')).toBe('#4caf50')
-    expect(getGradeColor('玄品')).toBe('#3f51b5')
-    expect(getGradeColor('仙品')).toBe('#9c27b0')
-    expect(getGradeColor('神品')).toBe('#ff8f00')
-    expect(getGradeColor('未知')).toBe('#9e9e9e')
+    expect(getGradeColor('凡品')).toBe('#8a8a8a')
+    expect(getGradeColor('灵品')).toBe('#5b8fbf')
+    expect(getGradeColor('玄品')).toBe('#7c5ba5')
+    expect(getGradeColor('仙品')).toBe('#c9a76e')
+    expect(getGradeColor('神品')).toBe('#c23a2b')
+    expect(getGradeColor('未知')).toBe('#8a8a8a')
   })
 })
 
 describe('getGradeBgColor', () => {
   it('should return correct background color for each grade', () => {
-    expect(getGradeBgColor('凡品')).toBe('rgba(158,158,158,0.1)')
-    expect(getGradeBgColor('神品')).toBe('rgba(255,143,0,0.1)')
+    expect(getGradeBgColor('凡品')).toBe('rgba(138,138,138,0.06)')
+    expect(getGradeBgColor('灵品')).toBe('rgba(91,143,191,0.08)')
+    expect(getGradeBgColor('神品')).toBe('rgba(194,58,43,0.08)')
+    expect(getGradeBgColor('未知')).toBe('rgba(138,138,138,0.06)')
   })
 })
 

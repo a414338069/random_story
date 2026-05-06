@@ -21,11 +21,11 @@ from app.services.event_engine import (
 
 
 def test_load_templates_has_test_events():
-    """加载两个测试 YAML 事件模板."""
+    """加载实际 YAML 事件模板并验证关键模板存在."""
     templates = load_templates()
     ids = {t["id"] for t in templates}
-    assert "test_daily_001" in ids
-    assert "test_jindan_001" in ids
+    assert "daily_010" in ids   # 通用 daily: 凡人-渡劫飞升
+    assert "daily_004" in ids   # 金丹限定 daily
 
 
 def test_load_templates_all_have_required_fields():
@@ -52,32 +52,32 @@ def test_load_templates_cached():
 
 
 def test_filter_realm_min():
-    """金丹事件不出现在凡人筛选中 (player realm order < min_realm order)."""
+    """金丹限定事件不出现在凡人筛选中."""
     templates = load_templates()
     player = {"realm": "凡人", "age": 50, "faction": ""}
     filtered = filter_templates(templates, player)
     ids = {t["id"] for t in filtered}
-    assert "test_daily_001" in ids
-    assert "test_jindan_001" not in ids  # 金丹限定
+    assert "daily_010" in ids       # 凡人可访问
+    assert "daily_004" not in ids   # 金丹限定
 
 
 def test_filter_realm_exact_match():
-    """金丹事件出现在金丹筛选结果中."""
+    """金丹限定事件出现在金丹玩家筛选结果中."""
     templates = load_templates()
-    player = {"realm": "金丹", "age": 500, "faction": ""}
+    player = {"realm": "金丹", "age": 300, "faction": ""}
     filtered = filter_templates(templates, player)
     ids = {t["id"] for t in filtered}
-    assert "test_jindan_001" in ids
-    assert "test_daily_001" in ids
+    assert "daily_004" in ids   # 金丹限定, age 150-500
+    assert "daily_010" in ids   # 全境界
 
 
 def test_filter_realm_max_realm():
-    """元婴境界 (order=5) > 金丹 (order=4) 上限，不应匹配."""
+    """元婴境界超出金丹 max_realm 上限，不应匹配."""
     templates = load_templates()
     player = {"realm": "元婴", "age": 500, "faction": ""}
     filtered = filter_templates(templates, player)
     ids = {t["id"] for t in filtered}
-    assert "test_jindan_001" not in ids
+    assert "daily_004" not in ids   # max_realm=金丹
 
 
 def test_filter_age_below_min():
@@ -86,7 +86,7 @@ def test_filter_age_below_min():
     player = {"realm": "金丹", "age": 50, "faction": ""}
     filtered = filter_templates(templates, player)
     ids = {t["id"] for t in filtered}
-    assert "test_jindan_001" not in ids  # min_age=100
+    assert "daily_004" not in ids   # min_age=150
 
 
 def test_filter_age_above_max():
@@ -95,25 +95,25 @@ def test_filter_age_above_max():
     player = {"realm": "金丹", "age": 2000, "faction": ""}
     filtered = filter_templates(templates, player)
     ids = {t["id"] for t in filtered}
-    assert "test_jindan_001" not in ids  # max_age=1000
+    assert "daily_004" not in ids   # max_age=500
 
 
 def test_filter_age_in_range():
     """年龄在范围内匹配."""
     templates = load_templates()
-    player = {"realm": "金丹", "age": 500, "faction": ""}
+    player = {"realm": "金丹", "age": 300, "faction": ""}
     filtered = filter_templates(templates, player)
     ids = {t["id"] for t in filtered}
-    assert "test_jindan_001" in ids
+    assert "daily_004" in ids   # min_age=150, max_age=500
 
 
 def test_filter_faction_null_allows_any():
     """required_faction=null 不限制门派."""
     templates = load_templates()
-    player = {"realm": "金丹", "age": 500, "faction": "散修"}
+    player = {"realm": "金丹", "age": 300, "faction": "散修"}
     filtered = filter_templates(templates, player)
     ids = {t["id"] for t in filtered}
-    assert "test_jindan_001" in ids
+    assert "daily_004" in ids   # no faction requirement
 
 
 # ---------------------------------------------------------------------------
@@ -278,11 +278,12 @@ def test_build_event_context():
 
 
 def test_build_event_context_prompt_substitution():
-    """prompt_template 中的 {realm} 和 {age} 应被替换."""
-    template = load_templates()[0]  # daily: "你是一位{realm}境界的修士，今年{age}岁..."
+    """prompt_template 中的 {age} 占位符应被替换."""
+    templates = load_templates()
+    template = next(t for t in templates if t["id"] == "daily_004")
+    # daily_004 prompt: "你已{age}岁，金丹在丹田中缓缓旋转..."
     player = {"realm": "金丹", "age": 500, "faction": ""}
     ctx = build_event_context(template, player)
-    assert "金丹" in ctx["prompt"]
     assert "500" in ctx["prompt"]
     assert "{" not in ctx["prompt"]
 

@@ -4,28 +4,29 @@
 
 ## 概览
 
-64+ YAML 事件模板，是游戏随机事件的核心数据源。每个模板定义触发条件、叙事提示、默认选项和后果。
+76 YAML 事件模板，是游戏随机事件的核心数据源。每个模板定义触发条件、叙事提示、默认选项和后果。
 
 ## 文件清单
 
-### 事件分类 (14 大类)
+### 事件分类 (16 大类)
 
 | 类别 | 文件数 | 前缀 | 触发场景 |
 |------|--------|------|---------|
 | daily | 15 | `daily_001` ~ `daily_015` | 日常修行生活 |
+| childhood | 10 | `childhood_001` ~ `childhood_010` | 童年事件 (4-11岁) |
 | adventure | 8 | `adventure_001` ~ `adventure_008` | 探险奇遇 |
+| bottleneck | 6 | `bottleneck_000` ~ `bottleneck_005` | 瓶颈/突破契机 |
+| stones | 5 | `stones_001` ~ `stones_005` | 灵石相关 |
 | combat | 4 | `combat_001` ~ `combat_004` | 战斗冲突 |
 | social | 4 | `social_001` ~ `social_004` | 社交互动 |
 | economy | 4 | `economy_001` ~ `economy_004` | 经济/交易 |
-| emotional | 2 | `emotional_001` ~ `emotional_002` | 情感/心魔 |
-| heavenly | 2 | `heavenly_001` ~ `heavenly_002` | 天劫/天赐 |
+| explore | 4 | `explore_001` ~ `explore_004` | 探索/发现 |
+| youth | 4 | `youth_001` ~ `youth_004` | 少年事件 (12-15岁) |
 | fortune | 3 | `fortune_001` ~ `fortune_003` | 际遇/机缘 |
 | sect | 3 | `sect_001` ~ `sect_003` | 门派相关 |
-| stones | 5 | `stones_001` ~ `stones_005` | 灵石相关 |
-| explore | 4 | `explore_001` ~ `explore_004` | 探索/发现 |
-| bottleneck | 6 | `bottleneck_000` ~ `bottleneck_005` | 瓶颈/突破契机 |
-| birth | 2 | `birth_001` ~ `birth_002` | 出生事件 |
-| childhood | 2 | `childhood_001` ~ `childhood_002` | 童年事件 |
+| emotional | 2 | `emotional_001` ~ `emotional_002` | 情感/心魔 |
+| heavenly | 2 | `heavenly_001` ~ `heavenly_002` | 天劫/天赐 |
+| birth | 2 | `birth_001` ~ `birth_002` | 出生事件 (0-3岁) |
 
 ### 测试文件
 
@@ -90,9 +91,19 @@ default_options:            # 默认选项 (2-4个)
 ## 安静年 (Quiet Year)
 
 不由 YAML 定义，而是由 `event_engine._build_quiet_year_event()` 动态生成：
-- 触发条件: 连续 ≥2 个有选项事件后，25% 概率
+- 触发条件: 连续 ≥2 个有选项事件后，25% 概率（不受生命阶段影响，各阶段均可触发）
 - 内容: 从预设叙事列表随机选择
 - 特征: `narrative_only` = true, 无 `options`
+
+## 生命阶段相关事件
+
+事件模板按生命阶段设计：
+- **birth** (0-3岁): 出生初始事件
+- **childhood** (4-11岁): 童年生活事件，`min_age` 全部设为 4-11 或覆盖 4+（部分模板原 `min_age=0` 改为 `min_age=12` 避免童年期误触发）
+- **youth** (12-15岁): 少年事件，修炼乘数 0.5 阶段专属事件
+- **daily/adventure 等** (16+): 核心修仙事件，部分原 `min_age=0` 模板调整为 `min_age=12` 以适应生命阶段划分
+
+事件引擎根据 `player_state.age` 自动筛除不匹配年龄的模板。
 
 ## 新增事件模板指南
 

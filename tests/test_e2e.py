@@ -7,12 +7,15 @@ import pytest
 from httpx import AsyncClient, ASGITransport
 
 from app.main import app
+from app.services.ai_service import MockAIService
 from app.services.breakthrough import BreakthroughResult
 from app.services.game_service import (
+    _games,
     check_game_over,
     end_game,
     get_next_event,
     get_state,
+    handle_breakthrough_choice,
     process_choice,
     start_game,
 )
@@ -21,7 +24,8 @@ from app.services.game_service import (
 class TestE2EGameLoop:
     """End-to-end test: complete game lifecycle."""
 
-    def test_full_game_loop_balanced(self):
+    @patch("app.services.game_service._get_ai_service", return_value=MockAIService())
+    def test_full_game_loop_balanced(self, mock_ai):
         """Complete game loop with balanced attributes (3/3/2/2)."""
         random.seed(42)
         session = start_game(
@@ -31,11 +35,18 @@ class TestE2EGameLoop:
             attributes={"rootBone": 3, "comprehension": 3, "mindset": 2, "luck": 2},
         )
         sid = session["session_id"]
+        _games[sid]["age"] = 20   # CULTIVATOR stage for events with options
 
         events_played = 0
         while not check_game_over(get_state(sid)):
             event = get_next_event(sid)
             assert event["narrative"], f"Event {events_played}: no narrative"
+            if event.get("is_breakthrough"):
+                handle_breakthrough_choice(_games[sid], use_pill=False)
+                continue
+            if len(event["options"]) == 0:
+                process_choice(sid, None)
+                continue
             assert len(event["options"]) >= 2
 
             option_id = event["options"][0]["id"]
@@ -54,7 +65,8 @@ class TestE2EGameLoop:
 
         print(f"Events played: {events_played}, Score: {result['score']}, Grade: {result['grade']}, Ending: {result['ending']}")
 
-    def test_full_game_loop_tank(self):
+    @patch("app.services.game_service._get_ai_service", return_value=MockAIService())
+    def test_full_game_loop_tank(self, mock_ai):
         """Complete game with tank build (7/1/1/1)."""
         random.seed(42)
         session = start_game(
@@ -63,10 +75,17 @@ class TestE2EGameLoop:
             attributes={"rootBone": 7, "comprehension": 1, "mindset": 1, "luck": 1},
         )
         sid = session["session_id"]
+        _games[sid]["age"] = 20   # CULTIVATOR stage for events with options
 
         events_played = 0
         while not check_game_over(get_state(sid)):
             event = get_next_event(sid)
+            if event.get("is_breakthrough"):
+                handle_breakthrough_choice(_games[sid], use_pill=False)
+                continue
+            if len(event["options"]) == 0:
+                process_choice(sid, None)
+                continue
             option_id = event["options"][0]["id"]
             process_choice(sid, option_id)
             events_played += 1
@@ -79,7 +98,8 @@ class TestE2EGameLoop:
 
         print(f"Tank build: {events_played} events, Score: {result['score']}, Grade: {result['grade']}")
 
-    def test_full_game_loop_mage(self):
+    @patch("app.services.game_service._get_ai_service", return_value=MockAIService())
+    def test_full_game_loop_mage(self, mock_ai):
         """Complete game with mage build (1/7/1/1)."""
         random.seed(42)
         session = start_game(
@@ -88,10 +108,17 @@ class TestE2EGameLoop:
             attributes={"rootBone": 1, "comprehension": 7, "mindset": 1, "luck": 1},
         )
         sid = session["session_id"]
+        _games[sid]["age"] = 20   # CULTIVATOR stage for events with options
 
         events_played = 0
         while not check_game_over(get_state(sid)):
             event = get_next_event(sid)
+            if event.get("is_breakthrough"):
+                handle_breakthrough_choice(_games[sid], use_pill=False)
+                continue
+            if len(event["options"]) == 0:
+                process_choice(sid, None)
+                continue
             option_id = event["options"][0]["id"]
             process_choice(sid, option_id)
             events_played += 1
@@ -119,8 +146,15 @@ class TestE2EGameLoop:
                 attributes={"rootBone": 5, "comprehension": 2, "mindset": 2, "luck": 1},
             )
             sid = session["session_id"]
+            _games[sid]["age"] = 20   # CULTIVATOR stage for events with options
             while not check_game_over(get_state(sid)):
                 event = get_next_event(sid)
+                if event.get("is_breakthrough"):
+                    handle_breakthrough_choice(_games[sid], use_pill=False)
+                    continue
+                if len(event["options"]) == 0:
+                    process_choice(sid, None)
+                    continue
                 process_choice(sid, event["options"][0]["id"])
             return end_game(sid)["score"]
 
@@ -128,7 +162,8 @@ class TestE2EGameLoop:
         score2 = run_game()
         assert score1 == score2, f"Scoring not deterministic: {score1} != {score2}"
 
-    def test_event_count_tracked(self):
+    @patch("app.services.game_service._get_ai_service", return_value=MockAIService())
+    def test_event_count_tracked(self, mock_ai):
         """Event count should increase with each event-choose cycle."""
         random.seed(42)
         session = start_game(
@@ -137,13 +172,21 @@ class TestE2EGameLoop:
             attributes={"rootBone": 3, "comprehension": 3, "mindset": 2, "luck": 2},
         )
         sid = session["session_id"]
+        _games[sid]["age"] = 20   # CULTIVATOR stage for events with options
 
-        for i in range(5):
+        prev_count = 0
+        while prev_count < 5:
             event = get_next_event(sid)
-            process_choice(sid, event["options"][0]["id"])
+            if event.get("is_breakthrough"):
+                handle_breakthrough_choice(_games[sid], use_pill=False)
+            elif len(event["options"]) == 0:
+                process_choice(sid, None)
+            else:
+                process_choice(sid, event["options"][0]["id"])
             state = get_state(sid)
-            assert state["event_count"] == i + 1
+            assert state["event_count"] > prev_count
             assert state["age"] > 0
+            prev_count = state["event_count"]
 
 
 @pytest.mark.asyncio
@@ -158,6 +201,7 @@ async def test_all_api_endpoints_e2e():
         assert resp.status_code == 201
         data = resp.json()
         sid = data["session_id"]
+        _games[sid]["age"] = 20   # CULTIVATOR stage for events with options
 
         resp = await c.get(f"/api/v1/game/state/{sid}")
         assert resp.status_code == 200

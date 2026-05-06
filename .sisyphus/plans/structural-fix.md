@@ -1029,7 +1029,7 @@ Max Concurrent: 6 (Wave 1)
   - Files: `web/src/styles/` 下的 CSS 文件
   - Pre-commit: `cd web && npx vue-tsc --noEmit`
 
-- [ ] 12. 后端测试更新 + 兼容性修复
+- [x] 12. 后端测试更新 + 兼容性修复
 
   **What to do**:
   - **运行 `uv run pytest`** 确认所有 54+ 测试的状态
@@ -1093,7 +1093,7 @@ Max Concurrent: 6 (Wave 1)
   - Files: `tests/`
   - Pre-commit: `uv run pytest`
 
-- [ ] 13. 前端测试更新
+- [x] 13. 前端测试更新
 
   **What to do**:
   - **Vitest 单元测试**:
@@ -1152,7 +1152,7 @@ Max Concurrent: 6 (Wave 1)
   - Files: `web/tests/` 或等效测试目录
   - Pre-commit: `cd web && npm run test:unit`
 
-- [ ] 14. 数据校验 + 文档更新
+- [x] 14. 数据校验 + 文档更新
 
   **What to do**:
   - **数据校验**: `uv run python -m app.data.validate_data` 确认全部 YAML 通过

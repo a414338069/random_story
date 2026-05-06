@@ -4,13 +4,14 @@
 
 ## 概览
 
-服务层包含 10 个模块，是游戏的核心业务逻辑。`game_service.py` 是唯一编排层，其余 9 个是独立的领域服务。
+服务层包含 11 个模块，是游戏的核心业务逻辑。`game_service.py` 是唯一编排层，其余 10 个是独立的领域服务。
 
 ## 文件清单
 
 | 文件 | 行数 | 职责 | 依赖 |
 |------|------|------|------|
 | `game_service.py` | 629 | **核心编排** — 游戏生命周期、状态推进、修炼公式 | 全部服务 + repo |
+| `life_stage.py` | 37 | **生命阶段** — 4阶段划分(INFANT/CHILD/YOUTH/CULTIVATOR), 修炼乘数, 突破限制 | (无外部依赖) |
 | `event_engine.py` | 195 | **事件引擎** — YAML模板加载、条件筛选、权重计算、安静年 | realm_service |
 | `ai_service.py` | 167 | **AI服务** — DeepSeek API封装、JSON模式、重试逻辑、SYSTEM_PROMPT | openai SDK, config |
 | `ai_validator.py` | ~100 | **AI输出验证** — 3层验证(JSON→Schema→业务) | (无外部依赖) |
@@ -43,7 +44,9 @@ end_game(session_id) → dict
 | `_build_consequence_narrative(chosen_text, cultivation_gain, ...)` | 后果叙事生成(CONSEQUENCE_TEMPLATES模板系统) |
 | `_calc_cultivation_gain(event_type, comprehension, technique_grades)` | 修炼收益计算(事件类型×悟性×功法品质) |
 | `_check_breakthrough_warning(state)` | 突破前预警(cultivation ≥ 80%下一境界需求) |
-| `_handle_cultivation_overflow(state, new_cultivation)` | 修炼溢出处理(触发突破判定) |
+| `_ensure_pending_breakthrough(state, player_state)` | 创建突破事件上下文(独立交互事件) |
+| `build_breakthrough_event(state, player_state)` | 构建突破事件响应(含 use_pill/direct 两选项) |
+| `handle_breakthrough_choice(state, player_state, option_id)` | 处理突破选择(调用 breakthrough.attempt_breakthrough) |
 | `_to_engine_context(state)` | PlayerState → event_engine 上下文转换 |
 
 ### CONSEQUENCE_TEMPLATES (行 272-295)
@@ -118,6 +121,32 @@ load_templates() → filter_templates(player_state) → calculate_weights(templa
 
 验证失败静默 `pass` (8处 `except` — 已知技术债)。
 
+## 生命阶段 (life_stage.py)
+
+### LifeStage 枚举
+
+```python
+class LifeStage(Enum):
+    INFANT = "infant"       # 0-3岁
+    CHILD = "child"         # 4-11岁
+    YOUTH = "youth"         # 12-15岁
+    CULTIVATOR = "cultivator"  # 16+
+```
+
+### 关键函数
+
+| 函数 | 返回值 | 说明 |
+|------|--------|------|
+| `get_life_stage(age)` | LifeStage | 按年龄返回对应阶段 |
+| `get_cultivation_multiplier(age)` | float | 修炼乘数: INFANT/CHILD=0.0, YOUTH=0.5, CULTIVATOR=1.0 |
+| `can_attempt_breakthrough(age)` | bool | 仅 16+ 可突破 |
+| `get_breakthrough_penalty(age)` | float | 未成年突破惩罚 0.5 |
+
+- INFANT/CHILD 阶段修炼收益为 0（只能通过事件获得修为）
+- YOUTH 阶段修炼效率 50%，可触发少年事件
+- CULTIVATOR 阶段完全体修炼效率
+- `life_stage.py` 被 `game_service.py` 和 `event_engine.py` 引用
+
 ## 突破系统 (breakthrough.py)
 
 ### BreakthroughResult (dataclass)
@@ -138,6 +167,15 @@ class BreakthroughResult:
 - 成功率: 基础50% - 境界惩罚(REALM_PENALTY) + 天赋加成(百折不挠 +10%) + 丹药加成(+15%)
 - 失败: 损失 cultivation (30-50%)，可能掉境界
 - 最高境界"渡劫飞升"设置 `ascended=True`
+
+### 突破交互流程（新模式）
+
+突破不再是在 process_choice 中自动处理，而是作为**独立交互事件**：
+1. `_ensure_pending_breakthrough()` 在修炼溢出后设置 `_pending_breakthrough` flag（存在 state dict 中，不存 DB）
+2. 下一次 `get_next_event()` 检测到 flag → 调用 `build_breakthrough_event()` 生成含两选项的事件（use_pill / direct）
+3. 前端进入 `breakthrough_choosing` 阶段，展示突破选项卡片
+4. `process_choice()` 检测到突破事件 → 调用 `handle_breakthrough_choice()` → 调用 `attempt_breakthrough()`
+5. 结果 aftermatth 持久化到 EventLogEntry，前端回到正常事件流
 
 ## 缓存服务 (cache_service.py)
 
