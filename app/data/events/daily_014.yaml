@@ -4,7 +4,7 @@ title: "静坐冥想"
 trigger_conditions:
   min_realm: "凡人"
   max_realm: "渡劫飞升"
-  min_age: 0
+  min_age: 12
   max_age: 9999
   required_faction: null
 weight: 1.0

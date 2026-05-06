@@ -310,3 +310,118 @@ def test_force_non_daily_custom_threshold():
     assert should_force_non_daily(3, threshold=5) is False
     assert should_force_non_daily(4, threshold=5) is False
     assert should_force_non_daily(5, threshold=5) is True
+
+
+# ---------------------------------------------------------------------------
+# filter_templates() — life-stage filtering (T2)
+# ---------------------------------------------------------------------------
+
+
+def _make_templates(*types_narrative: tuple[str, bool]) -> list[dict]:
+    """Build synthetic templates with (type, narrative_only) pairs."""
+    return [
+        {
+            "id": f"t{i}",
+            "type": t,
+            "title": f"template {i}",
+            "trigger_conditions": {
+                "min_realm": "凡人",
+                "max_realm": "渡劫飞升",
+                "min_age": 0,
+                "max_age": 9999,
+                "required_faction": None,
+            },
+            "weight": 1.0,
+            "prompt_template": "",
+            "fallback_narrative": "",
+            "default_options": [],
+            "narrative_only": narr,
+        }
+        for i, (t, narr) in enumerate(types_narrative)
+    ]
+
+
+def test_filter_infant_only_narrative_only():
+    """age=5 → 只保留 narrative_only=True 的模板."""
+    templates = _make_templates(
+        ("daily", True),
+        ("daily", False),
+        ("adventure", False),
+        ("daily", True),
+    )
+    player = {"realm": "凡人", "age": 5, "faction": ""}
+    filtered = filter_templates(templates, player)
+    ids = {t["id"] for t in filtered}
+    assert ids == {"t0", "t3"}  # only narrative_only templates
+
+
+def test_filter_youth_excludes_adventure():
+    """age=14 (YOUTH 12-15) → 排除 adventure 类型模板."""
+    templates = _make_templates(
+        ("daily", False),
+        ("adventure", False),
+        ("combat", False),
+        ("daily", True),
+    )
+    player = {"realm": "凡人", "age": 14, "faction": ""}
+    filtered = filter_templates(templates, player)
+    ids = {t["id"] for t in filtered}
+    assert "t1" not in ids  # adventure excluded
+    assert "t0" in ids
+    assert "t2" in ids
+    assert "t3" in ids
+
+
+def test_filter_adult_no_additional_filtering():
+    """age=20 → 无额外过滤，与原有行为一致."""
+    templates = _make_templates(
+        ("daily", False),
+        ("adventure", False),
+        ("combat", False),
+        ("daily", True),
+    )
+    player = {"realm": "凡人", "age": 20, "faction": ""}
+    filtered = filter_templates(templates, player)
+    ids = {t["id"] for t in filtered}
+    assert ids == {"t0", "t1", "t2", "t3"}  # all pass
+
+
+def test_filter_infant_empty_returns_fallback():
+    """age=5 且无 narrative_only 模板 → filter_templates 返回空列表,
+    select_event 应返回 FALLBACK_EVENT."""
+    templates = _make_templates(
+        ("daily", False),
+        ("adventure", False),
+    )
+    player = {"realm": "凡人", "age": 5, "faction": ""}
+    filtered = filter_templates(templates, player)
+    assert filtered == []
+    # Verify select_event falls back correctly
+    event = select_event(calculate_weights(filtered, player))
+    assert event is FALLBACK_EVENT
+
+
+def test_weights_youth_factor():
+    """age=14 (YOUTH) → calculate_weights 所有权重 ×0.7."""
+    templates = _make_templates(
+        ("daily", False),
+        ("adventure", False),
+    )
+    player = {"realm": "金丹", "luck": 5, "cultivation": 0, "age": 14, "faction": ""}
+    weighted = calculate_weights(templates, player)
+    # daily base = 1.0, adventure base = 0.3 + 5*0.05 = 0.55
+    # both × 0.7
+    assert weighted[0][1] == pytest.approx(0.7)       # daily: 1.0 * 0.7
+    assert weighted[1][1] == pytest.approx(0.385)     # adventure: 0.55 * 0.7
+
+
+def test_weights_adult_no_youth_factor():
+    """age=20 → 无 youth factor, 权重不变."""
+    templates = _make_templates(
+        ("daily", False),
+        ("adventure", False),
+    )
+    player = {"realm": "金丹", "luck": 5, "cultivation": 0, "age": 20, "faction": ""}
+    weighted = calculate_weights(templates, player)
+    assert weighted[0][1] == pytest.approx(1.0)   # daily: no factor
+    assert weighted[1][1] == pytest.approx(0.55)   # adventure: 0.3 + 5*0.05

@@ -21,6 +21,7 @@ from app.services.event_engine import (
 from app.services.scoring import determine_ending, calculate_score, get_grade
 from app.services.breakthrough import attempt_breakthrough, BreakthroughResult
 from app.services.ai_service import DeepSeekService, MockAIService
+from app.services.life_stage import get_life_stage, get_cultivation_multiplier, can_attempt_breakthrough
 from app.models.player import PlayerState
 from app.repositories import game_repo
 from app.database import get_db, init_db
@@ -108,6 +109,7 @@ def _to_engine_context(state: dict) -> dict:
         "luck": state["attributes"]["luck"],
         "cultivation": state["cultivation"],
         "comprehension": state["attributes"]["comprehension"],
+        "life_stage": get_life_stage(state["age"]).value,
     }
 
 
@@ -358,7 +360,7 @@ def _build_consequence_narrative(
     ) + stones_part + (f"，{time_desc}过去了。" if time_desc else "")
 
 
-def _calc_cultivation_gain(event_type: str, comprehension: int, technique_grades: list[str]) -> float:
+def _calc_cultivation_gain(event_type: str, comprehension: int, technique_grades: list[str], age: int) -> float:
     GRADE_MODIFIER = {"凡品": 1.0, "灵品": 1.5, "玄品": 2.0, "仙品": 3.0}
     BASE_GAIN = {"daily": 10, "adventure": 30, "bottleneck": 5}
 
@@ -369,7 +371,7 @@ def _calc_cultivation_gain(event_type: str, comprehension: int, technique_grades
         mods = [GRADE_MODIFIER.get(g, 0.5) for g in technique_grades]
         tech_mod = sum(mods) / len(mods)
 
-    return base * comp_bonus * tech_mod
+    return base * comp_bonus * tech_mod * get_cultivation_multiplier(age)
 
 
 def _check_breakthrough_warning(state: dict) -> dict | None:
@@ -406,6 +408,8 @@ def _check_breakthrough_warning(state: dict) -> dict | None:
 
 def _handle_cultivation_overflow(state: dict, new_cultivation: float) -> None:
     realm = state["realm"]
+    age = state.get("age", 0)
+
     next_realm = get_next_realm(realm)
     if next_realm is None:
         state["cultivation"] = new_cultivation
@@ -415,6 +419,14 @@ def _handle_cultivation_overflow(state: dict, new_cultivation: float) -> None:
     next_req = next_config.get("cultivation_req", 0) if next_config else 0
 
     if next_req and new_cultivation >= next_req:
+        if not can_attempt_breakthrough(age):
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning("突破被年龄阻止 (age=%d < 16)，修为封顶在 %d", age, next_req - 1)
+            state["cultivation"] = next_req - 1
+            state["realm_progress"] = (next_req - 1) / next_req
+            return
+
         # 修为达到下一境界门槛，触发突破判定
         state["cultivation"] = new_cultivation  # 临时写入供 attempt_breakthrough 读取
         result = attempt_breakthrough(state)
@@ -477,7 +489,7 @@ def process_choice(session_id: str, option_id: str | None = None) -> dict:
     if explicit_gain is not None:
         cultivation_gain = explicit_gain * (1 + comprehension * 0.03)
     else:
-        cultivation_gain = _calc_cultivation_gain(event_type, comprehension, technique_grades)
+        cultivation_gain = _calc_cultivation_gain(event_type, comprehension, technique_grades, state["age"])
     new_cultivation = state["cultivation"] + cultivation_gain
 
     _handle_cultivation_overflow(state, new_cultivation)

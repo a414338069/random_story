@@ -90,6 +90,14 @@ def filter_templates(templates: list[dict], player_state: dict) -> list[dict]:
         if req_faction is not None and player_faction != req_faction:
             continue
 
+        # Life-stage filtering
+        if player_age < 12:
+            if not t.get("narrative_only", False):
+                continue
+        elif player_age <= 15:
+            if t.get("type") == "adventure":
+                continue
+
         result.append(t)
 
     return result
@@ -101,6 +109,9 @@ def calculate_weights(
     luck = player_state.get("luck", 0)
     cultivation = player_state.get("cultivation", 0)
     realm = player_state.get("realm", "")
+    player_age = player_state.get("age", 0)
+
+    youth_weight_factor = 0.7 if 12 <= player_age <= 15 else 1.0
 
     weighted = []
     for t in templates:
@@ -119,6 +130,7 @@ def calculate_weights(
         else:
             weight = 1.0
 
+        weight *= youth_weight_factor
         weighted.append((t, weight))
 
     return weighted

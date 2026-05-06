@@ -159,6 +159,7 @@ class TestProcessChoice:
         random.seed(42)
         result = start_game("测试", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
         sid = result["session_id"]
+        _games[sid]["age"] = 20  # CULTIVATOR stage for full multiplier
         _insert_current_event(sid, event_type="daily")
         old_cultivation = result["cultivation"]
         new_state = process_choice(sid, "opt1")
@@ -235,63 +236,63 @@ class TestProcessChoice:
 class TestCultivationFormula:
     def test_daily_no_technique_comprehension_5(self):
         """daily + comprehension=5 + 无功法 → 10 * 1.5 * 0.5 = 7.5."""
-        gain = _calc_cultivation_gain("daily", 5, [])
+        gain = _calc_cultivation_gain("daily", 5, [], 20)
         assert gain == 7.5
 
     def test_daily_no_technique_comprehension_0(self):
         """daily + comprehension=0 + 无功法 → 10 * 1.0 * 0.5 = 5.0."""
-        gain = _calc_cultivation_gain("daily", 0, [])
+        gain = _calc_cultivation_gain("daily", 0, [], 20)
         assert gain == 5.0
 
     def test_daily_lingpin_technique(self):
         """daily + comprehension=5 + 灵品 → 10 * 1.5 * 1.5 = 22.5."""
-        gain = _calc_cultivation_gain("daily", 5, ["灵品"])
+        gain = _calc_cultivation_gain("daily", 5, ["灵品"], 20)
         assert gain == 22.5
 
     def test_adventure_no_technique(self):
         """adventure + comprehension=3 + 无功法 → 30 * 1.3 * 0.5 = 19.5."""
-        gain = _calc_cultivation_gain("adventure", 3, [])
+        gain = _calc_cultivation_gain("adventure", 3, [], 20)
         assert gain == 19.5
 
     def test_bottleneck_no_technique(self):
         """bottleneck + comprehension=2 + 无功法 → 5 * 1.2 * 0.5 = 3.0."""
-        gain = _calc_cultivation_gain("bottleneck", 2, [])
+        gain = _calc_cultivation_gain("bottleneck", 2, [], 20)
         assert gain == 3.0
 
     def test_multiple_techniques_average(self):
         """多个功法取平均: 凡品(1.0) + 仙品(3.0) = avg 2.0."""
-        gain = _calc_cultivation_gain("daily", 5, ["凡品", "仙品"])
+        gain = _calc_cultivation_gain("daily", 5, ["凡品", "仙品"], 20)
         # 10 * 1.5 * 2.0 = 30.0
         assert gain == 30.0
 
     def test_xuanpin_technique(self):
         """玄品功法 modifier = 2.0."""
-        gain = _calc_cultivation_gain("daily", 5, ["玄品"])
+        gain = _calc_cultivation_gain("daily", 5, ["玄品"], 20)
         # 10 * 1.5 * 2.0 = 30.0
         assert gain == 30.0
 
     def test_xianpin_technique(self):
         """仙品功法 modifier = 3.0."""
-        gain = _calc_cultivation_gain("daily", 5, ["仙品"])
+        gain = _calc_cultivation_gain("daily", 5, ["仙品"], 20)
         # 10 * 1.5 * 3.0 = 45.0
         assert gain == 45.0
 
     def test_unknown_grade_defaults(self):
         """未知功法品级默认 modifier = 0.5."""
-        gain = _calc_cultivation_gain("daily", 5, ["未知品"])
+        gain = _calc_cultivation_gain("daily", 5, ["未知品"], 20)
         # 10 * 1.5 * 0.5 = 7.5
         assert gain == 7.5
 
     def test_unknown_event_type_defaults(self):
         """未知事件类型默认 base=10."""
-        gain = _calc_cultivation_gain("unknown_type", 5, [])
+        gain = _calc_cultivation_gain("unknown_type", 5, [], 20)
         # 10 * 1.5 * 0.5 = 7.5
         assert gain == 7.5
 
     def test_understanding_higher_cultivation(self):
         """comprehension=10 vs 0: comp=10 gives (1+1.0)/(1+0.0)=2x gain."""
-        g10 = _calc_cultivation_gain("daily", 10, [])
-        g0 = _calc_cultivation_gain("daily", 0, [])
+        g10 = _calc_cultivation_gain("daily", 10, [], 20)
+        g0 = _calc_cultivation_gain("daily", 0, [], 20)
         # g10 = 10 * 2.0 * 0.5 = 10.0
         # g0 = 10 * 1.0 * 0.5 = 5.0
         assert g10 == 2 * g0
@@ -312,6 +313,7 @@ class TestCultivationOverflow:
         random.seed(42)
         result = start_game("测试", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
         sid = result["session_id"]
+        _games[sid]["age"] = 20  # CULTIVATOR stage for full cultivation multiplier + allow breakthrough
         _insert_current_event(sid, event_type="adventure")
         # Set cultivation near cap manually
         _games[sid]["cultivation"] = 95  # 凡人 cultivation_req = 100
@@ -326,6 +328,7 @@ class TestCultivationOverflow:
         random.seed(42)
         result = start_game("测试", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
         sid = result["session_id"]
+        _games[sid]["age"] = 20  # CULTIVATOR stage for full cultivation multiplier
         _insert_current_event(sid, event_type="daily")
         _games[sid]["cultivation"] = 10
         new_state = process_choice(sid, "opt1")

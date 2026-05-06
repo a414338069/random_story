@@ -20,6 +20,7 @@ class EventResponse(BaseModel):
     has_options: bool = True
     title: Optional[str] = None
     metadata: Optional[dict] = None
+    is_breakthrough: bool = False
 
     @field_validator("narrative")
     @classmethod
@@ -59,6 +60,7 @@ class BreakthroughInfo(BaseModel):
     message: str
     new_realm: Optional[str] = None
     success: Optional[bool] = None
+    use_pill: bool | None = None
 
 
 class AftermathResponse(BaseModel):
