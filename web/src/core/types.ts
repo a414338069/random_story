@@ -106,7 +106,7 @@ export interface EventLogEntry {
   displayedText: string
   options: EventOption[]
   chosenOptionId: string | null
-  aftermath: { cultivation_change: number; age_advance: number } | null
+  aftermath: { cultivation_change: number; age_advance: number; narrative?: string; breakthrough?: BreakthroughInfo } | null
   phase: 'typing' | 'waiting_click' | 'choosing' | 'submitting' | 'aftermath' | 'breakthrough' | 'done'
   hasOptions: boolean
   title: string | null
@@ -116,6 +116,7 @@ export interface BreakthroughInfo {
   message: string
   new_realm: string | null
   success: boolean | null
+  use_pill?: boolean
 }
 
 export interface ChooseResponse {
@@ -160,4 +161,4 @@ export interface LeaderboardEntry {
   ending_id: string | null
 }
 
-export type LoopPhase = 'idle' | 'fetching' | 'typing' | 'waiting_click' | 'choosing' | 'submitting' | 'aftermath' | 'gameover'
+export type LoopPhase = 'idle' | 'fetching' | 'typing' | 'waiting_click' | 'choosing' | 'breakthrough_choosing' | 'submitting' | 'aftermath' | 'gameover'
