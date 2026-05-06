@@ -48,11 +48,28 @@ watch(
       <div v-if="entry.chosenOptionId && entry.phase === 'done'" class="log-choice">
         已选择
       </div>
-      <div v-if="entry.aftermath && entry.phase === 'done'" class="log-aftermath">
-        <span v-if="entry.aftermath.cultivation_change > 0"
-          >+{{ entry.aftermath.cultivation_change.toFixed(1) }} 修为</span
+      <div v-if="entry.aftermath && entry.phase === 'done'">
+        <div class="log-aftermath">
+          <span v-if="entry.aftermath.cultivation_change > 0"
+            >+{{ entry.aftermath.cultivation_change.toFixed(1) }} 修为</span
+          >
+          <span v-if="entry.aftermath.age_advance > 0">年龄 +{{ entry.aftermath.age_advance }}</span>
+        </div>
+        <div v-if="entry.aftermath.narrative" class="log-aftermath-narrative">
+          {{ entry.aftermath.narrative }}
+        </div>
+        <div
+          v-if="entry.aftermath.breakthrough"
+          class="log-breakthrough"
+          :class="
+            entry.aftermath.breakthrough.success
+              ? 'log-breakthrough--success'
+              : 'log-breakthrough--fail'
+          "
         >
-        <span v-if="entry.aftermath.age_advance > 0">年龄 +{{ entry.aftermath.age_advance }}</span>
+          <span v-if="entry.aftermath.breakthrough.success">✨ 突破成功</span>
+          <span v-else-if="entry.aftermath.breakthrough.success === false">💥 突破失败</span>
+        </div>
       </div>
     </div>
     <div
@@ -115,6 +132,27 @@ watch(
   font-size: 0.8rem;
   color: #b8b3a8;
   margin-top: 4px;
+}
+
+.log-aftermath-narrative {
+  font-size: 0.8rem;
+  color: #b8b3a8;
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+.log-breakthrough {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.log-breakthrough--success {
+  color: #b8860b;
+}
+
+.log-breakthrough--fail {
+  color: #dc3545;
 }
 
 .continue-hint {

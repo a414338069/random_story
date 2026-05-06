@@ -97,6 +97,7 @@ export interface EventResponse {
   options: EventOption[]
   title: string | null
   has_options: boolean
+  is_breakthrough: boolean
   metadata: Record<string, unknown> | null
 }
 
@@ -107,7 +108,7 @@ export interface EventLogEntry {
   options: EventOption[]
   chosenOptionId: string | null
   aftermath: { cultivation_change: number; age_advance: number; narrative?: string; breakthrough?: BreakthroughInfo } | null
-  phase: 'typing' | 'waiting_click' | 'choosing' | 'submitting' | 'aftermath' | 'breakthrough' | 'done'
+  phase: 'typing' | 'waiting_click' | 'choosing' | 'breakthrough_choosing' | 'submitting' | 'aftermath' | 'breakthrough' | 'done'
   hasOptions: boolean
   title: string | null
 }

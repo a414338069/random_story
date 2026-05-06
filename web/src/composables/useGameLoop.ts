@@ -68,8 +68,12 @@ export function useGameLoop() {
 
       if (cancelled) return
 
-      // After typewriter finishes, decide next phase based on has_options
-      if (event.has_options) {
+      // After typewriter finishes, decide next phase
+      if (event.is_breakthrough) {
+        // Breakthrough event: show options (use_pill / direct)
+        setPhase('breakthrough_choosing')
+        entry.phase = 'breakthrough_choosing'
+      } else if (event.has_options) {
         setPhase('choosing')
         entry.phase = 'choosing'
       } else {
@@ -100,10 +104,9 @@ export function useGameLoop() {
   async function handleChoose(optionId: string | null) {
     if (!sessionId.value || cancelled) return
 
-    const isChoosing = phase.value === 'choosing'
-    const isWaitingClick = phase.value === 'waiting_click'
+    const canChoose = phase.value === 'choosing' || phase.value === 'breakthrough_choosing'
 
-    if (!isChoosing && !isWaitingClick) return
+    if (!canChoose) return
 
     typewriter.skipToEnd()
     setPhase('submitting')
@@ -133,20 +136,9 @@ export function useGameLoop() {
 
       if (!result.state.isAlive) {
         setTimeout(() => handleGameOver(), 2500)
-      } else if (result.aftermath?.breakthrough) {
-        // 有突破时：不自动advance，显示突破信息等待用户确认
-        if (entry) {
-          entry.phase = 'breakthrough'
-        }
-        setPhase('waiting_click') // 允许点击继续
       } else {
-        // 正常：2.5秒后自动推进
-        setTimeout(() => {
-          if (entry) {
-            entry.phase = 'done'
-          }
-          advanceEvent()
-        }, 2500)
+        entry.phase = 'done'
+        setPhase('waiting_click')
       }
     } catch (err: unknown) {
       if (cancelled) return
@@ -163,12 +155,10 @@ export function useGameLoop() {
   function handleContinueClick() {
     if (phase.value !== 'waiting_click') return
     const entry = currentEntry.value
-    if (entry && entry.phase === 'breakthrough') {
+    if (entry) {
       entry.phase = 'done'
-      advanceEvent()
-      return
     }
-    handleChoose(null)
+    advanceEvent()
   }
 
   function skipTypewriter() {
