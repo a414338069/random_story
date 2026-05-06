@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { NButton } from 'naive-ui'
 import StatusBar from '@/components/StatusBar.vue'
 import NarrativeLog from '@/components/NarrativeLog.vue'
@@ -37,6 +37,8 @@ function onGlobalClick() {
 function onOptionClick(optionId: string) {
   handleChoose(optionId)
 }
+
+const displayAftermath = computed(() => currentEntry.value?.aftermath ?? aftermath.value)
 </script>
 
 <template>
@@ -67,36 +69,44 @@ function onOptionClick(optionId: string) {
           @continue-click="handleContinueClick"
         />
 
-        <div v-if="(phase === 'aftermath' || phase === 'waiting_click') && currentEntry?.phase === 'breakthrough' && aftermath" class="gm-aftermath">
-          <p v-if="aftermath.narrative" class="gm-aftermath-narrative">
-            {{ aftermath.narrative }}
+        <div v-if="(phase === 'aftermath' || phase === 'waiting_click') && (currentEntry?.aftermath || aftermath)" class="gm-aftermath">
+          <p v-if="displayAftermath.narrative" class="gm-aftermath-narrative">
+            {{ displayAftermath.narrative }}
           </p>
-          <div v-if="aftermath.breakthrough" class="gm-breakthrough gm-breakthrough--active">
-            <p class="gm-breakthrough-msg">{{ aftermath.breakthrough.message }}</p>
-            <p class="gm-breakthrough-hint">
-              点击继续你的修行之路
+          <div v-if="displayAftermath.breakthrough"
+               class="gm-breakthrough"
+               :class="{
+                 'gm-breakthrough--active': displayAftermath.breakthrough.success !== false,
+                 'gm-breakthrough--success': displayAftermath.breakthrough.success === true,
+                 'gm-breakthrough--fail': displayAftermath.breakthrough.success === false,
+               }">
+            <p class="gm-breakthrough-msg"
+               :class="{
+                 'gm-breakthrough-msg--success': displayAftermath.breakthrough.success === true,
+                 'gm-breakthrough-msg--fail': displayAftermath.breakthrough.success === false,
+               }">
+              {{ displayAftermath.breakthrough.message }}
             </p>
           </div>
-          <p v-if="aftermath.cultivation_change > 0" class="gm-aftermath-stat">
-            +{{ aftermath.cultivation_change.toFixed(1) }} 修为
+          <p v-if="displayAftermath.cultivation_change > 0" class="gm-aftermath-stat">
+            +{{ displayAftermath.cultivation_change.toFixed(1) }} 修为
           </p>
-          <p v-if="aftermath.age_advance > 0" class="gm-aftermath-stat">
-            年龄增长 {{ aftermath.age_advance }} 岁
+          <p v-if="displayAftermath.age_advance > 0" class="gm-aftermath-stat">
+            年龄增长 {{ displayAftermath.age_advance }} 岁
+          </p>
+          <p v-if="phase === 'waiting_click'" class="gm-continue-hint">
+            点击继续你的修行之路
           </p>
         </div>
-        <div v-else-if="phase === 'aftermath' && aftermath" class="gm-aftermath">
-          <p v-if="aftermath.narrative" class="gm-aftermath-narrative">
-            {{ aftermath.narrative }}
-          </p>
-          <div v-if="aftermath.breakthrough" class="gm-breakthrough">
-            <p class="gm-breakthrough-msg">{{ aftermath.breakthrough.message }}</p>
-          </div>
-          <p v-if="aftermath.cultivation_change > 0" class="gm-aftermath-stat">
-            +{{ aftermath.cultivation_change.toFixed(1) }} 修为
-          </p>
-          <p v-if="aftermath.age_advance > 0" class="gm-aftermath-stat">
-            年龄增长 {{ aftermath.age_advance }} 岁
-          </p>
+
+        <div v-if="phase === 'breakthrough_choosing' && currentEntry" class="gm-options gm-options--breakthrough">
+          <p class="gm-options-title">境界突破</p>
+          <OptionCard
+            v-for="opt in currentEntry.options"
+            :key="opt.id"
+            :option="opt"
+            @click="onOptionClick(opt.id)"
+          />
         </div>
 
         <div v-if="phase === 'choosing' && currentEntry" class="gm-options">
@@ -215,6 +225,34 @@ function onOptionClick(optionId: string) {
   animation: fadeInOut 2s ease-in-out infinite;
 }
 
+.gm-breakthrough--success {
+  background: linear-gradient(135deg, #fff8e7, #fef3d0);
+  border-color: #d4af37;
+}
+
+.gm-breakthrough--fail {
+  background: linear-gradient(135deg, #fff0f0, #fde8e8);
+  border-color: #c06050;
+  box-shadow: none;
+  animation: none;
+}
+
+.gm-breakthrough-msg--success {
+  color: #8b6914;
+}
+
+.gm-breakthrough-msg--fail {
+  color: #a04030;
+}
+
+.gm-continue-hint {
+  color: var(--text-muted, #8a857d);
+  font-size: 0.8rem;
+  margin: 12px 0 0;
+  animation: fadeInOut 2s ease-in-out infinite;
+  cursor: pointer;
+}
+
 .gm-aftermath-stat {
   margin: 2px 0;
   color: #b8b3a8;
@@ -229,6 +267,25 @@ function onOptionClick(optionId: string) {
   padding-top: 12px;
   border-top: 1px solid #f0ece5;
   animation: fadeIn 0.3s ease;
+}
+
+.gm-options--breakthrough {
+  border-top-color: #e8d9a0;
+}
+
+.gm-options-title {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #8b6914;
+  margin: 0 0 4px;
+  letter-spacing: 2px;
+}
+
+.gm-options--breakthrough .option-card {
+  border-color: #d4af37;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+  animation: breakthroughGlow 2s ease-in-out infinite;
 }
 
 @keyframes fadeIn {

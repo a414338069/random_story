@@ -19,3 +19,58 @@
 .fade-in-up {
   animation: fadeInUp 0.4s ease;
 }
+
+/* ===== 突破仪式感动画 ===== */
+
+@keyframes breakthroughSuccess {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes breakthroughFail {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes breakthroughGlow {
+  0%, 100% { box-shadow: 0 0 8px rgba(212, 175, 55, 0.2); }
+  50% { box-shadow: 0 0 20px rgba(212, 175, 55, 0.5); }
+}
+
+@keyframes goldPulse {
+  0%, 100% { color: #b8860b; }
+  50% { color: #d4af37; }
+}
+
+/* 突破动画工具类 */
+.breakthrough-success {
+  animation: breakthroughSuccess 1.2s ease forwards;
+}
+
+.breakthrough-fail {
+  animation: breakthroughFail 0.8s ease forwards;
+}
+
+.breakthrough-option-glow {
+  animation: breakthroughGlow 2s ease-in-out infinite;
+}
+
+.breakthrough-gold-text {
+  animation: goldPulse 2s ease-in-out infinite;
+}
