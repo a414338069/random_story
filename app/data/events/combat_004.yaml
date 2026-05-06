@@ -1,0 +1,24 @@
+id: "combat_004"
+type: "adventure"
+title: "护送任务"
+trigger_conditions:
+  min_realm: "筑基"
+  max_realm: "金丹"
+  min_age: 30
+  max_age: 400
+  required_faction: null
+weight: 0.4
+prompt_template: "一位商队掌柜请你护送一批货物通过妖兽出没的山谷..."
+fallback_narrative: "一位商队掌柜请你护送一批货物通过妖兽出没的山谷，报酬颇为丰厚。"
+default_options:
+  - id: "opt1"
+    text: "接受护送"
+    consequences:
+      cultivation_gain: 15
+      age_advance: true
+      spirit_stones_gain: 20
+  - id: "opt2"
+    text: "婉言谢绝"
+    consequences:
+      cultivation_gain: 5
+      age_advance: true

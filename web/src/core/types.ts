@@ -95,7 +95,27 @@ export interface EventOption {
 export interface EventResponse {
   narrative: string
   options: EventOption[]
+  title: string | null
+  has_options: boolean
   metadata: Record<string, unknown> | null
+}
+
+export interface EventLogEntry {
+  id: number
+  narrative: string
+  displayedText: string
+  options: EventOption[]
+  chosenOptionId: string | null
+  aftermath: { cultivation_change: number; age_advance: number } | null
+  phase: 'typing' | 'waiting_click' | 'choosing' | 'submitting' | 'aftermath' | 'breakthrough' | 'done'
+  hasOptions: boolean
+  title: string | null
+}
+
+export interface BreakthroughInfo {
+  message: string
+  new_realm: string | null
+  success: boolean | null
 }
 
 export interface ChooseResponse {
@@ -103,6 +123,8 @@ export interface ChooseResponse {
   aftermath: {
     cultivation_change: number
     age_advance: number
+    narrative?: string
+    breakthrough?: BreakthroughInfo
   }
 }
 
@@ -138,4 +160,4 @@ export interface LeaderboardEntry {
   ending_id: string | null
 }
 
-export type LoopPhase = 'idle' | 'fetching' | 'typing' | 'choosing' | 'submitting' | 'aftermath' | 'gameover'
+export type LoopPhase = 'idle' | 'fetching' | 'typing' | 'waiting_click' | 'choosing' | 'submitting' | 'aftermath' | 'gameover'

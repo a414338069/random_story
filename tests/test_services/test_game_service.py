@@ -8,6 +8,7 @@ from unittest.mock import patch
 
 import pytest
 
+from app.database import get_db
 from app.services.breakthrough import BreakthroughResult
 from app.services.game_service import (
     start_game,
@@ -17,6 +18,8 @@ from app.services.game_service import (
     end_game,
     check_game_over,
     _calc_cultivation_gain,
+    _build_ai_prompt,
+    _check_breakthrough_warning,
     _games,
 )
 
@@ -162,13 +165,13 @@ class TestProcessChoice:
         assert new_state["cultivation"] > old_cultivation
 
     def test_process_choice_age_advances(self):
-        """选择后 age 推进（凡人 time_span=5）."""
+        """选择后 age 推进（凡人 time_span=1）."""
         random.seed(42)
         result = start_game("测试", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
         sid = result["session_id"]
         _insert_current_event(sid, event_type="daily")
         new_state = process_choice(sid, "opt1")
-        assert new_state["age"] == 5  # 凡人 time_span=5
+        assert new_state["age"] == 1  # 凡人 time_span=1
 
     def test_process_choice_event_count_increments(self):
         """事件计数 +1."""
@@ -192,14 +195,15 @@ class TestProcessChoice:
         assert new_state["spirit_stones"] == 50
 
     def test_process_choice_spirit_stones_cap(self):
-        """灵石超过上限被截断（凡人 spirit_stone_cap=0）."""
+        """灵石超过上限被截断（凡人 spirit_stone_cap=50）."""
         random.seed(42)
         result = start_game("测试", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
         sid = result["session_id"]
+        _games[sid]["spirit_stones"] = 45  # near cap to test truncation
         _insert_current_event(sid, event_type="adventure")
         new_state = process_choice(sid, "opt2")
-        # 凡人 realm spirit_stone_cap=0
-        assert new_state["spirit_stones"] == 0
+        # opt2 gives 50, 45+50=95, capped to 50
+        assert new_state["spirit_stones"] == 50
 
     def test_process_choice_no_current_event(self):
         """没有当前事件时 process_choice → ValueError."""
@@ -439,14 +443,21 @@ class TestGameLifecycle:
         result = start_game("王五", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
         sid = result["session_id"]
 
-        # Run 3 events
-        for _ in range(3):
+        # Run 3 events (skip narrative_only/quiet_year events with no options)
+        events_processed = 0
+        attempts = 0
+        while events_processed < 3 and attempts < 10:
+            attempts += 1
             event = get_next_event(sid)
             assert "options" in event
-            assert len(event["options"]) >= 1
+            if len(event["options"]) == 0:
+                # narrative_only event (e.g. quiet_year) — auto-advance
+                state = process_choice(sid, None)
+                continue
             option_id = event["options"][0]["id"]
             state = process_choice(sid, option_id)
             assert state["event_count"] >= 1
+            events_processed += 1
 
         # End the game
         end_result = end_game(sid)
@@ -472,3 +483,184 @@ class TestGameLifecycle:
         assert state_b["age"] == 0
         assert state_b["event_count"] == 0
         assert state_b["cultivation"] == 0
+
+
+# ---------------------------------------------------------------------------
+# _build_ai_prompt() — AI prompt enrichment
+# ---------------------------------------------------------------------------
+
+
+class TestBuildAIPrompt:
+    def test_build_ai_prompt_includes_recent_events(self):
+        """Prompt should contain 【近期经历】 when recent_summaries provided."""
+        event_ctx = {
+            "player": {"realm": "凡人", "age": 10},
+            "event_type": "daily",
+            "title": "修炼",
+            "prompt": "test prompt",
+        }
+        state = {"attributes": {"rootBone": 5, "comprehension": 5, "mindset": 5, "luck": 5}, "faction": "无"}
+        summaries = [
+            {"event_type": "daily", "narrative": "你在山中修炼", "chosen_option_id": "opt1", "consequences": {}},
+            {"event_type": "adventure", "narrative": "你遇到了一只妖兽", "chosen_option_id": "opt2", "consequences": {}},
+        ]
+        prompt = _build_ai_prompt(event_ctx, state, recent_summaries=summaries)
+        assert "近期经历" in prompt
+        assert "你在山中修炼" in prompt
+
+    def test_build_ai_prompt_includes_last_outcome(self):
+        """Prompt should contain 【上一轮结果】 when last_outcome provided."""
+        event_ctx = {
+            "player": {"realm": "凡人", "age": 10},
+            "event_type": "daily",
+            "title": "修炼",
+            "prompt": "test prompt",
+        }
+        state = {"attributes": {"rootBone": 5, "comprehension": 5, "mindset": 5, "luck": 5}, "faction": "无"}
+        outcome = {"chosen_text": "继续修炼", "cultivation_change": 5.0, "age_advance": 1}
+        prompt = _build_ai_prompt(event_ctx, state, last_outcome=outcome)
+        assert "上一轮结果" in prompt
+        assert "继续修炼" in prompt
+        assert "+5.0" in prompt
+
+    def test_build_ai_prompt_no_optional_sections(self):
+        """Prompt should NOT contain optional sections when no data provided."""
+        event_ctx = {
+            "player": {"realm": "凡人", "age": 10},
+            "event_type": "daily",
+            "title": "修炼",
+            "prompt": "test prompt",
+        }
+        state = {"attributes": {"rootBone": 5, "comprehension": 5, "mindset": 5, "luck": 5}, "faction": "无"}
+        prompt = _build_ai_prompt(event_ctx, state)
+        assert "近期经历" not in prompt
+        assert "上一轮结果" not in prompt
+        assert "当前境界" in prompt
+
+
+class TestGetNextEventCaching:
+    def test_get_next_event_caches_narrative(self):
+        """get_next_event should cache narrative in state for process_choice."""
+        random.seed(42)
+        result = start_game("测试", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
+        session_id = result["session_id"]
+
+        event = get_next_event(session_id)
+        state = get_state(session_id)
+
+        assert "_current_narrative" in state
+        assert state["_current_narrative"] == event["narrative"]
+
+
+# ---------------------------------------------------------------------------
+# _check_breakthrough_warning() — breakthrough proximity warning
+# ---------------------------------------------------------------------------
+
+
+class TestBreakthroughWarning:
+    def test_warning_at_80_percent(self):
+        """Warning triggers when cultivation >= 80% of next realm requirement."""
+        state = {
+            "realm": "凡人",
+            "cultivation": 80.0,  # 练气 requires 100, 80/100 = 80%
+        }
+        result = _check_breakthrough_warning(state)
+        assert result is not None
+        assert "message" in result
+        assert "80" in result["message"] or "突破" in result["message"]
+        assert result["threshold"] == 80.0  # 100 * 0.8
+
+    def test_no_warning_below_80_percent(self):
+        """No warning when cultivation < 80% of next realm requirement."""
+        state = {
+            "realm": "凡人",
+            "cultivation": 79.0,  # 79/100 = 79%
+        }
+        result = _check_breakthrough_warning(state)
+        assert result is None
+
+    def test_no_warning_at_max_realm(self):
+        """No warning at maximum realm (渡劫飞升 has no next realm)."""
+        state = {
+            "realm": "渡劫飞升",
+            "cultivation": 9999.0,
+        }
+        result = _check_breakthrough_warning(state)
+        assert result is None
+
+    def test_warning_above_threshold(self):
+        """Warning still triggers above 80%."""
+        state = {
+            "realm": "凡人",
+            "cultivation": 95.0,  # 95/100 = 95%
+        }
+        result = _check_breakthrough_warning(state)
+        assert result is not None
+        assert result["current"] == 95.0
+
+
+# ---------------------------------------------------------------------------
+# process_choice() — narrative, outcome, aftermath
+# ---------------------------------------------------------------------------
+
+
+class TestProcessChoiceNarrative:
+    def test_full_narrative_saved_to_event_log(self):
+        """process_choice should save full narrative text to event_log, not just title."""
+        random.seed(42)
+        result = start_game("测试", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
+        session_id = result["session_id"]
+
+        _insert_current_event(session_id, event_type="daily")
+
+        state = get_state(session_id)
+        state["_current_narrative"] = "这是一段详细的叙事文本，描述了你在山中的修炼经历。"
+
+        process_choice(session_id, "opt1")
+
+        conn = get_db()
+        try:
+            import sqlite3
+            cursor = conn.execute(
+                "SELECT narrative FROM event_logs WHERE player_id = ? ORDER BY event_index DESC LIMIT 1",
+                (session_id,),
+            )
+            row = cursor.fetchone()
+            assert row is not None
+            assert row[0] == "这是一段详细的叙事文本，描述了你在山中的修炼经历。"
+        finally:
+            conn.close()
+
+    def test_last_choice_outcome_constructed(self):
+        """process_choice should construct _last_choice_outcome for AI context."""
+        random.seed(42)
+        result = start_game("测试", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
+        session_id = result["session_id"]
+
+        _insert_current_event(session_id, event_type="daily")
+        process_choice(session_id, "opt1")
+
+        state = get_state(session_id)
+
+        assert "_last_choice_outcome" in state
+        outcome = state["_last_choice_outcome"]
+        assert "chosen_text" in outcome
+        assert outcome["chosen_text"] == "继续修炼"
+        assert "cultivation_change" in outcome
+        assert "age_advance" in outcome
+
+    def test_consequence_narrative_in_response(self):
+        """process_choice should return aftermath with consequence narrative."""
+        random.seed(42)
+        result = start_game("测试", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
+        session_id = result["session_id"]
+
+        _insert_current_event(session_id, event_type="daily")
+        choice_result = process_choice(session_id, "opt1")
+
+        assert "aftermath" in choice_result
+        assert "narrative" in choice_result["aftermath"]
+        assert choice_result["aftermath"]["narrative"]
+        assert "继续修炼" in choice_result["aftermath"]["narrative"]
+        assert "修为" in choice_result["aftermath"]["narrative"]
+

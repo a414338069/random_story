@@ -1,0 +1,23 @@
+id: "combat_001"
+type: "adventure"
+title: "妖兽袭击"
+trigger_conditions:
+  min_realm: "练气"
+  max_realm: "筑基"
+  min_age: 10
+  max_age: 100
+  required_faction: null
+weight: 0.5
+prompt_template: "一头妖兽突然从林中窜出，向你扑来..."
+fallback_narrative: "一头妖兽突然从林中窜出，向你扑来，你不得不全力应对这场突如其来的战斗。"
+default_options:
+  - id: "opt1"
+    text: "正面迎击"
+    consequences:
+      cultivation_gain: 25
+      age_advance: true
+  - id: "opt2"
+    text: "巧妙周旋"
+    consequences:
+      cultivation_gain: 15
+      age_advance: true

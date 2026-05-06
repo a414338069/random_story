@@ -61,7 +61,7 @@ def test_realm_stages_are_list_or_none():
 def test_mortal_config():
     r = get_realm_config("凡人")
     assert r["lifespan"] == 80
-    assert r["time_span"] == 5
+    assert r["time_span"] == 1
     assert r["stages"] is None
     assert r["cultivation_req"] == 0
 
@@ -78,7 +78,7 @@ def test_liangqi_config():
 
 def test_zhuji_config():
     r = get_realm_config("筑基")
-    assert r["time_span"] == 5
+    assert r["time_span"] == 1
     assert r["lifespan"] == 200
     assert r["stages"] == ["初期", "中期", "后期", "大圆满"]
     assert r["cultivation_req"] == 300

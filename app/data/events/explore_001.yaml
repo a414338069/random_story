@@ -1,0 +1,24 @@
+id: "explore_001"
+type: "adventure"
+title: "秘境入口"
+trigger_conditions:
+  min_realm: "筑基"
+  max_realm: "金丹"
+  min_age: 50
+  max_age: 500
+  required_faction: null
+weight: 0.4
+prompt_template: "你在一处荒山中发现了隐秘的阵法痕迹，似乎通往一处秘境..."
+fallback_narrative: "你在一处荒山中发现了隐秘的阵法痕迹，似乎通往一处秘境，灵气从缝隙中不断涌出。"
+default_options:
+  - id: "opt1"
+    text: "探索秘境"
+    consequences:
+      cultivation_gain: 35
+      age_advance: true
+      spirit_stones_gain: 15
+  - id: "opt2"
+    text: "稳妥离开"
+    consequences:
+      cultivation_gain: 10
+      age_advance: true

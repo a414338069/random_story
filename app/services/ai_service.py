@@ -26,12 +26,20 @@ SYSTEM_PROMPT = """# 角色设定
     {
       "id": "opt1",
       "text": "选项文本",
-      "consequence_preview": "选择后果预览"
+      "consequence_preview": "选择后果预览",
+      "consequences": {
+        "spirit_stones_gain": 10,
+        "cultivation_gain": 20
+      }
     },
     {
       "id": "opt2",
       "text": "选项文本",
-      "consequence_preview": "选择后果预览"
+      "consequence_preview": "选择后果预览",
+      "consequences": {
+        "spirit_stones_gain": -5,
+        "cultivation_gain": 5
+      }
     }
   ]
 }
@@ -40,6 +48,7 @@ SYSTEM_PROMPT = """# 角色设定
 字段说明：
 - `narrative`：当前的叙事段落，描述场景、事件、人物对话或内心独白。
 - `options`：2~3 个选项，每个选项必须包含 `id`（按 opt1、opt2、opt3 递增）、`text`（选项文案）、`consequence_preview`（选择后可能发生的后果预览，帮助玩家决策）。
+- `consequences`：可选。该选项的游戏后果，包含 `spirit_stones_gain`（灵石变化，负数为消耗，范围 -100~100）和 `cultivation_gain`（修为变化，范围 0~200，用于计算公式的基数）两个数字字段。
 - 如果不知道该生成什么内容，可以让玩家继续修炼（cultivate）或探索（explore）。
 
 # 文风与语言
@@ -48,10 +57,16 @@ SYSTEM_PROMPT = """# 角色设定
 - 禁止：现代网络用语（绝绝子、yyds、躺平等）、现代科技词汇、西方奇幻词汇。
 - 叙事视角：以第三人称为主，偶尔可借角色内心独白穿插第一人称。
 - 境界与力量相关词汇必须使用修仙体系：练气、筑基、金丹、元婴、化神、炼虚、合体、大乘、渡劫等。
+- **关键纠正**：第一境界称为「练气」（不是「炼气」），所有输出中必须使用「练气」。注意区分：「炼丹」「炼器」用「炼」，「练气」「练功」用「练」。
+
+# 选项规则（重要）
+- **叙事模式**：如果事件上下文中标注了"叙事模式"（narrative_only），这是一段纯叙事推进（如出生、童年回忆等），**必须返回空 options 数组 `[]`**，不要生成任何选项。
+- **日常事件**：大多数 daily 类型事件应为叙事推进，只返回空 options 数组 `[]`。
+- **关键决策**：仅在以下关键时刻返回 2~3 个选项：adventure（冒险探索）、moral（道德抉择）、cultivation direction（修炼方向选择）、relationship（人际关系）、bottleneck（突破瓶颈）、encounter（重大奇遇）。
+- 每个选项必须有明确的收益与代价，避免"全是好处"或"全是坏处"的选项。
 
 # 内容规则
-- 叙事段落长度：**50~100 字**，精炼不拖沓。
-- 每个事件提供 **2~3 个选项**，每个选项必须有明确的收益与代价。避免"全是好处"或"全是坏处"的选项。
+- 叙事段落长度：**50~200 字**，精炼不拖沓。
 - 选项逻辑应符合修仙世界的内在规律：天材地宝伴随凶险、功法修炼需要代价、与人交际涉及利害。
 - 事件类型应多样化交替出现： encounter（奇遇/偶遇）、cultivation（修炼突破）、danger（危机/战斗）、moral（道德抉择/人情世故）、discovery（秘境/遗迹/功法发现）、intrigue（门派纷争/阴谋）。
 - 避免连续多次同类型事件，保持节奏变化。
@@ -87,11 +102,15 @@ class DeepSeekService:
         self._client = OpenAI(
             api_key=settings.DEEPSEEK_API_KEY,
             base_url=settings.DEEPSEEK_BASE_URL,
+            timeout=10.0,
         )
         self._model = settings.DEEPSEEK_MODEL
         self._max_retries = 2
 
-    def generate_event(self, prompt: str, context: dict) -> dict:
+    def generate_event(self, prompt: str, context: dict, skip_ai: bool = False) -> dict:
+        if skip_ai:
+            return _EMPTY_RESULT
+
         messages = [
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": prompt},
@@ -105,7 +124,7 @@ class DeepSeekService:
                     messages=messages,
                     response_format={"type": "json_object"},
                     temperature=0.8,
-                    max_tokens=1000,
+                    max_tokens=500,
                 )
 
                 content = response.choices[0].message.content
@@ -143,6 +162,6 @@ class MockAIService:
         }
         self.call_count = 0
 
-    def generate_event(self, prompt: str, context: dict) -> dict:
+    def generate_event(self, prompt: str, context: dict, skip_ai: bool = False) -> dict:
         self.call_count += 1
         return self._response

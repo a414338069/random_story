@@ -45,6 +45,9 @@ def load_templates() -> list[dict]:
     templates = []
     pattern = os.path.join(_EVENTS_DIR, "*.yaml")
     for path in sorted(glob.glob(pattern)):
+        filename = os.path.basename(path)
+        if filename.startswith("_test_"):
+            continue
         with open(path, "r", encoding="utf-8") as f:
             template = yaml.safe_load(f)
             if isinstance(template, dict):
@@ -121,7 +124,33 @@ def calculate_weights(
     return weighted
 
 
-def select_event(weighted_templates: list[tuple[dict, float]]) -> dict:
+def _build_quiet_year_event(player_state: dict) -> dict:
+    """构建安静年事件——纯叙事推进，无选项。"""
+    narratives = [
+        "这一年风调雨顺，你在山中静修，虽无大事，但根基更加稳固。",
+        "日子平静如水。你日出而作、日落而息，修行虽慢但踏实。",
+        "山中无甲子，寒尽不知年。这一年平静得仿佛时间停滞。",
+        "这一年过得波澜不惊，你在默默修行中度过。",
+        "四季轮转，岁月静好。这一年没有特别的际遇，但也并非虚度。",
+    ]
+    return {
+        "id": "quiet_year",
+        "type": "daily",
+        "title": "平静的一年",
+        "trigger_conditions": {"min_realm": "凡人", "max_realm": "渡劫飞升", "min_age": 0, "max_age": 9999, "required_faction": None},
+        "weight": 1.0,
+        "prompt_template": "这一年没什么特别的事发生，你在安静中修炼...",
+        "fallback_narrative": random.choice(narratives),
+        "default_options": [],
+        "narrative_only": True,
+    }
+
+
+def select_event(weighted_templates: list[tuple[dict, float]], player_state: dict | None = None) -> dict:
+    if player_state:
+        consecutive = player_state.get("_consecutive_events", 0)
+        if consecutive >= 2 and random.random() < 0.25:
+            return _build_quiet_year_event(player_state)
     if not weighted_templates:
         return FALLBACK_EVENT
 
@@ -143,6 +172,7 @@ def build_event_context(template: dict, player_state: dict) -> dict:
         "prompt": prompt,
         "fallback_narrative": template.get("fallback_narrative", ""),
         "default_options": template.get("default_options", []),
+        "narrative_only": template.get("narrative_only", False),
         "player": player_state,
     }
 

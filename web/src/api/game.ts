@@ -9,6 +9,7 @@ import type {
   ChooseResponse,
   EndGameResponse,
   LeaderboardEntry,
+  BreakthroughInfo,
 } from '@/core/types'
 
 export async function startGame(req: GameStartRequest): Promise<{ sessionId: string; state: NormalizedGameState }> {
@@ -31,8 +32,8 @@ export async function getEvent(sessionId: string): Promise<EventResponse> {
 
 export async function chooseOption(
   sessionId: string,
-  optionId: string,
-): Promise<{ state: NormalizedGameState; aftermath: { cultivation_change: number; age_advance: number } }> {
+  optionId: string | null,
+): Promise<{ state: NormalizedGameState; aftermath: { cultivation_change: number; age_advance: number; narrative?: string; breakthrough?: BreakthroughInfo } }> {
   const res: ChooseResponse = await apiRequest('/api/v1/game/event/choose', {
     method: 'POST',
     body: JSON.stringify({ session_id: sessionId, option_id: optionId }),

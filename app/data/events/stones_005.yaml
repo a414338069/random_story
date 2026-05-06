@@ -1,0 +1,24 @@
+id: "stones_005"
+type: "adventure"
+title: "地下交易"
+trigger_conditions:
+  min_realm: "筑基"
+  max_realm: "元婴"
+  min_age: 50
+  max_age: 1000
+  required_faction: null
+weight: 0.3
+prompt_template: "一个神秘的商人找到你，声称有一笔有利可图的交易..."
+fallback_narrative: "一个神秘的商人找到你，声称有一笔有利可图的交易，眼神闪烁不定。"
+default_options:
+  - id: "opt1"
+    text: "进行交易"
+    consequences:
+      cultivation_gain: 10
+      age_advance: true
+      spirit_stones_gain: 30
+  - id: "opt2"
+    text: "婉拒"
+    consequences:
+      cultivation_gain: 5
+      age_advance: true

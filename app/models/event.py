@@ -16,7 +16,9 @@ class EventResponse(BaseModel):
     """AI-generated event with narrative and options."""
 
     narrative: str
-    options: list[EventOption] = Field(min_length=2, max_length=3)
+    options: list[EventOption] = Field(default_factory=list)
+    has_options: bool = True
+    title: Optional[str] = None
     metadata: Optional[dict] = None
 
     @field_validator("narrative")
@@ -26,13 +28,6 @@ class EventResponse(BaseModel):
             raise ValueError(f"叙事文本长度不能少于20字，当前为{len(v)}字")
         if len(v) > 500:
             raise ValueError(f"叙事文本长度不能超过500字，当前为{len(v)}字")
-        return v
-
-    @field_validator("options")
-    @classmethod
-    def validate_options_count(cls, v: list[EventOption]) -> list[EventOption]:
-        if len(v) < 2 or len(v) > 3:
-            raise ValueError(f"选项数量必须为2-3个，当前为{len(v)}个")
         return v
 
 
@@ -56,4 +51,25 @@ class ChooseRequest(BaseModel):
     """Request to choose an option in a current event."""
 
     session_id: str
-    option_id: str
+    option_id: Optional[str] = None
+
+
+class BreakthroughInfo(BaseModel):
+    """Breakthrough information returned after a choice."""
+    message: str
+    new_realm: Optional[str] = None
+    success: Optional[bool] = None
+
+
+class AftermathResponse(BaseModel):
+    """Consequence information after a player choice."""
+    cultivation_change: float = 0.0
+    age_advance: int = 0
+    narrative: Optional[str] = None
+    breakthrough: Optional[BreakthroughInfo] = None
+
+
+class ChooseResponse(BaseModel):
+    """Structured response for /event/choose endpoint."""
+    state: dict
+    aftermath: AftermathResponse

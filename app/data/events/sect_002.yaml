@@ -1,0 +1,24 @@
+id: "sect_002"
+type: "daily"
+title: "宗门任务"
+trigger_conditions:
+  min_realm: "练气"
+  max_realm: "金丹"
+  min_age: 15
+  max_age: 400
+  required_faction: null
+weight: 0.6
+prompt_template: "宗门长老交给你一个巡查灵田的任务..."
+fallback_narrative: "宗门长老交给你一个巡查灵田的任务，虽然琐碎但也是积累贡献的机会。"
+default_options:
+  - id: "opt1"
+    text: "认真完成"
+    consequences:
+      cultivation_gain: 15
+      age_advance: true
+      spirit_stones_gain: 10
+  - id: "opt2"
+    text: "敷衍了事"
+    consequences:
+      cultivation_gain: 5
+      age_advance: true

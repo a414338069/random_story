@@ -165,6 +165,30 @@ def save_event_log(
     conn.execute(sql, row)
 
 
+def get_recent_event_summaries(
+    conn: sqlite3.Connection, session_id: str, limit: int = 5
+) -> list[dict]:
+    """Fetch the most recent event log entries for AI context."""
+    rows = conn.execute(
+        """SELECT event_index, event_type, narrative, chosen_option_id, consequences
+           FROM event_logs
+           WHERE player_id = ?
+           ORDER BY event_index DESC
+           LIMIT ?""",
+        (session_id, limit),
+    ).fetchall()
+    result = []
+    for row in rows:
+        entry = dict(row)
+        if isinstance(entry.get("consequences"), str):
+            try:
+                entry["consequences"] = json.loads(entry["consequences"])
+            except (json.JSONDecodeError, TypeError):
+                pass
+        result.append(entry)
+    return result
+
+
 def get_leaderboard(
     conn: sqlite3.Connection, limit: int = 10
 ) -> list[dict]:

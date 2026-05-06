@@ -1,0 +1,23 @@
+id: "sect_001"
+type: "daily"
+title: "宗门考核"
+trigger_conditions:
+  min_realm: "练气"
+  max_realm: "筑基"
+  min_age: 15
+  max_age: 100
+  required_faction: null
+weight: 0.5
+prompt_template: "宗门一年一度的考核开始了，这是提升地位的好机会..."
+fallback_narrative: "宗门一年一度的考核开始了，这是提升地位的好机会，同门弟子摩拳擦掌。"
+default_options:
+  - id: "opt1"
+    text: "认真准备"
+    consequences:
+      cultivation_gain: 20
+      age_advance: true
+  - id: "opt2"
+    text: "随性参加"
+    consequences:
+      cultivation_gain: 10
+      age_advance: true

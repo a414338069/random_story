@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException
 from app.database import get_db
 from app.models.game import EndGameRequest, GameStartRequest, GameStartResponse, LeaderboardEntry
 from app.models.player import PlayerState
-from app.models.event import EventRequest, ChooseRequest
+from app.models.event import EventRequest, ChooseRequest, ChooseResponse, BreakthroughInfo
 from app.repositories import game_repo
 from app.services.game_service import (
     get_state,
@@ -106,7 +106,7 @@ async def get_leaderboard():
         conn.close()
 
 
-@router.post("/event/choose")
+@router.post("/event/choose", response_model=ChooseResponse)
 async def post_event_choose(request: ChooseRequest):
     try:
         state = get_state(request.session_id)
@@ -121,13 +121,28 @@ async def post_event_choose(request: ChooseRequest):
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    return {
-        "state": new_state,
-        "aftermath": {
+    # Get aftermath data from service (T7 adds this)
+    service_aftermath = new_state.get("aftermath", {})
+
+    # Build breakthrough info if present
+    breakthrough_info = None
+    bt_data = service_aftermath.get("breakthrough")
+    if bt_data:
+        breakthrough_info = BreakthroughInfo(
+            message=bt_data.get("message", ""),
+            new_realm=bt_data.get("new_realm"),
+            success=bt_data.get("success"),
+        )
+
+    return ChooseResponse(
+        state=new_state,
+        aftermath={
             "cultivation_change": new_state["cultivation"] - cultivation_before,
             "age_advance": new_state["age"] - age_before,
+            "narrative": service_aftermath.get("narrative"),
+            "breakthrough": breakthrough_info,
         },
-    }
+    )
 
 
 @router.post("/event")
@@ -144,5 +159,7 @@ async def post_event(request: EventRequest):
     return {
         "narrative": event["narrative"],
         "options": event["options"],
+        "has_options": len(event.get("options", [])) > 0,
+        "title": event.get("title"),
         "metadata": {"isFallback": event.get("is_fallback", False)},
     }

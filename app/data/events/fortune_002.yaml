@@ -1,0 +1,24 @@
+id: "fortune_002"
+type: "adventure"
+title: "天材地宝"
+trigger_conditions:
+  min_realm: "筑基"
+  max_realm: "元婴"
+  min_age: 30
+  max_age: 1000
+  required_faction: null
+weight: 0.3
+prompt_template: "你在一处人迹罕至的山谷中发现了一株千年灵芝..."
+fallback_narrative: "你在一处人迹罕至的山谷中发现了一株千年灵芝，灵气充沛，宝光隐现。"
+default_options:
+  - id: "opt1"
+    text: "炼化灵芝"
+    consequences:
+      cultivation_gain: 40
+      age_advance: true
+  - id: "opt2"
+    text: "分享给同道"
+    consequences:
+      cultivation_gain: 20
+      age_advance: true
+      spirit_stones_gain: 15

@@ -1,0 +1,23 @@
+id: "social_003"
+type: "adventure"
+title: "结怨"
+trigger_conditions:
+  min_realm: "练气"
+  max_realm: "金丹"
+  min_age: 15
+  max_age: 300
+  required_faction: null
+weight: 0.5
+prompt_template: "你在一次争夺灵药时与另一修士发生冲突..."
+fallback_narrative: "你在一次争夺灵药时与另一修士发生冲突，对方咄咄逼人，局势一触即发。"
+default_options:
+  - id: "opt1"
+    text: "正面对峙"
+    consequences:
+      cultivation_gain: 20
+      age_advance: true
+  - id: "opt2"
+    text: "暂且退让"
+    consequences:
+      cultivation_gain: 10
+      age_advance: true

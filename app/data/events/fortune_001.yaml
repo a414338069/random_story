@@ -1,0 +1,23 @@
+id: "fortune_001"
+type: "adventure"
+title: "意外奇遇"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "练气"
+  min_age: 5
+  max_age: 30
+  required_faction: null
+weight: 0.4
+prompt_template: "你在一个隐蔽的山洞中意外发现了一枚发光的玉简..."
+fallback_narrative: "你在一个隐蔽的山洞中意外发现了一枚发光的玉简，上面刻满了你看不懂的符文。"
+default_options:
+  - id: "opt1"
+    text: "仔细研读"
+    consequences:
+      cultivation_gain: 30
+      age_advance: true
+  - id: "opt2"
+    text: "妥善收好"
+    consequences:
+      cultivation_gain: 15
+      age_advance: true

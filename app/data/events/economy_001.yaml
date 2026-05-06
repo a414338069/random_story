@@ -1,0 +1,30 @@
+id: "economy_001"
+type: "daily"
+title: "坊市交易"
+trigger_conditions:
+  min_realm: "练气"
+  max_realm: "金丹"
+  min_age: 15
+  max_age: 400
+  required_faction: null
+weight: 0.6
+prompt_template: "你来到坊市，各种灵物丹药琳琅满目..."
+fallback_narrative: "你来到坊市，各种灵物丹药琳琅满目，吆喝声此起彼伏，好不热闹。"
+default_options:
+  - id: "opt1"
+    text: "购买丹药"
+    consequences:
+      cultivation_gain: 20
+      age_advance: true
+      spirit_stones_gain: -15
+  - id: "opt2"
+    text: "出售灵材"
+    consequences:
+      cultivation_gain: 5
+      spirit_stones_gain: 15
+      age_advance: true
+  - id: "opt3"
+    text: "只看不买"
+    consequences:
+      cultivation_gain: 5
+      age_advance: true

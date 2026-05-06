@@ -1,0 +1,14 @@
+id: "birth_002"
+type: "narrative"
+narrative_only: true
+title: "周岁"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 1
+  max_age: 1
+  required_faction: null
+weight: 10.0
+prompt_template: "你满周岁了。描述抓周场景和家中的氛围——你抓了什么？家人的反应？有没有展现出什么不凡的天赋迹象？200字以内，第二人称。"
+fallback_narrative: "转眼你已满周岁。家中摆了抓周礼，面前摆满了书本、算盘、小木剑、草药等物。你不假思索，一把抓起了那本泛黄的古书，又好奇地摸了摸旁边的小木剑。父亲与你对视一眼，若有所思。"
+default_options: []

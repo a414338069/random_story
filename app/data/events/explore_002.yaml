@@ -1,0 +1,24 @@
+id: "explore_002"
+type: "adventure"
+title: "上古遗迹"
+trigger_conditions:
+  min_realm: "金丹"
+  max_realm: "元婴"
+  min_age: 200
+  max_age: 1500
+  required_faction: null
+weight: 0.3
+prompt_template: "你在一处废墟中发现了上古修士留下的洞府..."
+fallback_narrative: "你在一处废墟中发现了上古修士留下的洞府，洞中布满了岁月的痕迹，但仍残留着强大的阵法。"
+default_options:
+  - id: "opt1"
+    text: "深入探索"
+    consequences:
+      cultivation_gain: 50
+      age_advance: true
+      spirit_stones_gain: 20
+  - id: "opt2"
+    text: "只取表面宝物"
+    consequences:
+      cultivation_gain: 25
+      age_advance: true

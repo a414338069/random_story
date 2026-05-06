@@ -1,0 +1,24 @@
+id: "stones_002"
+type: "daily"
+title: "完成杂务"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "练气"
+  min_age: 8
+  max_age: 50
+  required_faction: null
+weight: 0.7
+prompt_template: "镇上的修行者发布了一些杂务，完成后可获得灵石报酬..."
+fallback_narrative: "镇上的修行者发布了一些杂务，完成后可获得灵石报酬，虽不多但聊胜于无。"
+default_options:
+  - id: "opt1"
+    text: "接取任务"
+    consequences:
+      cultivation_gain: 5
+      age_advance: true
+      spirit_stones_gain: 10
+  - id: "opt2"
+    text: "继续修炼"
+    consequences:
+      cultivation_gain: 10
+      age_advance: true

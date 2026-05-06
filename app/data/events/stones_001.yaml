@@ -1,0 +1,24 @@
+id: "stones_001"
+type: "daily"
+title: "采药换灵石"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "练气"
+  min_age: 8
+  max_age: 50
+  required_faction: null
+weight: 0.7
+prompt_template: "你在山间采到了一些灵草，可以拿到镇上换些灵石..."
+fallback_narrative: "你在山间采到了一些灵草，可以拿到镇上换些灵石，贴补修炼所需。"
+default_options:
+  - id: "opt1"
+    text: "去集市售卖"
+    consequences:
+      cultivation_gain: 5
+      age_advance: true
+      spirit_stones_gain: 8
+  - id: "opt2"
+    text: "留着自己用"
+    consequences:
+      cultivation_gain: 10
+      age_advance: true

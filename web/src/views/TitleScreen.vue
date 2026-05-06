@@ -17,7 +17,7 @@ function showLeaderboard() {
   <div class="title-screen">
     <div class="title-content">
       <h1 class="title-main">重生模拟器</h1>
-      <p class="title-sub">AI修仙人生模拟器</p>
+      <p class="title-sub">AI修仙人生手帐</p>
       <NSpace vertical :size="20" class="title-actions">
         <NButton type="primary" size="large" @click="startGame" class="start-btn">
           开始修仙
@@ -36,7 +36,7 @@ function showLeaderboard() {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f0e8 0%, #e8ddd0 50%, #d4c5b0 100%);
+  background: var(--paper-white, #f6f3ed);
   padding: 20px;
 }
 
@@ -45,19 +45,20 @@ function showLeaderboard() {
 }
 
 .title-main {
-  font-size: 3rem;
-  font-weight: 900;
-  color: #2c2c2c;
-  margin: 0 0 12px 0;
-  letter-spacing: 8px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: var(--font-display);
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: var(--ink-black, #1a1814);
+  margin: 0 0 8px 0;
+  letter-spacing: 4px;
 }
 
 .title-sub {
-  font-size: 1.2rem;
-  color: #666;
+  font-size: 1.1rem;
+  color: var(--text-muted, #8a857d);
   margin: 0 0 48px 0;
-  letter-spacing: 4px;
+  letter-spacing: 2px;
+  font-weight: 400;
 }
 
 .title-actions {
@@ -66,8 +67,8 @@ function showLeaderboard() {
 
 .start-btn {
   min-width: 200px;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   padding: 12px 48px;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 </style>

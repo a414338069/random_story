@@ -1,0 +1,23 @@
+id: "heavenly_001"
+type: "bottleneck"
+title: "心魔试炼"
+trigger_conditions:
+  min_realm: "筑基"
+  max_realm: "合体"
+  min_age: 50
+  max_age: 5000
+  required_faction: null
+weight: 0.3
+prompt_template: "修炼中你突然心神恍惚，一念之间仿佛看到了另一个自己..."
+fallback_narrative: "修炼中你突然心神恍惚，一念之间仿佛看到了另一个自己，心魔趁虚而入。"
+default_options:
+  - id: "opt1"
+    text: "以力破妄"
+    consequences:
+      cultivation_gain: 30
+      age_advance: true
+  - id: "opt2"
+    text: "静心感悟"
+    consequences:
+      cultivation_gain: 20
+      age_advance: true

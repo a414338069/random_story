@@ -1,0 +1,14 @@
+id: "childhood_002"
+type: "narrative"
+narrative_only: true
+title: "少年时光"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 8
+  max_age: 14
+  required_faction: null
+weight: 6.0
+prompt_template: "你{age}岁了，正是少年意气时。描述你少年时期的生活——帮家里干活、上山采药、偷偷修炼感受到的那一丝灵气。有没有遇到什么改变你命运的小事？200字以内，第二人称。"
+fallback_narrative: "你{age}岁了。白天帮父亲耕田砍柴，夜里偷偷按照记忆中的片段盘膝打坐。虽然没有功法指引，但你隐约能感知到天地间流动的灵气。有时夜里修炼，指尖会泛起若有若无的微光。你知道，这不是凡人该有的能力。"
+default_options: []

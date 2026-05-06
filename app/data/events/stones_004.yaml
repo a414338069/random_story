@@ -1,0 +1,24 @@
+id: "stones_004"
+type: "daily"
+title: "以技换石"
+trigger_conditions:
+  min_realm: "练气"
+  max_realm: "金丹"
+  min_age: 15
+  max_age: 400
+  required_faction: null
+weight: 0.5
+prompt_template: "你的修炼心得对低阶弟子很有帮助，有人愿意用灵石交换指点..."
+fallback_narrative: "你的修炼心得对低阶弟子很有帮助，有人愿意用灵石交换指点，教学相长。"
+default_options:
+  - id: "opt1"
+    text: "传授经验"
+    consequences:
+      cultivation_gain: 10
+      age_advance: true
+      spirit_stones_gain: 15
+  - id: "opt2"
+    text: "闭门修炼"
+    consequences:
+      cultivation_gain: 15
+      age_advance: true

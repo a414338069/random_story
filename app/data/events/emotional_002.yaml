@@ -1,0 +1,23 @@
+id: "emotional_002"
+type: "adventure"
+title: "故人重逢"
+trigger_conditions:
+  min_realm: "练气"
+  max_realm: "元婴"
+  min_age: 20
+  max_age: 1000
+  required_faction: null
+weight: 0.3
+prompt_template: "你在一个偏僻的小镇上遇到了前世的故人..."
+fallback_narrative: "你在一个偏僻的小镇上遇到了前世的故人，往事如烟涌上心头。"
+default_options:
+  - id: "opt1"
+    text: "相认叙旧"
+    consequences:
+      cultivation_gain: 15
+      age_advance: true
+  - id: "opt2"
+    text: "默默守护"
+    consequences:
+      cultivation_gain: 10
+      age_advance: true

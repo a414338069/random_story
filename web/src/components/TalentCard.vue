@@ -25,7 +25,8 @@ const props = defineProps<{ card: TalentCard }>()
 
 <style scoped>
 .talent-card {
-  border: 2px solid;
+  background: #ffffff;
+  border: 1px solid #e8e2d9;
   border-radius: 8px;
   padding: 16px;
   width: 140px;
@@ -34,149 +35,61 @@ const props = defineProps<{ card: TalentCard }>()
   align-items: center;
   gap: 8px;
   text-align: center;
-  transition: transform 0.2s, box-shadow 0.3s;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 1px 3px rgba(26,24,20,0.05);
   position: relative;
   overflow: hidden;
 }
 
 .talent-card:hover {
   transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(26,24,20,0.08);
 }
 
-/* 凡品 Common — plain, understated */
+/* Grade indicator via left border accent */
 .grade-common {
-  border-style: solid;
-  border-color: #8a8a8a;
-  box-shadow: none;
+  border-left: 3px solid #b8b3a8;
 }
 
-/* 灵品 Uncommon — soft blue glow */
 .grade-uncommon {
-  box-shadow:
-    0 0 8px rgba(91, 143, 191, 0.3),
-    0 0 16px rgba(91, 143, 191, 0.1);
+  border-left: 3px solid #7da8b5;
 }
 
-/* 玄品 Rare — purple gradient border via pseudo-element */
 .grade-rare {
-  border-color: transparent;
-  background-clip: padding-box;
+  border-left: 3px solid #9b7db5;
 }
 
-.grade-rare::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 8px;
-  padding: 2px;
-  background: linear-gradient(135deg, #7c5ba5, #a87ccf, #5b3d8a);
-  mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  pointer-events: none;
-  box-shadow: 0 0 12px rgba(124, 91, 165, 0.25);
-}
-
-/* 仙品 Legendary — gold shimmer + animation */
 .grade-legendary {
-  border-color: transparent;
-  animation: goldShimmer 3s ease-in-out infinite;
+  border-left: 3px solid #c9a76e;
 }
 
-.grade-legendary::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 8px;
-  padding: 2px;
-  background: linear-gradient(
-    135deg,
-    #c9a76e,
-    #e8d5a8,
-    #c9a76e,
-    #a08040,
-    #c9a76e
-  );
-  background-size: 200% 200%;
-  animation: goldBorderShift 4s linear infinite;
-  mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  pointer-events: none;
-}
-
-@keyframes goldShimmer {
-  0%, 100% { box-shadow: 0 0 10px rgba(201, 167, 110, 0.3), 0 0 20px rgba(201, 167, 110, 0.1); }
-  50% { box-shadow: 0 0 16px rgba(201, 167, 110, 0.5), 0 0 30px rgba(201, 167, 110, 0.2); }
-}
-
-@keyframes goldBorderShift {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 200% 50%; }
-}
-
-/* 神品 Mythic — vermilion pulse */
 .grade-mythic {
-  border-color: transparent;
-  animation: mythicPulse 2.5s ease-in-out infinite;
-}
-
-.grade-mythic::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 8px;
-  padding: 2px;
-  background: linear-gradient(135deg, #c23a2b, #e85545, #a02020, #c23a2b);
-  background-size: 200% 200%;
-  animation: goldBorderShift 3s linear infinite;
-  mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  pointer-events: none;
-}
-
-@keyframes mythicPulse {
-  0%, 100% { box-shadow: 0 0 12px rgba(194, 58, 43, 0.3), 0 0 24px rgba(194, 58, 43, 0.1); }
-  50% { box-shadow: 0 0 20px rgba(194, 58, 43, 0.5), 0 0 36px rgba(194, 58, 43, 0.2); }
+  border-left: 3px solid #c06050;
 }
 
 .tc-grade {
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 2px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--text-muted, #8a857d);
 }
 
 .tc-name {
   margin: 0;
-  font-size: 1.1rem;
-  color: #2c2c2c;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1814;
 }
 
 .tc-category {
-  font-size: 0.8rem;
-  color: #888;
+  font-size: 0.75rem;
+  color: var(--text-muted, #8a857d);
 }
 
 .tc-desc {
   margin: 0;
-  font-size: 0.8rem;
-  color: #666;
+  font-size: 0.78rem;
+  color: #8a857d;
   line-height: 1.4;
 }
 </style>

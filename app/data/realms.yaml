@@ -4,9 +4,9 @@ realms:
     order: 1
     stages: null
     lifespan: 80
-    time_span: 5
+    time_span: 1
     cultivation_req: 0
-    spirit_stone_cap: 0
+    spirit_stone_cap: 50
     technique_slots: 0
 
   # ====== 2. 练气 ======
@@ -37,7 +37,7 @@ realms:
       - 后期
       - 大圆满
     lifespan: 200
-    time_span: 5
+    time_span: 1
     cultivation_req: 300
     spirit_stone_cap: 5000
     technique_slots: 2

@@ -31,7 +31,7 @@ html, body, #app-root {
   padding: 0;
   height: 100%;
   width: 100%;
-  font-family: 'Noto Serif SC', 'STSong', 'SimSun', serif;
+  font-family: var(--font-family);
   -webkit-font-smoothing: antialiased;
 }
 

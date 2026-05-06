@@ -4,7 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from app.models.player import Attributes, PlayerState, Technique, InventoryItem, SectInfo
-from app.models.event import EventResponse, EventOption, EventRequest, EventChooseRequest
+from app.models.event import EventResponse, EventOption, EventRequest, EventChooseRequest, ChooseResponse, AftermathResponse, BreakthroughInfo
 from app.models.game import GameStartRequest, GameStartResponse, GameEndResponse, LeaderboardEntry
 
 
@@ -336,3 +336,86 @@ class TestPlayerState:
         assert state.techniques == []
         assert state.score == 0
         assert state.event_count == 0
+
+
+# ── ChooseResponse / AftermathResponse / BreakthroughInfo ─────────────────────
+
+
+class TestChooseResponse:
+    def test_minimal(self):
+        """ChooseResponse with only required fields."""
+        resp = ChooseResponse(
+            state={"age": 10},
+            aftermath={"cultivation_change": 5.0, "age_advance": 1},
+        )
+        assert resp.aftermath.cultivation_change == 5.0
+        assert resp.aftermath.narrative is None
+        assert resp.aftermath.breakthrough is None
+
+    def test_full(self):
+        """ChooseResponse with all fields."""
+        resp = ChooseResponse(
+            state={"age": 10},
+            aftermath={
+                "cultivation_change": 5.0,
+                "age_advance": 1,
+                "narrative": "你选择了修炼。",
+                "breakthrough": {
+                    "message": "突破成功！",
+                    "new_realm": "练气",
+                    "success": True,
+                },
+            },
+        )
+        assert resp.aftermath.narrative == "你选择了修炼。"
+        assert resp.aftermath.breakthrough.message == "突破成功！"
+        assert resp.aftermath.breakthrough.new_realm == "练气"
+        assert resp.aftermath.breakthrough.success is True
+
+    def test_serialization_roundtrip(self):
+        resp = ChooseResponse(
+            state={"age": 10, "cultivation": 15.0},
+            aftermath={
+                "cultivation_change": 5.0,
+                "age_advance": 1,
+                "narrative": "你选择了修炼。",
+            },
+        )
+        data = resp.model_dump()
+        restored = ChooseResponse.model_validate(data)
+        assert restored.aftermath.cultivation_change == 5.0
+        assert restored.aftermath.age_advance == 1
+        assert restored.aftermath.narrative == "你选择了修炼。"
+
+
+class TestAftermathResponse:
+    def test_defaults(self):
+        resp = AftermathResponse()
+        assert resp.cultivation_change == 0.0
+        assert resp.age_advance == 0
+        assert resp.narrative is None
+        assert resp.breakthrough is None
+
+    def test_with_breakthrough(self):
+        resp = AftermathResponse(
+            cultivation_change=5.0,
+            age_advance=1,
+            narrative="你选择了修炼。",
+            breakthrough={"message": "突破成功！", "new_realm": "练气", "success": True},
+        )
+        assert resp.breakthrough.message == "突破成功！"
+        assert resp.breakthrough.new_realm == "练气"
+
+
+class TestBreakthroughInfo:
+    def test_minimal(self):
+        info = BreakthroughInfo(message="突破成功！")
+        assert info.message == "突破成功！"
+        assert info.new_realm is None
+        assert info.success is None
+
+    def test_full(self):
+        info = BreakthroughInfo(message="突破成功！", new_realm="练气", success=True)
+        assert info.message == "突破成功！"
+        assert info.new_realm == "练气"
+        assert info.success is True

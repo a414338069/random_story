@@ -21,6 +21,11 @@ defineProps<{
   cursor: default;
   position: relative;
   min-height: 200px;
+  background: #ffffff;
+  border: 1px solid #e8e2d9;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(26,24,20,0.05);
+  margin-bottom: 16px;
 }
 
 .narrative-box.clickable {
@@ -28,24 +33,24 @@ defineProps<{
 }
 
 .nb-text {
-  font-size: 1.05rem;
+  font-size: 1rem;
   line-height: 1.8;
-  color: #2c2c2c;
+  color: #3d3a34;
   margin: 0;
   white-space: pre-wrap;
 }
 
 .nb-cursor {
   animation: blink 0.8s step-end infinite;
-  color: #4a7c7c;
+  color: #b8b3a8;
 }
 
 .nb-hint {
   position: absolute;
   bottom: 8px;
   right: 16px;
-  font-size: 0.75rem;
-  color: #999;
+  font-size: 0.72rem;
+  color: var(--text-muted, #8a857d);
   margin: 0;
 }
 

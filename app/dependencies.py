@@ -8,7 +8,7 @@ from app.config import Settings
 class AIServiceProtocol(Protocol):
     """Interface for AI narrative generation services."""
 
-    def generate_event(self, prompt: str, context: dict) -> dict: ...
+    def generate_event(self, prompt: str, context: dict, skip_ai: bool = False) -> dict: ...
 
 
 @lru_cache
@@ -26,7 +26,7 @@ def get_ai_service() -> AIServiceProtocol:
     """Return a stub AI service — real implementation will replace this."""
 
     class _StubAIService:
-        def generate_event(self, prompt: str, context: dict) -> dict:
+        def generate_event(self, prompt: str, context: dict, skip_ai: bool = False) -> dict:
             return {"event": prompt[:20], "options": []}
 
     return _StubAIService()

@@ -1,0 +1,23 @@
+id: "social_002"
+type: "daily"
+title: "路遇同道"
+trigger_conditions:
+  min_realm: "练气"
+  max_realm: "筑基"
+  min_age: 15
+  max_age: 80
+  required_faction: null
+weight: 0.8
+prompt_template: "你在历练途中遇到一位修为相当的修士，相谈甚欢..."
+fallback_narrative: "你在历练途中遇到一位修为相当的修士，相谈甚欢，彼此交流了不少修炼心得。"
+default_options:
+  - id: "opt1"
+    text: "结伴同行"
+    consequences:
+      cultivation_gain: 15
+      age_advance: true
+  - id: "opt2"
+    text: "各自修行"
+    consequences:
+      cultivation_gain: 10
+      age_advance: true

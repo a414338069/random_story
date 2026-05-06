@@ -1,27 +1,30 @@
-import { ref, watch, onUnmounted } from 'vue'
+import { ref, watch, onUnmounted, type Ref, type ComputedRef } from 'vue'
 
-/**
- * 数值动画 composable
- * 当源值变化时，在 600ms 内平滑过渡显示值
- * 返回当前显示值和变化方向（正/负/无）
- */
+type MaybeRef<T> = Ref<T> | ComputedRef<T> | (() => T)
+
+function toGetter<T>(source: MaybeRef<T>): () => T {
+  if (typeof source === 'function') return source
+  return () => (source as Ref<T>).value
+}
+
 export function useAnimatedNumber(
-  source: () => number,
+  source: MaybeRef<number>,
   duration = 600,
   formatter?: (n: number) => string,
 ) {
-  const displayValue = ref(source())
+  const get = toGetter(source)
+  const displayValue = ref(get())
   const direction = ref<'up' | 'down' | 'none'>('none')
   let rafId: number | null = null
   let startTime: number | null = null
-  let fromValue = source()
+  let fromValue = get()
 
   function animate() {
     if (rafId !== null) {
       cancelAnimationFrame(rafId)
     }
 
-    const toValue = source()
+    const toValue = get()
     fromValue = displayValue.value
 
     if (fromValue === toValue) {
@@ -56,7 +59,7 @@ export function useAnimatedNumber(
     rafId = requestAnimationFrame(step)
   }
 
-  watch(source, animate)
+  watch(() => get(), animate)
 
   onUnmounted(() => {
     if (rafId !== null) {

@@ -8,7 +8,7 @@ const { gameState, score, ending, grade } = useGameState()
 
 function getGradeColor(g: string): string {
   switch (g) {
-    case 'SSS': case 'SS': case 'S': return '#ff8f00'
+    case 'SSS': case 'SS': case 'S': return '#1a1814'
     case 'A': case 'B': return '#4a7c7c'
     case 'C': return '#666'
     case 'D': return '#999'
@@ -68,7 +68,7 @@ function showLeaderboard() {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f0e8 0%, #e8ddd0 50%, #d4c5b0 100%);
+  background: var(--paper-white, #f6f3ed);
   padding: 20px;
 }
 
@@ -78,10 +78,11 @@ function showLeaderboard() {
 }
 
 .go-title {
-  font-size: 2.5rem;
-  color: #2c2c2c;
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  color: var(--ink-black, #1a1814);
   margin-bottom: 32px;
-  letter-spacing: 6px;
+  letter-spacing: 4px;
 }
 
 .go-ending {
@@ -89,10 +90,11 @@ function showLeaderboard() {
 }
 
 .go-ending-text {
-  font-size: 1.8rem;
-  color: #c23a2b;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  color: #b8b3a8;
   margin: 0;
-  letter-spacing: 4px;
+  letter-spacing: 2px;
 }
 
 .go-score-section {
@@ -104,26 +106,28 @@ function showLeaderboard() {
 }
 
 .go-grade {
-  font-size: 3rem;
+  font-size: 2.8rem;
   font-weight: 900;
 }
 
 .go-score {
-  font-size: 1.3rem;
-  color: #666;
+  font-size: 1.1rem;
+  color: var(--text-muted, #8a857d);
 }
 
 .go-summary {
   margin-bottom: 32px;
   padding: 20px;
-  background: rgba(255, 255, 255, 0.5);
+  background: #ffffff;
+  border: 1px solid #e8e2d9;
   border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(26,24,20,0.05);
 }
 
 .go-summary p {
   margin: 6px 0;
-  color: #555;
-  font-size: 1rem;
+  color: #3d3a34;
+  font-size: 0.95rem;
 }
 
 .go-actions {

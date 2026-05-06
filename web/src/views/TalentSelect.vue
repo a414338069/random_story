@@ -139,7 +139,7 @@ async function handleConfirm() {
 <style scoped>
 .talent-select {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f0e8 0%, #e8ddd0 50%, #d4c5b0 100%);
+  background: var(--paper-white, #f6f3ed);
   padding: 40px 20px;
 }
 
@@ -150,10 +150,11 @@ async function handleConfirm() {
 
 .ts-title {
   text-align: center;
-  font-size: 1.8rem;
-  color: #2c2c2c;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  color: var(--ink-black, #1a1814);
   margin-bottom: 32px;
-  letter-spacing: 4px;
+  letter-spacing: 2px;
 }
 
 .ts-step {
@@ -169,8 +170,8 @@ async function handleConfirm() {
 }
 
 .ts-field label {
-  font-size: 0.95rem;
-  color: #555;
+  font-size: 0.9rem;
+  color: var(--text-muted, #8a857d);
 }
 
 .ts-next-btn,
@@ -181,14 +182,14 @@ async function handleConfirm() {
 
 .ts-cards {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   justify-content: center;
   flex-wrap: wrap;
 }
 
 .ts-sum {
   text-align: center;
-  font-size: 1rem;
-  color: #666;
+  font-size: 0.95rem;
+  color: var(--text-muted, #8a857d);
 }
 </style>

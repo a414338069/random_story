@@ -1,0 +1,24 @@
+id: "explore_004"
+type: "adventure"
+title: "矿脉探查"
+trigger_conditions:
+  min_realm: "筑基"
+  max_realm: "金丹"
+  min_age: 50
+  max_age: 500
+  required_faction: null
+weight: 0.5
+prompt_template: "你在一处山脉中感应到了灵石矿脉的波动..."
+fallback_narrative: "你在一处山脉中感应到了灵石矿脉的波动，地底深处似有灵气汇聚之处。"
+default_options:
+  - id: "opt1"
+    text: "开采灵石"
+    consequences:
+      cultivation_gain: 10
+      age_advance: true
+      spirit_stones_gain: 30
+  - id: "opt2"
+    text: "继续探查"
+    consequences:
+      cultivation_gain: 20
+      age_advance: true

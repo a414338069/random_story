@@ -1,21 +1,33 @@
-import { ref, onUnmounted } from 'vue'
+import { ref, computed, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameState } from './useGameState'
 import { useTypewriter } from './useTypewriter'
 import { getEvent, chooseOption, endGame } from '@/api/game'
 import { FetchError } from '@/api/client'
-import type { EventResponse, LoopPhase } from '@/core/types'
+import type { EventLogEntry, LoopPhase } from '@/core/types'
 
 export function useGameLoop() {
   const router = useRouter()
   const { sessionId, phase, update, score, ending, grade, gameState } = useGameState()
   const typewriter = useTypewriter()
 
-  const currentEvent = ref<EventResponse | null>(null)
-  const aftermath = ref<{ cultivation_change: number; age_advance: number } | null>(null)
+  const eventLog = ref<EventLogEntry[]>([])
+  const currentEntry = computed(() =>
+    eventLog.value.length > 0 ? eventLog.value[eventLog.value.length - 1] : null
+  )
+  // backward compat: currentEvent is an alias for currentEntry (used by views that haven't migrated)
+  const currentEvent = computed(() => currentEntry.value)
+
+  const aftermath = ref<{
+    cultivation_change: number
+    age_advance: number
+    narrative?: string
+    breakthrough?: { message: string; new_realm: string | null; success: boolean | null }
+  } | null>(null)
   const error = ref<string | null>(null)
   const retryCount = ref(0)
   const loading = ref(false)
+  const eventId = ref(0)
 
   let cancelled = false
 
@@ -28,21 +40,41 @@ export function useGameLoop() {
     setPhase('fetching')
     error.value = null
     aftermath.value = null
-    currentEvent.value = null
     loading.value = true
 
     try {
       const event = await getEvent(sessionId.value)
       if (cancelled) return
-      currentEvent.value = event
+
+      eventId.value++
+      const entry: EventLogEntry = {
+        id: eventId.value,
+        narrative: event.narrative,
+        displayedText: '',
+        options: event.options,
+        chosenOptionId: null,
+        aftermath: null,
+        phase: 'typing',
+        hasOptions: event.has_options,
+        title: event.title,
+      }
+      eventLog.value.push(entry)
+
       retryCount.value = 0
       loading.value = false
 
       setPhase('typing')
       await typewriter.typeText(event.narrative, 40)
 
-      if (!cancelled) {
+      if (cancelled) return
+
+      // After typewriter finishes, decide next phase based on has_options
+      if (event.has_options) {
         setPhase('choosing')
+        entry.phase = 'choosing'
+      } else {
+        setPhase('waiting_click')
+        entry.phase = 'waiting_click'
       }
     } catch (err: unknown) {
       if (cancelled) return
@@ -65,12 +97,24 @@ export function useGameLoop() {
     }
   }
 
-  async function handleChoose(optionId: string) {
-    if (!sessionId.value || cancelled || phase.value !== 'choosing') return
+  async function handleChoose(optionId: string | null) {
+    if (!sessionId.value || cancelled) return
+
+    const isChoosing = phase.value === 'choosing'
+    const isWaitingClick = phase.value === 'waiting_click'
+
+    if (!isChoosing && !isWaitingClick) return
+
     typewriter.skipToEnd()
     setPhase('submitting')
     error.value = null
     loading.value = true
+
+    const entry = currentEntry.value
+    if (entry) {
+      entry.phase = 'submitting'
+      entry.chosenOptionId = optionId
+    }
 
     try {
       const result = await chooseOption(sessionId.value, optionId)
@@ -78,13 +122,31 @@ export function useGameLoop() {
 
       update(result.state)
       aftermath.value = result.aftermath
+      if (entry) {
+        entry.aftermath = result.aftermath
+      }
       loading.value = false
       setPhase('aftermath')
+      if (entry) {
+        entry.phase = 'aftermath'
+      }
 
       if (!result.state.isAlive) {
-        setTimeout(() => handleGameOver(), 1500)
+        setTimeout(() => handleGameOver(), 2500)
+      } else if (result.aftermath?.breakthrough) {
+        // 有突破时：不自动advance，显示突破信息等待用户确认
+        if (entry) {
+          entry.phase = 'breakthrough'
+        }
+        setPhase('waiting_click') // 允许点击继续
       } else {
-        setTimeout(() => advanceEvent(), 1500)
+        // 正常：2.5秒后自动推进
+        setTimeout(() => {
+          if (entry) {
+            entry.phase = 'done'
+          }
+          advanceEvent()
+        }, 2500)
       }
     } catch (err: unknown) {
       if (cancelled) return
@@ -95,6 +157,23 @@ export function useGameLoop() {
         error.value = '天机紊乱，连接中断'
       }
       setPhase('idle')
+    }
+  }
+
+  function handleContinueClick() {
+    if (phase.value !== 'waiting_click') return
+    const entry = currentEntry.value
+    if (entry && entry.phase === 'breakthrough') {
+      entry.phase = 'done'
+      advanceEvent()
+      return
+    }
+    handleChoose(null)
+  }
+
+  function skipTypewriter() {
+    if (typewriter.isTyping.value) {
+      typewriter.skipToEnd()
     }
   }
 
@@ -139,6 +218,8 @@ export function useGameLoop() {
 
   return {
     currentEvent,
+    eventLog,
+    currentEntry,
     aftermath,
     error,
     retryCount,
@@ -147,6 +228,8 @@ export function useGameLoop() {
     typewriter,
     advanceEvent,
     handleChoose,
+    handleContinueClick,
+    skipTypewriter,
     handleRetry,
     handleReturnHome,
   }

@@ -1,0 +1,24 @@
+id: "stones_003"
+type: "adventure"
+title: "灵石矿脉"
+trigger_conditions:
+  min_realm: "练气"
+  max_realm: "筑基"
+  min_age: 15
+  max_age: 150
+  required_faction: null
+weight: 0.4
+prompt_template: "你在一处山洞中发现了小型灵石矿脉的痕迹..."
+fallback_narrative: "你在一处山洞中发现了小型灵石矿脉的痕迹，灵光闪烁间似乎有不少灵石。"
+default_options:
+  - id: "opt1"
+    text: "小心开采"
+    consequences:
+      cultivation_gain: 10
+      age_advance: true
+      spirit_stones_gain: 25
+  - id: "opt2"
+    text: "标记后离开"
+    consequences:
+      cultivation_gain: 5
+      age_advance: true

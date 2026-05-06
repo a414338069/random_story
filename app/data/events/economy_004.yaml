@@ -1,0 +1,24 @@
+id: "economy_004"
+type: "adventure"
+title: "悬赏任务"
+trigger_conditions:
+  min_realm: "练气"
+  max_realm: "金丹"
+  min_age: 15
+  max_age: 400
+  required_faction: null
+weight: 0.5
+prompt_template: "修行者公会上张贴了一份悬赏任务..."
+fallback_narrative: "修行者公会上张贴了一份悬赏任务，完成者可获得丰厚的灵石报酬。"
+default_options:
+  - id: "opt1"
+    text: "接取任务"
+    consequences:
+      cultivation_gain: 15
+      age_advance: true
+      spirit_stones_gain: 20
+  - id: "opt2"
+    text: "继续修炼"
+    consequences:
+      cultivation_gain: 10
+      age_advance: true

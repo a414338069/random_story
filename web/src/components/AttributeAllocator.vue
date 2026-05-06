@@ -63,54 +63,57 @@ function setValue(key: keyof typeof props.modelValue, val: number) {
 .attr-allocator {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
   padding: 20px 0;
 }
 
 .attr-row {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
 }
 
 .attr-label {
   width: 60px;
-  font-size: 1rem;
-  color: #2c2c2c;
+  font-size: 0.95rem;
+  color: #3d3a34;
 }
 
 .attr-btn {
   width: 44px;
   height: 44px;
-  border: 1px solid #ccc;
-  border-radius: var(--border-radius, 4px);
-  background: #fff;
-  font-size: 1.2rem;
+  border: 1px solid #e8e2d9;
+  border-radius: 8px;
+  background: #ffffff;
+  font-size: 1.1rem;
+  color: #3d3a34;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background var(--transition-fast, 0.2s ease),
-              transform 0.1s ease;
+  transition: background 0.2s ease, transform 0.1s ease, border-color 0.2s ease;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
 }
 
 .attr-btn:hover {
-  background: #f0f0f0;
+  background: #faf8f4;
+  border-color: #b8b3a8;
 }
 
 .attr-btn:active {
-  background: #ddd;
+  background: #f0ece5;
   transform: scale(0.92);
 }
 
 .attr-input {
-  width: 60px;
+  width: 56px;
   height: 36px;
   text-align: center;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 1rem;
+  border: 1px solid #e8e2d9;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  color: #3d3a34;
+  background: #ffffff;
 }
 </style>
