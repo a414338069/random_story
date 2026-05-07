@@ -4,6 +4,7 @@ import pytest
 
 from app.services.ai_validator import (
     check_content_safety,
+    check_narrative_option_alignment,
     parse_json_response,
     validate_ai_output,
     validate_schema,
@@ -267,3 +268,64 @@ class TestValidateAiOutput:
         result = validate_ai_output(payload, "兜底叙事", self.DEFAULT_OPTIONS)
         assert "枪" not in result["narrative"]
         assert "微信" not in result["options"][0]["text"]
+
+
+# ---------------------------------------------------------------------------
+# Narrative-Option Alignment: check_narrative_option_alignment
+# ---------------------------------------------------------------------------
+
+
+def test_alignment_match_basic():
+    """Options that reference narrative keywords should pass."""
+    assert check_narrative_option_alignment(
+        "老者看中你的灵草", [{"text": "出售灵草"}]
+    ) is True
+
+
+def test_alignment_mismatch_basic():
+    """Options unrelated to narrative should fail."""
+    assert check_narrative_option_alignment(
+        "老者看中你的灵草", [{"text": "购买丹药"}]
+    ) is False
+
+
+def test_alignment_empty_input():
+    """Empty narrative or options should return True (pass through)."""
+    assert check_narrative_option_alignment("", [{"text": "test"}]) is True
+    assert check_narrative_option_alignment("narrative", []) is True
+
+
+def test_alignment_all_match():
+    """All options matching keywords from narrative should pass."""
+    # 妖兽 → "迎战妖兽", 袭击 → "迅速逃跑避开袭击"
+    assert check_narrative_option_alignment(
+        "深山遇到妖兽袭击",
+        [{"text": "迎战妖兽"}, {"text": "迅速逃跑避开袭击"}],
+    ) is True
+
+
+def test_alignment_one_option_mismatch():
+    """Any single option not matching should cause failure."""
+    # "迎战妖兽" contains "妖兽" (match), "去集市购物" doesn't (fail)
+    assert check_narrative_option_alignment(
+        "深山遇到妖兽袭击",
+        [{"text": "迎战妖兽"}, {"text": "去集市购物"}],
+    ) is False
+
+
+def test_alignment_no_chinese():
+    """Non-Chinese text should pass through (no keywords extracted)."""
+    assert check_narrative_option_alignment(
+        "hello world", [{"text": "test"}]
+    ) is True
+
+
+def test_alignment_longer_narrative():
+    """Longer narrative with richer keyword set — all options match."""
+    narrative = "白发老者手持断剑坐在山道旁，血迹斑斑的衣袍说明他刚经历一场恶战"
+    options = [
+        {"text": "上前询问老者伤势"},
+        {"text": "接过断剑查看"},
+        {"text": "警觉后退远离山道"},
+    ]
+    assert check_narrative_option_alignment(narrative, options) is True

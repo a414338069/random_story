@@ -85,6 +85,39 @@ def check_content_safety(data: dict) -> tuple[bool, dict]:
     return is_safe, cleaned
 
 
+def check_narrative_option_alignment(narrative: str, options: list[dict]) -> bool:
+    """Check if AI-generated options are semantically aligned with the narrative.
+
+    Extracts meaningful Chinese keywords (2+ character words) from the narrative
+    and verifies that each option references at least one keyword.
+
+    Returns True if all options pass, False if any option is completely unrelated.
+    """
+    if not narrative or not options:
+        return True
+
+    # Build keyword set: sliding window of 2-4 char Chinese substrings
+    keywords: set[str] = set()
+    for i in range(len(narrative)):
+        for length in (2, 3, 4):
+            if i + length <= len(narrative):
+                chunk = narrative[i:i + length]
+                if re.fullmatch(r'[\u4e00-\u9fff]+', chunk):
+                    keywords.add(chunk)
+
+    if not keywords:
+        return True
+
+    for opt in options:
+        opt_text = opt.get("text", "")
+        if not opt_text:
+            continue
+        if not any(kw in opt_text for kw in keywords):
+            return False
+
+    return True
+
+
 def validate_ai_output(
     raw: str,
     fallback_narrative: str,

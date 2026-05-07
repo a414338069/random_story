@@ -65,6 +65,20 @@ SYSTEM_PROMPT = """# 角色设定
 - **关键决策**：仅在以下关键时刻返回 2~3 个选项：adventure（冒险探索）、moral（道德抉择）、cultivation direction（修炼方向选择）、relationship（人际关系）、bottleneck（突破瓶颈）、encounter（重大奇遇）。
 - 每个选项必须有明确的收益与代价，避免"全是好处"或"全是坏处"的选项。
 
+# 叙事与选项一致性约束（重要）
+确保叙事-选项一致性：叙事中涉及的具体人物、物品、地点、事件，必须在至少一个选项中有所体现。每个选项必须是叙事中角色的合理行为选择，选项文本应使用叙事中已经出现的关键名词。选项之间的 consequence_preview 应反映真正不同的方向，而非相同结果的不同文字表述。
+
+**正面示例**（叙事→选项一致性）：
+> 叙事：山道上遇一受重伤的白发老者，老者手中紧握一柄断剑，低声说"此剑名斩龙，赠予有缘人"。
+> ✅ opt1: "接过断剑，询问老者伤势"（承接"断剑"和"老者"两个关键元素）
+> ✅ opt2: "先为老者敷药疗伤，剑的事暂且不提"（承接"老者重伤"）
+> ✅ opt3: "警惕地后退一步——这老者来历不明"（承接"可疑老者"）
+
+**反面示例**（叙事→选项断裂）：
+> 叙事同上。
+> ❌ opt1: "去集市购买丹药"（叙事中完全没有集市、丹药）
+> ❌ opt2: "前往藏书阁查阅功法"（叙事中完全没有藏书阁、功法）
+
 # 内容规则
 - 叙事段落长度：**50~200 字**，精炼不拖沓。
 - 选项逻辑应符合修仙世界的内在规律：天材地宝伴随凶险、功法修炼需要代价、与人交际涉及利害。
@@ -72,6 +86,16 @@ SYSTEM_PROMPT = """# 角色设定
 - 避免连续多次同类型事件，保持节奏变化。
 - 注意玩家的"重生者"设定——可偶尔融入前世记忆碎片带来的先知先觉或蝴蝶效应。
 - 不要替玩家做决定，不要把选项的结局直接写入 narrative，narrative 只描述当前发生的事。
+
+## aftermath 生成角色
+除了生成事件叙事和选项外，你还可能被要求生成"选择后果交代"（aftermath narrative）。这是一段简短的后记文本（50~100字），用于描述玩家做出选择后立即发生的场景变化。
+
+连贯规则：
+- aftermath 内容应直接延续事件叙事的情节，而非另起炉灶
+- 提到修为变化时，使用"你{选择的动作}，灵力…"的自然句式，避免"你选择了「xxx」"的元叙述
+- 提到灵石变化时，使用"获得了"/"损失了"/"消耗了"等自然动词
+- 若涉及时间推进，使用"数日后"/"一月后"等修仙世界时间描述
+- 语言风格与正文保持一致（半文半白）
 
 # 上下文变量说明
 每次调用时会传入以下上下文，你需要根据这些信息生成合理的剧情：
@@ -84,6 +108,8 @@ SYSTEM_PROMPT = """# 角色设定
 | attributes | 角色属性面板（根骨、悟性、气运等），影响事件走向 |
 | location | 当前位置（如"青云宗外门"、"黑风森林"等） |
 | special | 特殊状态（如"身中寒毒"、"被宗门通缉"等），可为空 |
+| chosen_action | 玩家刚刚选择的行动文本 |
+| aftermath_context | 需要生成后果交代的上下文（可选） |
 
 使用这些上下文时请注意：
 - 如果玩家修为低（炼气期），事件应侧重基础修炼、宗门生活、低级任务。
@@ -150,6 +176,65 @@ class DeepSeekService:
         logger.error(f"AI service failed after {self._max_retries + 1} attempts: {last_error}")
         return _EMPTY_RESULT
 
+    def generate_aftermath(self, aftermath_context: dict) -> dict | None:
+        """Generate a personalized aftermath narrative describing the consequence of a player's choice.
+
+        Uses deepseek-chat model (cheaper/faster) for short narrative generation.
+        Returns {"narrative": "..."} on success, None on failure.
+        """
+        title = aftermath_context.get("title", "")
+        event_type = aftermath_context.get("event_type", "")
+        narrative = aftermath_context.get("narrative", "")
+        chosen_text = aftermath_context.get("chosen_text", "")
+        cultivation_gain = aftermath_context.get("cultivation_gain", 0)
+        spirit_stones_gain = aftermath_context.get("spirit_stones_gain", 0)
+        realm = aftermath_context.get("realm", "")
+        age = aftermath_context.get("age", 0)
+
+        context_prompt = f"""请为以下事件生成一段简短的后果交代（50~100字）：
+事件类型：{event_type}
+玩家选择了：{chosen_text}
+修为变化：{cultivation_gain:+.1f}
+灵石变化：{spirit_stones_gain:+d}
+当前境界：{realm}
+角色年龄：{age}岁
+
+事件原文：{narrative[:200]}
+
+要求：
+- 使用半文半白的中文风格
+- 自然描述选择带来的后果，不使用"你选择了「xxx」"这样的元叙述句式
+- 提及修为变化时融入动作描写（如"灵台清明""经脉微颤"）
+- 若涉及灵石变化，用"获得了"/"损失了"等自然动词
+- 返回纯JSON：{{"narrative": "后果描述文本"}}"""
+
+        messages = [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": context_prompt},
+        ]
+
+        try:
+            response = self._client.chat.completions.create(
+                model="deepseek-chat",
+                messages=messages,
+                response_format={"type": "json_object"},
+                temperature=0.7,
+                max_tokens=200,
+            )
+
+            content = response.choices[0].message.content
+            if not content or content.strip() == "":
+                return None
+
+            result = json.loads(content)
+            if isinstance(result, dict) and "narrative" in result:
+                return result
+            return None
+
+        except Exception as e:
+            logger.warning(f"Aftermath generation failed: {e}")
+            return None
+
 
 class MockAIService:
     def __init__(self, response: dict | None = None):
@@ -157,7 +242,7 @@ class MockAIService:
             "narrative": "你在山间修炼，灵气充裕，修为有所增长。",
             "options": [
                 {"id": "opt1", "text": "继续修炼"},
-                {"id": "opt2", "text": "下山历练"},
+                {"id": "opt2", "text": "提升修为"},
             ],
         }
         self.call_count = 0
@@ -165,3 +250,9 @@ class MockAIService:
     def generate_event(self, prompt: str, context: dict, skip_ai: bool = False) -> dict:
         self.call_count += 1
         return self._response
+
+    def generate_aftermath(self, aftermath_context: dict) -> dict | None:
+        chosen = aftermath_context.get("chosen_text", "修炼")
+        return {
+            "narrative": f"你{chosen}之际，灵台清明，细细体悟大道之妙，修为有所精进。"
+        }

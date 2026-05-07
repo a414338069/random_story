@@ -129,14 +129,13 @@ class TestE2EGameLoop:
 
         print(f"Mage build: {events_played} events, Score: {result['score']}, Grade: {result['grade']}")
 
-    @patch("app.services.game_service._get_ai_service")
+    @patch("app.services.game_service._get_ai_service", return_value=MockAIService())
     @patch("app.services.game_service.attempt_breakthrough")
     def test_scoring_deterministic(self, mock_breakthrough, mock_ai):
         """Same attributes should produce same score."""
         mock_breakthrough.return_value = BreakthroughResult(
             success=True, new_realm="炼气", cultivation_loss=0, realm_dropped=False, ascended=False,
         )
-        mock_ai.side_effect = Exception("AI disabled for deterministic test")
         random.seed(42)
 
         def run_game():

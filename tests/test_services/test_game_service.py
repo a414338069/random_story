@@ -4,7 +4,7 @@ RED phase: All tests should fail initially.
 """
 
 import random
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -676,8 +676,15 @@ class TestProcessChoiceNarrative:
         assert "cultivation_change" in outcome
         assert "age_advance" in outcome
 
-    def test_consequence_narrative_in_response(self):
+    @patch("app.services.game_service._get_ai_service")
+    def test_consequence_narrative_in_response(self, mock_get_ai):
         """process_choice should return aftermath with consequence narrative."""
+        mock_service = MagicMock()
+        mock_service.generate_aftermath.return_value = {
+            "narrative": "你继续修炼之际，灵台清明，细细体悟大道之妙，修为有所精进。"
+        }
+        mock_get_ai.return_value = mock_service
+
         random.seed(42)
         result = start_game("测试", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
         session_id = result["session_id"]

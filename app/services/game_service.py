@@ -22,6 +22,7 @@ from app.services.event_engine import (
 from app.services.scoring import determine_ending, calculate_score, get_grade
 from app.services.breakthrough import attempt_breakthrough, BreakthroughResult, build_breakthrough_event
 from app.services.ai_service import DeepSeekService, MockAIService
+from app.services.ai_validator import check_narrative_option_alignment
 from app.services.life_stage import get_life_stage, get_cultivation_multiplier, can_attempt_breakthrough
 from app.models.player import PlayerState
 from app.repositories import game_repo
@@ -198,6 +199,20 @@ def _build_ai_prompt(
         parts.append("【叙事模式】本次事件为纯叙事推进，不要返回选项，options返回空数组。")
 
     parts.append("")
+    parts.append("【选项约束 — 必须遵守】")
+    parts.append("1. 叙事一致性：叙事中出现的具体人物、物品、地点、事件类型，必须在至少一个选项中体现或回应。")
+    parts.append("2. 行为合理性：每个选项必须是叙事上下文中该角色的合理行为选择，不能凭空出现叙事未提及的动作。")
+    parts.append("3. 关键词覆盖：选项文本中应包含叙事中的至少一个关键名词（人物名、物品名、地点名或核心事件词）。")
+    parts.append("4. 差异化：选项之间的consequence_preview必须反映不同结果方向，禁止相同结果的不同描述。")
+    parts.append("")
+    parts.append("【违规示例 — 禁止】")
+    parts.append('- 叙事："老者看中你的灵草，想用丹药交换" → 错误选项："购买丹药"（叙事中老者要交换而非你购买）')
+    parts.append('- 叙事："深山中遇到妖兽袭击" → 错误选项："去集市购物"（与叙事完全无关）')
+    parts.append("")
+    parts.append("【正确示例 — 参考】")
+    parts.append('- 叙事："老者看中你的灵草，想用丹药交换" → 正确选项："出售灵草"、"拒绝交易"、"讨价还价"')
+    parts.append('- 叙事："深山中遇到妖兽袭击" → 正确选项："与之战斗"、"迅速逃跑"、"攀上树躲避"')
+    parts.append("")
     parts.append("请基于【事件标题】和【事件模板】生成独立的叙事内容。叙事应与事件标题紧密相关，选项应与事件主题匹配。可以自然提及角色的过往经历，但叙事的核心必须是当前事件本身。")
 
     return "\n".join(parts)
@@ -280,8 +295,14 @@ def get_next_event(session_id: str) -> dict:
                             "consequences": safe_consequences,
                         })
                 if cleaned:
-                    options = cleaned
-                    is_fallback = False
+                    if check_narrative_option_alignment(narrative, cleaned):
+                        options = cleaned
+                        is_fallback = False
+                    else:
+                        logging.getLogger(__name__).warning(
+                            "options-narrative alignment check failed, falling back to default options"
+                        )
+                        # Keep AI narrative but fall back to template options
             elif event_ctx.get("narrative_only"):
                 options = []
                 is_fallback = False
@@ -320,15 +341,15 @@ def get_next_event(session_id: str) -> dict:
 
 CONSEQUENCE_TEMPLATES = {
     "cultivation_positive": [
-        "你{action_desc}，一股温热的灵力自丹田涌出，经脉微微颤动，修为提升了{cult_change}点。",
+        "{action_desc}，一股温热的灵力自丹田涌出，经脉微微颤动，修为提升了{cult_change}点。",
         "{action_desc}后，你感到灵台清明，对大道的感悟又深了一层，修为增长{cult_change}点。",
-        "灵气如涓涓细流汇入体内，你{action_desc}，修为精进{cult_change}点。",
-        "你{action_desc}，体内真元缓缓壮大，丹田中灵气充盈，修为增加{cult_change}点。",
-        "静心凝神，你{action_desc}，天地灵气在周身流转，修为提升{cult_change}点。",
+        "灵气如涓涓细流汇入体内，{action_desc}，修为精进{cult_change}点。",
+        "{action_desc}，体内真元缓缓壮大，丹田中灵气充盈，修为增加{cult_change}点。",
+        "静心凝神，{action_desc}，天地灵气在周身流转，修为提升{cult_change}点。",
     ],
     "cultivation_negative": [
-        "你{action_desc}，但心神不宁，灵气外泄，修为损失{cult_change_abs}点。",
-        "一番波折后，你{action_desc}，却因岔气导致真元紊乱，修为下降{cult_change_abs}点。",
+        "{action_desc}，但心神不宁，灵气外泄，修为损失{cult_change_abs}点。",
+        "一番波折后，{action_desc}，却因岔气导致真元紊乱，修为下降{cult_change_abs}点。",
     ],
     "narrative_only": [
         "岁月流转，{time_desc}。你在平淡中有所感悟，修为精进{cult_change}点。",
@@ -349,8 +370,10 @@ def _build_consequence_narrative(
     time_span: int | None,
     spirit_stones_gain: int = 0,
     breakthrough_msg: str | None = None,
+    ai_service=None,
+    event_context: dict | None = None,
 ) -> str:
-    """构建丰富的后果叙事文本。"""
+    """构建丰富的后果叙事文本，优先使用AI生成，模板兜底。"""
     cult_change_str = f"+{cultivation_gain:.1f}" if cultivation_gain >= 0 else f"{cultivation_gain:.1f}"
     cult_change_abs = f"{abs(cultivation_gain):.1f}"
 
@@ -372,6 +395,31 @@ def _build_consequence_narrative(
         stones_part = f"，获得{spirit_stones_gain}枚灵石"
     elif spirit_stones_gain < 0:
         stones_part = f"，消耗{abs(spirit_stones_gain)}枚灵石"
+
+    # AI-first aftermath generation (skip for breakthrough events)
+    if ai_service is not None and event_context is not None and not breakthrough_msg:
+        _logger = logging.getLogger(__name__)
+        try:
+            current_narrative = event_context.get("narrative", "")
+            event_type = event_context.get("type", "")
+            event_title = event_context.get("title", "")
+            # Build aftermath context for AI
+            aftermath_ctx = {
+                "title": event_title,
+                "event_type": event_type,
+                "narrative": current_narrative,
+                "chosen_text": chosen_text,
+                "cultivation_gain": cultivation_gain,
+                "spirit_stones_gain": spirit_stones_gain,
+                "realm": event_context.get("realm", ""),
+                "age": event_context.get("age", 0),
+            }
+            ai_result = ai_service.generate_aftermath(aftermath_ctx)
+            if ai_result and isinstance(ai_result, dict) and ai_result.get("narrative"):
+                _logger.info("Using AI-generated aftermath narrative")
+                return ai_result["narrative"]
+        except Exception:
+            _logger.warning("AI aftermath generation failed, falling back to template")
 
     # 选择模板
     if breakthrough_msg:
@@ -399,7 +447,7 @@ def _build_consequence_narrative(
     else:
         template = random.choice(CONSEQUENCE_TEMPLATES["cultivation_negative"])
 
-    action_desc = f"选择了「{chosen_text}」"
+    action_desc = chosen_text if chosen_text else "不知如何是好"
     return template.format(
         action_desc=action_desc,
         cult_change=cult_change_str,
@@ -560,11 +608,21 @@ def process_choice(session_id: str, option_id: str | None = None) -> dict:
         chosen_text = chosen.get("text", "") if chosen else ""
     time_span = realm_config.get("time_span", 0) if realm_config else 0
 
+    aftermath_event_ctx = {
+        "narrative": state.get("_current_narrative", ""),
+        "type": current_event.get("type", ""),
+        "title": current_event.get("title", ""),
+        "realm": state.get("realm", ""),
+        "age": state.get("age", 0),
+    }
+
     consequence_narrative = _build_consequence_narrative(
         chosen_text=chosen_text,
         cultivation_gain=cultivation_gain,
         time_span=time_span,
         spirit_stones_gain=spirit_stones_gain,
+        ai_service=_get_ai_service(),
+        event_context=aftermath_event_ctx,
     )
 
     aftermath = {
