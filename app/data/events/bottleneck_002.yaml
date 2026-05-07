@@ -2,13 +2,13 @@ id: "bottleneck_002"
 type: "bottleneck"
 title: "筑基瓶颈"
 trigger_conditions:
-  min_realm: "练气"
+  min_realm: "炼气"
   max_realm: "筑基"
   min_age: 30
   max_age: 200
   required_faction: null
 weight: 2.0
-prompt_template: "你已修炼到练气巅峰，筑基的契机若隐若现..."
+prompt_template: "你已修炼到炼气巅峰，筑基的契机若隐若现..."
 fallback_narrative: "你盘膝而坐，将全身灵力压缩凝聚，向着筑基境界发起冲击。"
 default_options:
   - id: "opt1"

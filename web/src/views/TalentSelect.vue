@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { NButton, NInput, NRadio, NRadioGroup, NSpace, useMessage } from 'naive-ui'
 import TalentCardComp from '@/components/TalentCard.vue'
 import AttributeAllocator from '@/components/AttributeAllocator.vue'
 import { drawCards, canReDraw } from '@/core/talents'
 import { useGameState } from '@/composables/useGameState'
+import { getOrCreateUserId } from '@/composables/useSaveLoad'
 import { startGame } from '@/api/game'
 import type { TalentCard } from '@/core/types'
 
 const router = useRouter()
+const route = useRoute()
 const message = useMessage()
 const { setSession, update } = useGameState()
 
@@ -48,6 +50,8 @@ async function handleConfirm() {
   if (!canConfirm.value) return
   loading.value = true
   try {
+    const userId = getOrCreateUserId()
+    const saveSlot = route.query.slot ? Number(route.query.slot) : undefined
     const result = await startGame({
       name: name.value || '无名散修',
       gender: gender.value,
@@ -58,6 +62,8 @@ async function handleConfirm() {
         mindset: Math.round(attributes.value.mindset),
         luck: Math.round(attributes.value.luck),
       },
+      user_id: userId,
+      save_slot: saveSlot,
     })
     setSession(result.sessionId)
     update(result.state)

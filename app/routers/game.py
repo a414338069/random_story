@@ -35,6 +35,8 @@ async def create_game(request: GameStartRequest):
             gender=request.gender,
             talent_card_ids=request.talent_card_ids,
             attributes=attributes,
+            user_id=request.user_id,
+            save_slot=request.save_slot,
         )
         state = PlayerState(
             id=result["session_id"],
@@ -116,12 +118,46 @@ async def post_event_choose(request: ChooseRequest):
 
     # 突破选项：use_pill / direct → 走 handle_breakthrough_choice
     if request.option_id in ("use_pill", "direct"):
+        cultivation_before = state["cultivation"]
         use_pill = request.option_id == "use_pill"
         result = handle_breakthrough_choice(state, use_pill=use_pill)
 
-        breakthrough_msg = state.get("_breakthrough_msg", "")
+        # 持久化玩家状态和事件日志
+        conn = get_db()
+        try:
+            game_repo.save_player(conn, state)
+            event_log_data = {
+                "event_index": state.get("event_count", 0),
+                "event_type": "breakthrough",
+                "narrative": result["breakthrough_message"],
+                "options": [
+                    {"id": "use_pill", "text": "服用丹药"},
+                    {"id": "direct", "text": "直接突破"},
+                ],
+                "chosen_option_id": request.option_id,
+                "consequences": {
+                    "success": result["success"],
+                    "new_realm": result["new_realm"],
+                },
+                "realm": state.get("realm", ""),
+                "aftermath": {
+                    "cultivation_change": state["cultivation"] - cultivation_before,
+                    "age_advance": 0,
+                    "narrative": result["breakthrough_message"],
+                    "breakthrough": {
+                        "success": result["success"],
+                        "new_realm": result["new_realm"],
+                        "message": result["breakthrough_message"],
+                    },
+                },
+            }
+            game_repo.save_event_log(conn, request.session_id, event_log_data)
+            conn.commit()
+        finally:
+            conn.close()
+
         breakthrough_info = BreakthroughInfo(
-            message=breakthrough_msg,
+            message=result["breakthrough_message"],
             new_realm=result["new_realm"],
             success=result["success"],
             use_pill=use_pill,
@@ -130,41 +166,30 @@ async def post_event_choose(request: ChooseRequest):
         return ChooseResponse(
             state=state,
             aftermath=AftermathResponse(
-                cultivation_change=state["cultivation"],
+                cultivation_change=state["cultivation"] - cultivation_before,
                 age_advance=0,
-                narrative=breakthrough_msg,
+                narrative=result["breakthrough_message"],
                 breakthrough=breakthrough_info,
             ),
         )
 
     cultivation_before = state["cultivation"]
-    age_before = state["age"]
 
     try:
         new_state = process_choice(request.session_id, request.option_id)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    # Get aftermath data from service (T7 adds this)
     service_aftermath = new_state.get("aftermath", {})
-
-    # Build breakthrough info if present
-    breakthrough_info = None
-    bt_data = service_aftermath.get("breakthrough")
-    if bt_data:
-        breakthrough_info = BreakthroughInfo(
-            message=bt_data.get("message", ""),
-            new_realm=bt_data.get("new_realm"),
-            success=bt_data.get("success"),
-        )
+    outcome = new_state.get("_last_choice_outcome", {})
 
     return ChooseResponse(
         state=new_state,
         aftermath={
             "cultivation_change": new_state["cultivation"] - cultivation_before,
-            "age_advance": new_state["age"] - age_before,
+            "age_advance": outcome.get("age_advance", 0),
             "narrative": service_aftermath.get("narrative"),
-            "breakthrough": breakthrough_info,
+            "breakthrough": None,
         },
     )
 
@@ -180,6 +205,7 @@ async def post_event(request: EventRequest):
         raise HTTPException(status_code=400, detail="Game is already over")
 
     event = get_next_event(request.player_id)
+    state = get_state(request.player_id)
     return {
         "narrative": event["narrative"],
         "options": event["options"],
@@ -187,4 +213,5 @@ async def post_event(request: EventRequest):
         "title": event.get("title"),
         "is_breakthrough": event.get("is_breakthrough", False),
         "metadata": {"isFallback": event.get("is_fallback", False)},
+        "state": state,
     }

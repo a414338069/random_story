@@ -21,3 +21,50 @@ default_options:
     consequences:
       cultivation_gain: 45
       age_advance: true
+realm_narratives:
+  低阶: "你在野外修行时，脚下大地突然震动，一缕精纯灵气从地底涌出。虽然只是微弱的一丝，但对凡人或炼气修士而言已是难得的机缘。"
+  中阶: "一条中型灵脉在你修炼之处喷发，浓郁的灵气如瀑布般倾泻而下。金丹和元婴修士纷纷赶来争夺，场面一度混乱。"
+  高阶: "远古封印的顶级灵脉突然解封爆发，方圆千里被灵气海洋淹没。如此天量的灵气，唯有合体以上的大能才能完全驾驭。"
+realm_prompt_templates:
+  低阶: "凡人或炼气修士幸运地偶遇小型灵脉喷发。请描写低阶修士面对灵气涌出的惊喜和不知所措，体现机缘降临时的兴奋和对灵气的珍惜。"
+  中阶: "金丹或元婴修士遇到中型灵脉喷发，需要主动吸收灵气。请描写中阶修士运用功法吸收灵气的过程，以及与其他修士的竞争。"
+  高阶: "合体以上大能遇到顶级灵脉解封爆发。请描写高阶修士掌控海量灵气的壮观场面，体现境界到了一定层次后对灵气的绝对驾驭能力。"
+realm_default_options:
+  低阶:
+    - id: "opt1"
+      text: "全力吸收灵气"
+      consequences:
+        cultivation_gain: 40
+        age_advance: true
+    - id: "opt2"
+      text: "小心引导，量力而行"
+      consequences:
+        cultivation_gain: 25
+        age_advance: true
+  中阶:
+    - id: "opt1"
+      text: "全力吸纳，突破瓶颈"
+      consequences:
+        cultivation_gain: 70
+        age_advance: true
+    - id: "opt2"
+      text: "布阵引导，稳妥修炼"
+      consequences:
+        cultivation_gain: 50
+        age_advance: true
+  高阶:
+    - id: "opt1"
+      text: "以大神通鲸吞灵脉"
+      consequences:
+        cultivation_gain: 150
+        age_advance: true
+    - id: "opt2"
+      text: "炼化灵脉核心，掌控全局"
+      consequences:
+        cultivation_gain: 100
+        age_advance: true
+realm_scale:
+  type: "tier"
+  低阶: 1.0
+  中阶: 2.0
+  高阶: 4.0

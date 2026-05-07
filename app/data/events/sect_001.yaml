@@ -2,22 +2,31 @@ id: "sect_001"
 type: "daily"
 title: "宗门考核"
 trigger_conditions:
-  min_realm: "练气"
+  min_realm: "炼气"
   max_realm: "筑基"
   min_age: 15
   max_age: 100
   required_faction: null
+  requires_any_faction: true
 weight: 0.5
-prompt_template: "宗门一年一度的考核开始了，这是提升地位的好机会..."
-fallback_narrative: "宗门一年一度的考核开始了，这是提升地位的好机会，同门弟子摩拳擦掌。"
+prompt_template: "宗门一年一度的考核开始了。你所在门派的师兄弟们摩拳擦掌，长老们严肃地注视着众人。考核分为三关：阵法、剑术和丹道。你必须选择一关主攻。"
+fallback_narrative: "宗门一年一度的考核开始了，三关试炼在即：阵法、剑术、丹道。你必须选择一关主攻。"
 default_options:
   - id: "opt1"
-    text: "认真准备"
+    text: "专攻阵法关 — 用智谋弥补修为不足"
     consequences:
-      cultivation_gain: 20
+      cultivation_gain: 15
+      spirit_stones_gain: 15
       age_advance: true
   - id: "opt2"
-    text: "随性参加"
+    text: "专攻剑术关 — 以实战证明自己"
     consequences:
-      cultivation_gain: 10
+      cultivation_gain: 25
+      spirit_stones_gain: 5
+      age_advance: true
+  - id: "opt3"
+    text: "三关均衡应战 — 稳中求胜"
+    consequences:
+      cultivation_gain: 18
+      spirit_stones_gain: 10
       age_advance: true

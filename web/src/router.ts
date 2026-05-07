@@ -28,13 +28,32 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to, _from) => {
+router.beforeEach(async (to, _from) => {
   if (to.meta.requiresSession) {
-    const stateStr = sessionStorage.getItem('gameSessionId')
-    if (!stateStr) {
+    const hasSession = sessionStorage.getItem('gameSessionId')
+    if (hasSession) return true
+
+    const { getActiveSlot, getOrCreateUserId } = await import('@/composables/useSaveLoad')
+    const activeSlot = getActiveSlot()
+    if (activeSlot === null) return { name: 'title' }
+
+    try {
+      const userId = getOrCreateUserId()
+      const { loadSave } = await import('@/api/save')
+      const { normalizeFromPydantic } = await import('@/core/normalize')
+      const result = await loadSave(userId, activeSlot)
+
+      const { useGameState } = await import('@/composables/useGameState')
+      const { setSession, update } = useGameState()
+      setSession(result.sessionId)
+      update(result.state)
+
+      return true
+    } catch {
       return { name: 'title' }
     }
   }
+  return true
 })
 
 export default router

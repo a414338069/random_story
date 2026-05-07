@@ -73,6 +73,9 @@ class PlayerState(BaseModel):
     event_count: int = Field(default=0, ge=0)
     score: int = Field(default=0)
 
+    technique_grades: list[str] = Field(default_factory=list)
+    ascended: bool = False
+
     ending_id: Optional[str] = None
     is_alive: bool = True
 

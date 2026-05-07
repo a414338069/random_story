@@ -170,13 +170,13 @@ class TestProcessChoice:
         assert new_state["cultivation"] > old_cultivation
 
     def test_process_choice_age_advances(self):
-        """选择后 age 推进（凡人 time_span=1）."""
+        """age 推进现在在 get_next_event 中完成，process_choice 不再推进 age."""
         random.seed(42)
         result = start_game("测试", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
         sid = result["session_id"]
         _insert_current_event(sid, event_type="daily")
         new_state = process_choice(sid, "opt1")
-        assert new_state["age"] == 1  # 凡人 time_span=1
+        assert new_state["age"] == 0
 
     def test_process_choice_event_count_increments(self):
         """事件计数 +1."""
@@ -192,8 +192,8 @@ class TestProcessChoice:
         random.seed(42)
         result = start_game("测试", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
         sid = result["session_id"]
-        # Bump to 练气 (spirit_stone_cap=1000) so gain is not capped away
-        _games[sid]["realm"] = "练气"
+        # Bump to 炼气 (spirit_stone_cap=1000) so gain is not capped away
+        _games[sid]["realm"] = "炼气"
         _games[sid]["lifespan"] = 120
         _insert_current_event(sid, event_type="adventure")
         new_state = process_choice(sid, "opt2")
@@ -424,6 +424,27 @@ class TestEndGame:
         with pytest.raises(ValueError, match="session_id"):
             end_game("nonexistent")
 
+    def test_score_persist(self):
+        """end_game 后 DB 中 score > 0（修复排行榜 score=0 的 bug）."""
+        random.seed(42)
+        result = start_game("测试", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
+        sid = result["session_id"]
+        _insert_current_event(sid, event_type="daily")
+        process_choice(sid, "opt1")
+        end_game(sid)
+
+        import sqlite3
+        conn = get_db()
+        try:
+            row = conn.execute(
+                "SELECT score, ending_id FROM players WHERE id = ?", (sid,)
+            ).fetchone()
+            assert row is not None
+            assert row["score"] > 0, f"Expected score > 0, got {row['score']}"
+            assert row["ending_id"] is not None
+        finally:
+            conn.close()
+
 
 # ---------------------------------------------------------------------------
 # get_state()
@@ -568,7 +589,7 @@ class TestBreakthroughWarning:
         """Warning triggers when cultivation >= 80% of next realm requirement."""
         state = {
             "realm": "凡人",
-            "cultivation": 80.0,  # 练气 requires 100, 80/100 = 80%
+            "cultivation": 80.0,  # 炼气 requires 100, 80/100 = 80%
         }
         result = _check_breakthrough_warning(state)
         assert result is not None
@@ -678,12 +699,13 @@ class TestProcessChoiceNarrative:
 
 class TestGetNextEventBreakthrough:
     def test_get_next_event_returns_breakthrough_event_when_pending(self):
-        """当 _pending_breakthrough=True 时，get_next_event 返回突破事件"""
+        """当 _pending_breakthrough=True 时，get_next_event 返回突破事件（有丹药时含 use_pill 选项）"""
         random.seed(42)
         result = start_game("测试", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
         sid = result["session_id"]
         _games[sid]["_pending_breakthrough"] = True
         _games[sid]["age"] = 20
+        _games[sid]["inventory"] = ["breakthrough_pill"]
 
         event = get_next_event(sid)
         assert event["event_id"] == "breakthrough_pending"
@@ -693,6 +715,19 @@ class TestGetNextEventBreakthrough:
         assert len(event["options"]) == 2
         assert event["options"][0]["id"] == "use_pill"
         assert event["options"][1]["id"] == "direct"
+
+    def test_get_next_event_breakthrough_no_pill(self):
+        """无突破丹时只显示「凭自身实力突破」选项"""
+        random.seed(42)
+        result = start_game("测试", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
+        sid = result["session_id"]
+        _games[sid]["_pending_breakthrough"] = True
+        _games[sid]["age"] = 20
+
+        event = get_next_event(sid)
+        assert event["event_id"] == "breakthrough_pending"
+        assert len(event["options"]) == 1
+        assert event["options"][0]["id"] == "direct"
 
     def test_get_next_event_bypasses_ai_when_breakthrough_pending(self):
         """突破事件不调用 AI"""
@@ -728,13 +763,13 @@ class TestHandleBreakthroughChoice:
         outcome = handle_breakthrough_choice(_games[sid], use_pill=False)
 
         assert outcome["success"] is True
-        assert outcome["new_realm"] == "练气"
+        assert outcome["new_realm"] == "炼气"
         assert outcome["cultivation_loss"] == 0.0
         assert outcome["realm_dropped"] is False
         assert outcome["ascended"] is False
         assert "_pending_breakthrough" not in _games[sid]
-        assert _games[sid]["realm"] == "练气"
-        assert _games[sid]["cultivation"] == pytest.approx(15.0, abs=0.01)  # 115-100 overflow
+        assert _games[sid]["realm"] == "炼气"
+        assert _games[sid]["cultivation"] == pytest.approx(115.0, abs=0.01)  # 115-0(凡人req)=115 retained
 
     def test_handle_breakthrough_choice_failure(self):
         """突破失败 → cultivation 损失"""

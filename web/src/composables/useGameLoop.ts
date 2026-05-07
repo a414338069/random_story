@@ -4,7 +4,7 @@ import { useGameState } from './useGameState'
 import { useTypewriter } from './useTypewriter'
 import { getEvent, chooseOption, endGame } from '@/api/game'
 import { FetchError } from '@/api/client'
-import type { EventLogEntry, LoopPhase } from '@/core/types'
+import type { AftermathData, EventLogEntry, LoopPhase } from '@/core/types'
 
 export function useGameLoop() {
   const router = useRouter()
@@ -15,15 +15,8 @@ export function useGameLoop() {
   const currentEntry = computed(() =>
     eventLog.value.length > 0 ? eventLog.value[eventLog.value.length - 1] : null
   )
-  // backward compat: currentEvent is an alias for currentEntry (used by views that haven't migrated)
-  const currentEvent = computed(() => currentEntry.value)
 
-  const aftermath = ref<{
-    cultivation_change: number
-    age_advance: number
-    narrative?: string
-    breakthrough?: { message: string; new_realm: string | null; success: boolean | null }
-  } | null>(null)
+  const aftermath = ref<AftermathData | null>(null)
   const error = ref<string | null>(null)
   const retryCount = ref(0)
   const loading = ref(false)
@@ -46,6 +39,10 @@ export function useGameLoop() {
       const event = await getEvent(sessionId.value)
       if (cancelled) return
 
+      if (event.normalizedState) {
+        update(event.normalizedState)
+      }
+
       eventId.value++
       const entry: EventLogEntry = {
         id: eventId.value,
@@ -57,6 +54,7 @@ export function useGameLoop() {
         phase: 'typing',
         hasOptions: event.has_options,
         title: event.title,
+        realm: gameState.value?.realm ?? null,
       }
       eventLog.value.push(entry)
 
@@ -139,6 +137,11 @@ export function useGameLoop() {
       } else {
         entry.phase = 'done'
         setPhase('waiting_click')
+        if (!aftermath.value?.breakthrough) {
+          setTimeout(() => {
+            handleContinueClick()
+          }, 2500)
+        }
       }
     } catch (err: unknown) {
       if (cancelled) return
@@ -206,8 +209,13 @@ export function useGameLoop() {
     typewriter.cancel()
   })
 
+  function setEventLog(entries: EventLogEntry[]) {
+    eventLog.value = entries
+    eventId.value = entries.length > 0 ? entries[entries.length - 1].id : 0
+    setPhase('waiting_click')
+  }
+
   return {
-    currentEvent,
     eventLog,
     currentEntry,
     aftermath,
@@ -222,5 +230,6 @@ export function useGameLoop() {
     skipTypewriter,
     handleRetry,
     handleReturnHome,
+    setEventLog,
   }
 }

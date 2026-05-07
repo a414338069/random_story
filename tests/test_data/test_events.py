@@ -3,7 +3,7 @@ from pathlib import Path
 
 EVENTS_DIR = Path(__file__).parent.parent.parent / "app" / "data" / "events"
 VALID_TYPES = {"daily", "adventure", "bottleneck", "narrative", "combat", "economy", "emotional", "heavenly", "fortune", "sect", "social", "stones", "explore"}
-REALMS = ["凡人", "练气", "筑基", "金丹", "元婴", "化神", "合体", "大乘", "渡劫飞升"]
+REALMS = ["凡人", "炼气", "筑基", "金丹", "元婴", "化神", "合体", "大乘", "渡劫飞升"]
 REQUIRED_KEYS = {"id", "type", "title", "fallback_narrative", "default_options", "weight", "trigger_conditions", "prompt_template"}
 
 TEMPLATE_CACHE = None
@@ -27,7 +27,7 @@ def _load_templates():
 class TestEventTemplates:
     def test_all_files_parse(self):
         templates = _load_templates()
-        assert len(templates) == 76, f"Expected 76 templates, got {len(templates)}"
+        assert len(templates) == 79, f"Expected 79 templates, got {len(templates)}"
 
     def test_required_fields_present(self):
         for t in _load_templates():

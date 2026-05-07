@@ -3,7 +3,7 @@ type: "daily"
 title: "拜师奇遇"
 trigger_conditions:
   min_realm: "凡人"
-  max_realm: "练气"
+  max_realm: "炼气"
   min_age: 8
   max_age: 25
   required_faction: null

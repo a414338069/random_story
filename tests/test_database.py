@@ -109,7 +109,7 @@ class TestPlayersTable:
                 60,
                 70,
                 30,
-                "练气",
+                "炼气",
                 0.5,
                 100.0,
                 50.0,
@@ -136,7 +136,7 @@ class TestPlayersTable:
         assert row["comprehension"] == 60
         assert row["mindset"] == 70
         assert row["luck"] == 30
-        assert row["realm"] == "练气"
+        assert row["realm"] == "炼气"
         assert row["realm_progress"] == 0.5
         assert row["health"] == 100.0
         assert row["qi"] == 50.0
@@ -361,7 +361,7 @@ class TestEventTemplatesTable:
                 template_id,
                 "cultivation",
                 "突破瓶颈",
-                "练气",
+                "炼气",
                 "金丹",
                 1.0,
                 "玩家正在尝试突破，描述这个过程。",
@@ -377,7 +377,7 @@ class TestEventTemplatesTable:
         assert row is not None
         assert row["type"] == "cultivation"
         assert row["name"] == "突破瓶颈"
-        assert row["min_realm"] == "练气"
+        assert row["min_realm"] == "炼气"
         assert row["max_realm"] == "金丹"
         assert row["weight"] == 1.0
         assert "正在尝试突破" in row["prompt_template"]

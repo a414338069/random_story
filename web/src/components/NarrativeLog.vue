@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch, nextTick, computed } from 'vue'
+import { NCollapse, NCollapseItem } from 'naive-ui'
 import type { EventLogEntry } from '@/core/types'
 
 const props = defineProps<{
@@ -16,6 +17,39 @@ defineEmits<{
 
 const logContainer = ref<HTMLElement>()
 
+const COLLAPSE_THRESHOLD = 15
+
+interface GroupedEntry {
+  groupName: string
+  entries: EventLogEntry[]
+}
+
+const groupedEntries = computed<GroupedEntry[]>(() => {
+  const groups: GroupedEntry[] = []
+  const groupMap = new Map<string, EventLogEntry[]>()
+
+  for (const entry of props.entries) {
+    const key = entry.realm ?? '早期事件'
+    if (!groupMap.has(key)) {
+      groupMap.set(key, [])
+    }
+    groupMap.get(key)!.push(entry)
+  }
+
+  for (const [groupName, entries] of groupMap) {
+    groups.push({ groupName, entries })
+  }
+
+  return groups
+})
+
+const shouldCollapse = computed(() => props.entries.length > COLLAPSE_THRESHOLD)
+
+const defaultExpandedNames = computed(() => {
+  if (!shouldCollapse.value || groupedEntries.value.length === 0) return []
+  return [groupedEntries.value[groupedEntries.value.length - 1].groupName]
+})
+
 watch(
   () => props.entries.length,
   async () => {
@@ -29,49 +63,109 @@ watch(
 
 <template>
   <div ref="logContainer" class="narrative-log">
-    <div
-      v-for="entry in entries"
-      :key="entry.id"
-      class="log-entry"
-      :class="{ 'log-entry--active': entry === entries[entries.length - 1] }"
-    >
-      <div v-if="entry.title" class="log-entry__title">{{ entry.title }}</div>
-      <div class="log-entry__narrative">
-        <template v-if="entry === entries[entries.length - 1]">
-          {{ activeDisplayed }}
-          <span v-if="isTyping" class="log-cursor">▍</span>
-        </template>
-        <template v-else>
-          {{ entry.narrative }}
-        </template>
-      </div>
-      <div v-if="entry.chosenOptionId && entry.phase === 'done'" class="log-choice">
-        已选择
-      </div>
-      <div v-if="entry.aftermath && entry.phase === 'done'">
-        <div class="log-aftermath">
-          <span v-if="entry.aftermath.cultivation_change > 0"
-            >+{{ entry.aftermath.cultivation_change.toFixed(1) }} 修为</span
-          >
-          <span v-if="entry.aftermath.age_advance > 0">年龄 +{{ entry.aftermath.age_advance }}</span>
-        </div>
-        <div v-if="entry.aftermath.narrative" class="log-aftermath-narrative">
-          {{ entry.aftermath.narrative }}
-        </div>
-        <div
-          v-if="entry.aftermath.breakthrough"
-          class="log-breakthrough"
-          :class="
-            entry.aftermath.breakthrough.success
-              ? 'log-breakthrough--success'
-              : 'log-breakthrough--fail'
-          "
+    <!-- 折叠模式: entries > 15 -->
+    <template v-if="shouldCollapse">
+      <NCollapse :default-expanded-names="defaultExpandedNames" class="realm-collapse">
+        <NCollapseItem
+          v-for="group in groupedEntries"
+          :key="group.groupName"
+          :title="`${group.groupName} — ${group.entries.length} 个事件`"
+          :name="group.groupName"
         >
-          <span v-if="entry.aftermath.breakthrough.success">✨ 突破成功</span>
-          <span v-else-if="entry.aftermath.breakthrough.success === false">💥 突破失败</span>
+          <div
+            v-for="entry in group.entries"
+            :key="entry.id"
+            class="log-entry"
+            :class="{ 'log-entry--active': entry.phase !== 'done' }"
+          >
+            <div v-if="entry.title" class="log-entry__title">{{ entry.title }}</div>
+            <div class="log-entry__narrative">
+              <template v-if="entry.phase !== 'done'">
+                {{ activeDisplayed }}
+                <span v-if="isTyping" class="log-cursor">▍</span>
+              </template>
+              <template v-else>
+                {{ entry.narrative }}
+              </template>
+            </div>
+            <div v-if="entry.chosenOptionId && entry.phase === 'done'" class="log-choice">
+              已选择
+            </div>
+            <div v-if="entry.aftermath && entry.phase === 'done'">
+              <div class="log-aftermath">
+                <span v-if="entry.aftermath.cultivation_change > 0"
+                  >+{{ entry.aftermath.cultivation_change.toFixed(1) }} 修为</span
+                >
+                <span v-if="entry.aftermath.age_advance > 0">年龄 +{{ entry.aftermath.age_advance }}</span>
+              </div>
+              <div v-if="entry.aftermath.narrative" class="log-aftermath-narrative">
+                {{ entry.aftermath.narrative }}
+              </div>
+              <div
+                v-if="entry.aftermath.breakthrough"
+                class="log-breakthrough"
+                :class="
+                  entry.aftermath.breakthrough.success
+                    ? 'log-breakthrough--success'
+                    : 'log-breakthrough--fail'
+                "
+              >
+                <span v-if="entry.aftermath.breakthrough.success">✨ 突破成功</span>
+                <span v-else-if="entry.aftermath.breakthrough.success === false">💥 突破失败</span>
+              </div>
+            </div>
+          </div>
+        </NCollapseItem>
+      </NCollapse>
+    </template>
+
+    <!-- 平铺模式: entries ≤ 15 -->
+    <template v-else>
+      <div
+        v-for="entry in entries"
+        :key="entry.id"
+        class="log-entry"
+        :class="{ 'log-entry--active': entry.phase !== 'done' }"
+      >
+        <div v-if="entry.title" class="log-entry__title">{{ entry.title }}</div>
+        <div class="log-entry__narrative">
+          <template v-if="entry.phase !== 'done'">
+            {{ activeDisplayed }}
+            <span v-if="isTyping" class="log-cursor">▍</span>
+          </template>
+          <template v-else>
+            {{ entry.narrative }}
+          </template>
+        </div>
+        <div v-if="entry.chosenOptionId && entry.phase === 'done'" class="log-choice">
+          已选择
+        </div>
+        <div v-if="entry.aftermath && entry.phase === 'done'">
+          <div class="log-aftermath">
+            <span v-if="entry.aftermath.cultivation_change > 0"
+              >+{{ entry.aftermath.cultivation_change.toFixed(1) }} 修为</span
+            >
+            <span v-if="entry.aftermath.age_advance > 0">年龄 +{{ entry.aftermath.age_advance }}</span>
+          </div>
+          <div v-if="entry.aftermath.narrative" class="log-aftermath-narrative">
+            {{ entry.aftermath.narrative }}
+          </div>
+          <div
+            v-if="entry.aftermath.breakthrough"
+            class="log-breakthrough"
+            :class="
+              entry.aftermath.breakthrough.success
+                ? 'log-breakthrough--success'
+                : 'log-breakthrough--fail'
+            "
+          >
+            <span v-if="entry.aftermath.breakthrough.success">✨ 突破成功</span>
+            <span v-else-if="entry.aftermath.breakthrough.success === false">💥 突破失败</span>
+          </div>
         </div>
       </div>
-    </div>
+    </template>
+
     <div
       v-if="showContinueHint"
       class="continue-hint"
@@ -165,6 +259,25 @@ watch(
   color: var(--text-muted, #8a857d);
   font-size: 0.85rem;
   animation: pulse 2s ease-in-out infinite;
+}
+
+.realm-collapse {
+  --n-text-color: var(--text-secondary, #3d3a34);
+}
+
+.realm-collapse :deep(.n-collapse-item__header-main) {
+  font-family: var(--font-display, 'Noto Serif SC', Georgia, serif);
+  font-size: 0.85rem;
+  color: var(--text-muted, #8a857d);
+  padding: 4px 0;
+}
+
+.realm-collapse :deep(.n-collapse-item) {
+  margin-bottom: 0;
+}
+
+.realm-collapse :deep(.n-collapse-item__content-wrapper) {
+  padding: 0;
 }
 
 @keyframes fadeSlideIn {

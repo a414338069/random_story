@@ -105,7 +105,7 @@ load_templates() → filter_templates(player_state) → calculate_weights(templa
 - 角色设定(修仙世界叙事生成器)
 - JSON schema (narrative + options + consequences)
 - consequences 字段: `spirit_stones_gain`(-100~100), `cultivation_gain`(0~200)
-- **"练气" 非 "炼气"** 纠正指令
+- **"炼气" 非 "练气"** 纠正指令（已修正：现在统一使用"炼气"）
 - 叙事风格指南(不要过于简短, 不要使用"你决定"之类的占位语句)
 
 ### 重试逻辑

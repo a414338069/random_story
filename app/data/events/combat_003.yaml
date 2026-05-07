@@ -2,7 +2,7 @@ id: "combat_003"
 type: "daily"
 title: "比武切磋"
 trigger_conditions:
-  min_realm: "练气"
+  min_realm: "炼气"
   max_realm: "化神"
   min_age: 15
   max_age: 2000
@@ -21,3 +21,50 @@ default_options:
     consequences:
       cultivation_gain: 10
       age_advance: true
+realm_narratives:
+  低阶: "一位同门师兄弟向你抱拳行礼，提出切磋之意。两人以基础招式交锋，拳脚间灵气隐隐流转，倒也精彩。"
+  中阶: "一位修为相近的修士凌空而立，目光炯炯向你发出挑战。双方催动灵力，法术碰撞间灵光四溅，引得周围修士驻足观望。"
+  高阶: "一位大能凭空现身，周身神光万丈，气势压得天穹震颤。你同样释放域场抗衡，两股力量碰撞间空间裂痕密布，天地为之色变。"
+realm_prompt_templates:
+  低阶: "一位炼气或筑基阶段的修士向你发起切磋。请描写低阶修士之间的灵气碰撞战斗，体现初入修炼之门的新鲜感和青涩，战斗以试探和学习为主。"
+  中阶: "一位金丹或元婴阶段的修士向你发起切磋挑战。请描写中阶修士之间的法术对决，体现修炼有成后的自信和谋略，战斗场面应比低阶更宏大。"
+  高阶: "一位化神或以上境界的大能向你发出切磋邀请。请描写高阶修士之间毁天灭地的神通对决，体现道法自然的境界差距和力量的极致运用。"
+realm_default_options:
+  低阶:
+    - id: "opt1"
+      text: "全力以赴，展示所学"
+      consequences:
+        cultivation_gain: 20
+        age_advance: true
+    - id: "opt2"
+      text: "留手试探，暗中观察"
+      consequences:
+        cultivation_gain: 10
+        age_advance: true
+  中阶:
+    - id: "opt1"
+      text: "祭出本命法器正面对决"
+      consequences:
+        cultivation_gain: 35
+        age_advance: true
+    - id: "opt2"
+      text: "以阵法困敌智取"
+      consequences:
+        cultivation_gain: 25
+        age_advance: true
+  高阶:
+    - id: "opt1"
+      text: "释放全力，神通倾泻"
+      consequences:
+        cultivation_gain: 60
+        age_advance: true
+    - id: "opt2"
+      text: "以域场镇压，点到为止"
+      consequences:
+        cultivation_gain: 40
+        age_advance: true
+realm_scale:
+  type: "tier"
+  低阶: 1.0
+  中阶: 1.8
+  高阶: 3.0

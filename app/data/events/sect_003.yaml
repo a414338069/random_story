@@ -7,18 +7,26 @@ trigger_conditions:
   min_age: 50
   max_age: 500
   required_faction: null
+  requires_any_faction: true
 weight: 0.3
-prompt_template: "你获得了参加内门弟子晋升考核的资格..."
-fallback_narrative: "你获得了参加内门弟子晋升考核的资格，这是改变命运的重要时刻。"
+prompt_template: "你获得了参加内门弟子晋升考核的资格。考核分为：生死擂台赛、丹道炼器二选一、以及长老面试。你需要选择主攻方向。"
+fallback_narrative: "内门晋升考核在即，三大试炼：生死擂台、丹道炼器、长老面试。你必须选择主攻方向。"
 default_options:
   - id: "opt1"
-    text: "全力冲击"
+    text: "主攻擂台赛 — 以武证道，胜者为尊"
     consequences:
       cultivation_gain: 35
-      age_advance: true
       spirit_stones_gain: 15
+      age_advance: true
   - id: "opt2"
-    text: "稳扎稳打"
+    text: "主攻丹道炼器 — 以技服人"
     consequences:
       cultivation_gain: 20
+      spirit_stones_gain: 30
+      age_advance: true
+  - id: "opt3"
+    text: "游走三关 — 不求第一，只求全面通过"
+    consequences:
+      cultivation_gain: 25
+      spirit_stones_gain: 20
       age_advance: true

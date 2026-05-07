@@ -1,0 +1,31 @@
+id: "sect_005_xiaoyao"
+type: "daily"
+title: "逍遥游心法"
+trigger_conditions:
+  min_realm: "炼气"
+  max_realm: "金丹"
+  min_age: 16
+  max_age: 500
+  required_faction: "逍遥派"
+weight: 0.8
+prompt_template: "逍遥派的至高心法'逍遥游'讲究顺应天地。师尊让你在三种修炼方式中选择：入世历练、山林隐修、或是观水悟道。每种方式都有不同的感悟。"
+fallback_narrative: "逍遥派师尊传授你'逍遥游'心法的修炼之要。三种方式摆在面前：入世历练、山林隐修、观水悟道。"
+default_options:
+  - id: "opt1"
+    text: "入世历练 — 前往集市体会人间烟火"
+    consequences:
+      cultivation_gain: 15
+      spirit_stones_gain: 20
+      age_advance: true
+  - id: "opt2"
+    text: "山林隐修 — 在后山瀑布旁打坐七天"
+    consequences:
+      cultivation_gain: 30
+      spirit_stones_gain: 0
+      age_advance: true
+  - id: "opt3"
+    text: "观水悟道 — 于逍遥湖畔冥想，感受水的本质"
+    consequences:
+      cultivation_gain: 22
+      spirit_stones_gain: 5
+      age_advance: true

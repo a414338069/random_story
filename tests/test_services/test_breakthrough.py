@@ -26,7 +26,7 @@ def test_get_realm_penalty_fanren():
 
 
 def test_get_realm_penalty_lianqi():
-    assert get_realm_penalty("练气") == 0.05
+    assert get_realm_penalty("炼气") == 0.05
 
 
 def test_get_realm_penalty_zhuji():
@@ -93,8 +93,8 @@ def test_pill_bonus():
 
 
 def test_realm_penalty_lianqi():
-    """练气 → penalty=0.05, rate=0.45"""
-    player = {"rootBone": 0, "comprehension": 0, "mindset": 0, "realm": "练气"}
+    """炼气 → penalty=0.05, rate=0.45"""
+    player = {"rootBone": 0, "comprehension": 0, "mindset": 0, "realm": "炼气"}
     assert calculate_success_rate(player) == 0.45
 
 
@@ -138,7 +138,7 @@ def test_success_advances_realm():
     random.seed(1)
     result = attempt_breakthrough(player)
     assert result.success is True
-    assert result.new_realm == "练气"
+    assert result.new_realm == "炼气"
     assert result.cultivation_loss == 0.0
     assert result.realm_dropped is False
     assert result.ascended is False
@@ -180,7 +180,7 @@ def test_failure_realm_drop():
     """失败 → 10% 境界跌落 (用固定seed)"""
     player = {
         "rootBone": 0, "comprehension": 0, "mindset": 0,
-        "realm": "练气", "cultivation": 150, "talent_ids": [],
+        "realm": "炼气", "cultivation": 150, "talent_ids": [],
     }
     random.seed(22)
     result = attempt_breakthrough(player)
@@ -204,14 +204,14 @@ def test_failure_no_realm_drop():
     """失败 → 90% 概率不跌落境界"""
     player = {
         "rootBone": 0, "comprehension": 0, "mindset": 0,
-        "realm": "练气", "cultivation": 150, "talent_ids": [],
+        "realm": "炼气", "cultivation": 150, "talent_ids": [],
     }
     # Seed 5: first random >= 0.45 → failure, third random >= 0.10 → no drop
     random.seed(5)
     result = attempt_breakthrough(player)
     assert result.success is False
     assert result.realm_dropped is False
-    assert result.new_realm == "练气"
+    assert result.new_realm == "炼气"
 
 
 # ---------------------------------------------------------------------------
@@ -338,6 +338,7 @@ def test_build_breakthrough_event_structure():
     player = {
         "rootBone": 3, "comprehension": 3, "mindset": 2,
         "realm": "凡人", "cultivation": 99, "talent_ids": [], "age": 20,
+        "inventory": ["breakthrough_pill"],
     }
     event = build_breakthrough_event(player)
     assert event["event_id"] == "breakthrough_pending"
@@ -350,6 +351,17 @@ def test_build_breakthrough_event_structure():
     assert "突破丹" in event["options"][0]["text"]
     assert event["options"][1]["id"] == "direct"
     assert "凭自身" in event["options"][1]["text"]
+
+
+def test_build_breakthrough_event_structure_no_pill():
+    """无突破丹时只返回「凭自身实力突破」选项"""
+    player = {
+        "rootBone": 3, "comprehension": 3, "mindset": 2,
+        "realm": "凡人", "cultivation": 99, "talent_ids": [], "age": 20,
+    }
+    event = build_breakthrough_event(player)
+    assert len(event["options"]) == 1
+    assert event["options"][0]["id"] == "direct"
 
 
 def test_build_breakthrough_event_options_have_required_fields():

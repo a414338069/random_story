@@ -5,10 +5,10 @@ This is the core orchestration layer: it calls all other services
 the player's game session.
 """
 
+import logging
 import random
 import uuid
 
-from app.config import Settings
 from app.services.talent_service import validate_selection
 from app.services.realm_service import get_realm_config, get_next_realm
 from app.services.event_engine import (
@@ -17,6 +17,7 @@ from app.services.event_engine import (
     calculate_weights,
     select_event,
     build_event_context,
+    _get_realm_tier,
 )
 from app.services.scoring import determine_ending, calculate_score, get_grade
 from app.services.breakthrough import attempt_breakthrough, BreakthroughResult, build_breakthrough_event
@@ -33,7 +34,14 @@ def _new_session_id() -> str:
     return uuid.uuid4().hex[:16]
 
 
-def start_game(name: str, gender: str, talent_card_ids: list[str], attributes: dict) -> dict:
+def start_game(
+    name: str,
+    gender: str,
+    talent_card_ids: list[str],
+    attributes: dict,
+    user_id: str | None = None,
+    save_slot: int | None = None,
+) -> dict:
     if gender not in ("男", "女"):
         raise ValueError("性别必须是 '男' 或 '女'")
 
@@ -49,33 +57,47 @@ def start_game(name: str, gender: str, talent_card_ids: list[str], attributes: d
     if total != 10:
         raise ValueError(f"四维属性总和必须为10，当前为{total}")
 
-    session_id = _new_session_id()
-    realm_config = get_realm_config("凡人")
-
-    _games[session_id] = {
-        "session_id": session_id,
-        "name": name,
-        "gender": gender,
-        "attributes": {**attributes},
-        "realm": "凡人",
-        "realm_progress": 0.0,
-        "cultivation": 0.0,
-        "spirit_stones": 0,
-        "age": 0,
-        "lifespan": realm_config["lifespan"] if realm_config else 80,
-        "faction": "",
-        "talent_ids": list(talent_card_ids),
-        "techniques": [],
-        "technique_grades": [],
-        "inventory": [],
-        "is_alive": True,
-        "event_count": 0,
-        "ascended": False,
-    }
-
     conn = get_db()
     init_db(conn)
     try:
+        if user_id and save_slot is not None:
+            row = conn.execute(
+                "SELECT id FROM players WHERE user_id = ? AND save_slot = ?",
+                (user_id, save_slot),
+            ).fetchone()
+            if row:
+                old_id = row["id"]
+                conn.execute("DELETE FROM event_logs WHERE player_id = ?", (old_id,))
+                conn.execute("DELETE FROM players WHERE id = ?", (old_id,))
+                _games.pop(old_id, None)
+                conn.commit()
+
+        session_id = _new_session_id()
+        realm_config = get_realm_config("凡人")
+
+        _games[session_id] = {
+            "session_id": session_id,
+            "name": name,
+            "gender": gender,
+            "attributes": {**attributes},
+            "realm": "凡人",
+            "realm_progress": 0.0,
+            "cultivation": 0.0,
+            "spirit_stones": 0,
+            "age": 0,
+            "lifespan": realm_config["lifespan"] if realm_config else 80,
+            "faction": "",
+            "talent_ids": list(talent_card_ids),
+            "techniques": [],
+            "technique_grades": [],
+            "inventory": [],
+            "is_alive": True,
+            "event_count": 0,
+            "ascended": False,
+            "user_id": user_id,
+            "save_slot": save_slot if save_slot is not None else 0,
+        }
+
         game_repo.save_player(conn, _games[session_id])
         conn.commit()
     finally:
@@ -135,11 +157,13 @@ def _build_ai_prompt(
     """Build a context-rich prompt for AI narrative generation."""
     player = event_ctx.get("player", {})
     attrs = state.get("attributes", {})
+    realm_tier = _get_realm_tier(player.get('realm', ''))
 
     parts = [
         "请为以下修仙世界事件生成叙事：",
         "",
         f"【当前境界】{player.get('realm', '')}",
+        f"【境界层级】{realm_tier}",
         f"【角色年龄】{player.get('age', 0)}岁",
         f"【属性面板】根骨={attrs.get('rootBone', 0)}, 悟性={attrs.get('comprehension', 0)}, "
         f"心性={attrs.get('mindset', 0)}, 气运={attrs.get('luck', 0)}",
@@ -148,10 +172,6 @@ def _build_ai_prompt(
         f"【事件标题】{event_ctx.get('title', '')}",
         f"【事件模板】{event_ctx.get('prompt', '')}",
     ]
-
-    breakthrough_msg = state.get("_breakthrough_msg")
-    if breakthrough_msg:
-        parts.append(f"【特殊状态】{breakthrough_msg}")
 
     if recent_summaries:
         parts.append("")
@@ -178,7 +198,7 @@ def _build_ai_prompt(
         parts.append("【叙事模式】本次事件为纯叙事推进，不要返回选项，options返回空数组。")
 
     parts.append("")
-    parts.append("请延续以上事件脉络，生成与上一件事自然衔接的叙事和选项。不要让新事件完全从零开始。")
+    parts.append("请基于【事件标题】和【事件模板】生成独立的叙事内容。叙事应与事件标题紧密相关，选项应与事件主题匹配。可以自然提及角色的过往经历，但叙事的核心必须是当前事件本身。")
 
     return "\n".join(parts)
 
@@ -196,6 +216,16 @@ def get_next_event(session_id: str) -> dict:
     filtered = filter_templates(templates, ctx)
     weighted = calculate_weights(filtered, ctx)
     chosen = select_event(weighted, state)
+
+    # 先推进年龄，确保 build_event_context 中的 {age} 使用新值
+    realm_config = get_realm_config(state["realm"])
+    time_span = realm_config.get("time_span", 1) if realm_config else 1
+    if time_span is None:
+        time_span = 1
+    state["age"] += time_span
+
+    # 更新 ctx 中的 age 以匹配已推进的年龄
+    ctx["age"] = state["age"]
 
     event_ctx = build_event_context(chosen, ctx)
 
@@ -258,14 +288,26 @@ def get_next_event(session_id: str) -> dict:
     except Exception:
         pass
 
+    narrative_only = bool(event_ctx.get("narrative_only")) and len(options) == 0
+
+    if narrative_only:
+        state["event_count"] += 1
+        state["_consecutive_events"] = state.get("_consecutive_events", 0) + 1
+
     state["_current_narrative"] = narrative
     state["_current_event"] = {
         "id": chosen.get("id", ""),
         "type": chosen.get("type", ""),
         "title": event_ctx["title"],
         "options": options,
-        "narrative_only": event_ctx.get("narrative_only", False),
+        "narrative_only": narrative_only,
     }
+
+    seen_ids = state.get("_seen_event_ids", [])
+    event_id = chosen.get("id", "")
+    if event_id:
+        seen_ids.append(event_id)
+        state["_seen_event_ids"] = seen_ids[-20:]
 
     return {
         "event_id": chosen.get("id", ""),
@@ -425,7 +467,6 @@ def _handle_cultivation_overflow(state: dict, new_cultivation: float) -> None:
 
     if next_req and new_cultivation >= next_req:
         if not can_attempt_breakthrough(age):
-            import logging
             logger = logging.getLogger(__name__)
             logger.warning("突破被年龄阻止 (age=%d < 16)，修为封顶在 %d", age, next_req - 1)
             state["cultivation"] = next_req - 1
@@ -454,8 +495,7 @@ def process_choice(session_id: str, option_id: str | None = None) -> dict:
     if option_id is None:
         if not current_event.get("narrative_only"):
             raise ValueError("narrative_only 事件才允许 auto-advance，请提供 option_id")
-        age = state["age"]
-        cultivation_gain = 5.0 if age >= 12 else 0.0
+        cultivation_gain = _calc_cultivation_gain("daily", state["attributes"]["comprehension"], state["technique_grades"], state["age"])
         consequences = {"cultivation_gain": cultivation_gain, "age_advance": True}
     else:
         for opt in current_event["options"]:
@@ -476,6 +516,16 @@ def process_choice(session_id: str, option_id: str | None = None) -> dict:
         cultivation_gain = explicit_gain * (1 + comprehension * 0.03)
     else:
         cultivation_gain = _calc_cultivation_gain(event_type, comprehension, technique_grades, state["age"])
+
+    next_realm = get_next_realm(state["realm"])
+    if next_realm:
+        next_config = get_realm_config(next_realm)
+        next_req = next_config.get("cultivation_req", 0) if next_config else 0
+        if next_req:
+            max_single_gain = (next_req - state["cultivation"]) * 0.5
+            if max_single_gain > 0:
+                cultivation_gain = min(cultivation_gain, max(10, max_single_gain))
+
     new_cultivation = state["cultivation"] + cultivation_gain
 
     _handle_cultivation_overflow(state, new_cultivation)
@@ -495,10 +545,6 @@ def process_choice(session_id: str, option_id: str | None = None) -> dict:
         if cap is not None:
             state["spirit_stones"] = min(state["spirit_stones"], cap)
 
-        time_span = realm_config.get("time_span", 0)
-        if time_span is not None:
-            state["age"] += time_span
-
     state["event_count"] += 1
 
     # 安静年追踪：非安静年递增，安静年重置
@@ -507,6 +553,27 @@ def process_choice(session_id: str, option_id: str | None = None) -> dict:
     else:
         state["_consecutive_events"] = state.get("_consecutive_events", 0) + 1
 
+    # Compute aftermath data
+    if option_id is None:
+        chosen_text = ""
+    else:
+        chosen_text = chosen.get("text", "") if chosen else ""
+    time_span = realm_config.get("time_span", 0) if realm_config else 0
+
+    consequence_narrative = _build_consequence_narrative(
+        chosen_text=chosen_text,
+        cultivation_gain=cultivation_gain,
+        time_span=time_span,
+        spirit_stones_gain=spirit_stones_gain,
+    )
+
+    aftermath = {
+        "cultivation_change": cultivation_gain,
+        "age_advance": time_span,
+        "narrative": consequence_narrative,
+        "breakthrough": None,
+    }
+
     event_log_data = {
         "event_index": state["event_count"],
         "event_type": current_event.get("type", ""),
@@ -514,6 +581,8 @@ def process_choice(session_id: str, option_id: str | None = None) -> dict:
         "options": current_event.get("options", []),
         "chosen_option_id": option_id,
         "consequences": consequences,
+        "realm": state.get("realm", ""),
+        "aftermath": aftermath,
     }
 
     del state["_current_event"]
@@ -529,11 +598,6 @@ def process_choice(session_id: str, option_id: str | None = None) -> dict:
         conn.close()
 
     # Store outcome for AI prompt enrichment in next event
-    if option_id is None:
-        chosen_text = ""
-    else:
-        chosen_text = chosen.get("text", "") if chosen else ""
-    time_span = realm_config.get("time_span", 0) if realm_config else 0
     state["_last_choice_outcome"] = {
         "chosen_text": chosen_text,
         "cultivation_change": cultivation_gain,
@@ -541,44 +605,41 @@ def process_choice(session_id: str, option_id: str | None = None) -> dict:
         "consequences_applied": consequences,
     }
 
-    # Build consequence narrative (no AI call needed)
-    consequence_narrative = _build_consequence_narrative(
-        chosen_text=chosen_text,
-        cultivation_gain=cultivation_gain,
-        time_span=time_span,
-        spirit_stones_gain=spirit_stones_gain,
-        breakthrough_msg=state.get("_breakthrough_msg"),
-    )
-
-    breakthrough_info = None
-    breakthrough_msg = state.get("_breakthrough_msg")
-    if breakthrough_msg:
-        breakthrough_info = {"message": breakthrough_msg}
-
     # Append aftermath data to state for API response
-    state["aftermath"] = {
-        "narrative": consequence_narrative,
-        "breakthrough": breakthrough_info,
-    }
+    state["aftermath"] = aftermath
 
     return state
 
 
 def handle_breakthrough_choice(state: dict, use_pill: bool) -> dict:
+    if use_pill:
+        inventory = state.get("inventory", [])
+        if "breakthrough_pill" in inventory:
+            inventory.remove("breakthrough_pill")
+            state["inventory"] = inventory
+
     result = attempt_breakthrough(state, use_pill=use_pill)
     state.pop("_pending_breakthrough", None)
 
     if result.success:
         old_realm = state["realm"]
         state["realm"] = result.new_realm
+        # 突破成功：设置冷却标记，防止瓶颈事件立即触发
+        state["_breakthrough_event_count"] = state.get("event_count", 0)
         new_realm_config = get_realm_config(result.new_realm)
         if new_realm_config and isinstance(new_realm_config.get("lifespan"), (int, float)):
             state["lifespan"] = new_realm_config["lifespan"]
         next_req = state.pop("_breakthrough_next_req", 0)
         pre_cap_cult = state.pop("_breakthrough_cultivation", 0)
-        overflow = max(0, pre_cap_cult - next_req)
-        state["cultivation"] = overflow
-        state["realm_progress"] = overflow / next_req if next_req else 0.0
+        # 突破成功：新境界修为 = 突破前修为 - 旧境界消耗(cultivation_req)
+        # 保留大部分修为，只扣除旧境界的门槛作为突破消耗
+        current_realm_config = get_realm_config(old_realm)
+        current_req = current_realm_config.get("cultivation_req", 0) if current_realm_config else 0
+        retained = max(0, pre_cap_cult - current_req)
+        state["cultivation"] = retained
+        next_next_config = get_realm_config(result.new_realm)
+        next_next_req = next_next_config.get("cultivation_req", 0) if next_next_config else 1
+        state["realm_progress"] = retained / next_next_req if next_next_req else 0.0
         if result.ascended:
             state["ascended"] = True
         state["_breakthrough_msg"] = f"突破成功！从{old_realm}晋升至{result.new_realm}！"
@@ -592,12 +653,16 @@ def handle_breakthrough_choice(state: dict, use_pill: bool) -> dict:
         else:
             state["_breakthrough_msg"] = f"突破失败！损失{result.cultivation_loss:.0f}点修为！"
 
+    # 突破结果用于响应后立即清除，防止泄漏到后续AI提示词
+    msg = state.pop("_breakthrough_msg", "")
+
     return {
         "success": result.success,
         "new_realm": result.new_realm,
         "cultivation_loss": result.cultivation_loss,
         "realm_dropped": result.realm_dropped,
         "ascended": result.ascended,
+        "breakthrough_message": msg,
     }
 
 
@@ -648,6 +713,10 @@ def end_game(session_id: str) -> dict:
     score = calculate_score(player, ending, age=age, technique_grades=technique_grades)
     grade = get_grade(score)
 
+    # Persist score and ending to DB so leaderboard reads correct values
+    state["score"] = score
+    state["ending_id"] = ending
+
     conn = get_db()
     init_db(conn)
     try:
@@ -662,3 +731,67 @@ def end_game(session_id: str) -> dict:
         "score": score,
         "grade": grade,
     }
+
+
+def list_saves(user_id: str) -> list[dict]:
+    conn = get_db()
+    init_db(conn)
+    try:
+        rows = conn.execute(
+            "SELECT id, name, realm, age, event_count, last_active_at, is_alive, save_slot "
+            "FROM players WHERE user_id = ? AND is_alive = 1 ORDER BY save_slot",
+            (user_id,),
+        ).fetchall()
+    finally:
+        conn.close()
+
+    return [
+        {
+            "slot": row["save_slot"],
+            "session_id": row["id"],
+            "name": row["name"],
+            "realm": row["realm"],
+            "age": row["age"],
+            "event_count": row["event_count"],
+            "last_active_at": row["last_active_at"],
+            "is_alive": bool(row["is_alive"]),
+        }
+        for row in rows
+    ]
+
+
+def load_save(user_id: str, save_slot: int) -> dict:
+    conn = get_db()
+    init_db(conn)
+    try:
+        row = conn.execute(
+            "SELECT * FROM players WHERE user_id = ? AND save_slot = ?",
+            (user_id, save_slot),
+        ).fetchone()
+    finally:
+        conn.close()
+
+    if row is None:
+        raise ValueError(f"存档不存在: user_id={user_id}, slot={save_slot}")
+
+    state = game_repo._db_row_to_state(row)
+    _games[state["session_id"]] = state
+    return state
+
+
+def delete_save(user_id: str, save_slot: int) -> None:
+    conn = get_db()
+    init_db(conn)
+    try:
+        row = conn.execute(
+            "SELECT id FROM players WHERE user_id = ? AND save_slot = ?",
+            (user_id, save_slot),
+        ).fetchone()
+        if row:
+            old_id = row["id"]
+            conn.execute("DELETE FROM event_logs WHERE player_id = ?", (old_id,))
+            conn.execute("DELETE FROM players WHERE id = ?", (old_id,))
+            conn.commit()
+            _games.pop(old_id, None)
+    finally:
+        conn.close()

@@ -2,7 +2,7 @@ id: "social_004"
 type: "daily"
 title: "长者指点"
 trigger_conditions:
-  min_realm: "练气"
+  min_realm: "炼气"
   max_realm: "化神"
   min_age: 20
   max_age: 2000

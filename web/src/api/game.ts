@@ -12,7 +12,9 @@ import type {
   BreakthroughInfo,
 } from '@/core/types'
 
-export async function startGame(req: GameStartRequest): Promise<{ sessionId: string; state: NormalizedGameState }> {
+export async function startGame(
+  req: GameStartRequest,
+): Promise<{ sessionId: string; state: NormalizedGameState }> {
   const res: GameStartResponse = await apiRequest('/api/v1/game/start', {
     method: 'POST',
     body: JSON.stringify(req),
@@ -23,11 +25,15 @@ export async function startGame(req: GameStartRequest): Promise<{ sessionId: str
   }
 }
 
-export async function getEvent(sessionId: string): Promise<EventResponse> {
-  return await apiRequest('/api/v1/game/event', {
+export async function getEvent(sessionId: string): Promise<EventResponse & { normalizedState?: NormalizedGameState }> {
+  const res: EventResponse = await apiRequest('/api/v1/game/event', {
     method: 'POST',
     body: JSON.stringify({ player_id: sessionId }),
   })
+  if (res.state) {
+    return { ...res, normalizedState: normalizeFromDict(res.state) }
+  }
+  return res
 }
 
 export async function chooseOption(

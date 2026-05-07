@@ -2,7 +2,7 @@ id: "adventure_002"
 type: "adventure"
 title: "古修洞府"
 trigger_conditions:
-  min_realm: "练气"
+  min_realm: "炼气"
   max_realm: "筑基"
   min_age: 20
   max_age: 200

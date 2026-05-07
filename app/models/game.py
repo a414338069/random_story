@@ -13,6 +13,8 @@ class GameStartRequest(BaseModel):
     gender: Literal["男", "女"]
     talent_card_ids: list[str] = Field(min_length=3, max_length=3)
     attributes: Attributes
+    user_id: Optional[str] = None
+    save_slot: Optional[int] = None
 
 
 class GameStartResponse(BaseModel):

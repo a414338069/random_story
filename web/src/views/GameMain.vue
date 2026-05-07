@@ -6,6 +6,8 @@ import NarrativeLog from '@/components/NarrativeLog.vue'
 import OptionCard from '@/components/OptionCard.vue'
 import LoadingOverlay from '@/components/LoadingOverlay.vue'
 import { useGameLoop } from '@/composables/useGameLoop'
+import { useGameState } from '@/composables/useGameState'
+import { useSaveLoad } from '@/composables/useSaveLoad'
 
 const {
   eventLog,
@@ -20,9 +22,24 @@ const {
   handleContinueClick,
   handleRetry,
   handleReturnHome,
+  setEventLog,
 } = useGameLoop()
 
-onMounted(() => {
+const { sessionId } = useGameState()
+
+onMounted(async () => {
+  if (eventLog.value.length === 0 && sessionId.value) {
+    try {
+      const { restoreEventLog } = useSaveLoad()
+      const entries = await restoreEventLog(sessionId.value)
+      if (entries.length > 0) {
+        setEventLog(entries)
+        return
+      }
+    } catch {
+      // Fall through to advanceEvent
+    }
+  }
   advanceEvent()
 })
 

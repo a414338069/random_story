@@ -31,7 +31,7 @@ _SAMPLE_STATE = {
         "luck": 1,
     },
     "talent_ids": ["talent_blade", "talent_pill"],
-    "realm": "练气",
+    "realm": "炼气",
     "realm_progress": 0.3,
     "spirit_stones": 42,
     "lifespan": 100,
@@ -63,7 +63,7 @@ class TestSaveLoadRoundtrip:
         assert loaded["session_id"] == "abc123"
         assert loaded["name"] == "叶凡"
         assert loaded["gender"] == "男"
-        assert loaded["realm"] == "练气"
+        assert loaded["realm"] == "炼气"
         assert loaded["realm_progress"] == pytest.approx(0.3)
         assert loaded["spirit_stones"] == 42
         assert loaded["lifespan"] == 100
@@ -103,10 +103,11 @@ class TestSaveLoadRoundtrip:
         db.commit()
 
         loaded = load_player(db, "abc123")
-        assert loaded["age"] == 0
-        assert loaded["cultivation"] == 0.0
-        assert loaded["technique_grades"] == []
-        assert loaded["ascended"] is False
+        # age, cultivation, technique_grades, ascended are now DB-backed
+        assert loaded["age"] == _SAMPLE_STATE["age"]
+        assert loaded["cultivation"] == _SAMPLE_STATE["cultivation"]
+        assert loaded["technique_grades"] == _SAMPLE_STATE["technique_grades"]
+        assert loaded["ascended"] == _SAMPLE_STATE["ascended"]
 
     def test_insert_or_replace_updates_existing(self, db):
         save_player(db, _SAMPLE_STATE)

@@ -1,0 +1,31 @@
+id: "sect_004_wanjian"
+type: "daily"
+title: "剑阁修炼"
+trigger_conditions:
+  min_realm: "炼气"
+  max_realm: "金丹"
+  min_age: 16
+  max_age: 500
+  required_faction: "万剑山庄"
+weight: 0.8
+prompt_template: "万剑山庄的剑阁中藏有三百六十五柄古剑，每柄剑都蕴含着前人的剑意。今日你获准进入剑阁参悟。阁中剑气纵横，你需要选择一种参悟方式。"
+fallback_narrative: "你踏入万剑山庄的剑阁，三百六十五柄古剑悬于空中，剑气如虹。你需要选择参悟方式。"
+default_options:
+  - id: "opt1"
+    text: "与剑共鸣 — 寻找与你命格相合的古剑"
+    consequences:
+      cultivation_gain: 25
+      spirit_stones_gain: 5
+      age_advance: true
+  - id: "opt2"
+    text: "万剑齐观 — 以量取胜，博采众长"
+    consequences:
+      cultivation_gain: 18
+      spirit_stones_gain: 10
+      age_advance: true
+  - id: "opt3"
+    text: "独坐阁中 — 不看剑身，只悟剑意"
+    consequences:
+      cultivation_gain: 30
+      spirit_stones_gain: 0
+      age_advance: true

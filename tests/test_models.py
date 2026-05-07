@@ -151,7 +151,7 @@ class TestEventResponse:
 
 class TestEventRequest:
     def test_valid_request(self):
-        req = EventRequest(player_id="p1", current_realm="练气", event_count=5)
+        req = EventRequest(player_id="p1", current_realm="炼气", event_count=5)
         assert req.player_id == "p1"
         assert req.event_count == 5
 
@@ -271,7 +271,7 @@ class TestLeaderboardEntry:
         assert entry.score == 1000
 
     def test_with_ending(self):
-        entry = LeaderboardEntry(rank=2, player_name="玩家乙", score=500, realm="练气", ending_id="飞升")
+        entry = LeaderboardEntry(rank=2, player_name="玩家乙", score=500, realm="炼气", ending_id="飞升")
         assert entry.ending_id == "飞升"
 
     def test_default_ending(self):
@@ -293,7 +293,7 @@ class TestPlayerState:
         comprehension=4,
         mindset=2,
         luck=1,
-        realm="练气期",
+        realm="炼气期",
         realm_progress=0.5,
         health=85.0,
         qi=12.0,
@@ -362,14 +362,14 @@ class TestChooseResponse:
                 "narrative": "你选择了修炼。",
                 "breakthrough": {
                     "message": "突破成功！",
-                    "new_realm": "练气",
+                    "new_realm": "炼气",
                     "success": True,
                 },
             },
         )
         assert resp.aftermath.narrative == "你选择了修炼。"
         assert resp.aftermath.breakthrough.message == "突破成功！"
-        assert resp.aftermath.breakthrough.new_realm == "练气"
+        assert resp.aftermath.breakthrough.new_realm == "炼气"
         assert resp.aftermath.breakthrough.success is True
 
     def test_serialization_roundtrip(self):
@@ -401,10 +401,10 @@ class TestAftermathResponse:
             cultivation_change=5.0,
             age_advance=1,
             narrative="你选择了修炼。",
-            breakthrough={"message": "突破成功！", "new_realm": "练气", "success": True},
+            breakthrough={"message": "突破成功！", "new_realm": "炼气", "success": True},
         )
         assert resp.breakthrough.message == "突破成功！"
-        assert resp.breakthrough.new_realm == "练气"
+        assert resp.breakthrough.new_realm == "炼气"
 
 
 class TestBreakthroughInfo:
@@ -415,7 +415,7 @@ class TestBreakthroughInfo:
         assert info.success is None
 
     def test_full(self):
-        info = BreakthroughInfo(message="突破成功！", new_realm="练气", success=True)
+        info = BreakthroughInfo(message="突破成功！", new_realm="炼气", success=True)
         assert info.message == "突破成功！"
-        assert info.new_realm == "练气"
+        assert info.new_realm == "炼气"
         assert info.success is True

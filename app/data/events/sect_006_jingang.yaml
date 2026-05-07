@@ -1,0 +1,31 @@
+id: "sect_006_jingang"
+type: "daily"
+title: "金刚试炼"
+trigger_conditions:
+  min_realm: "炼气"
+  max_realm: "金丹"
+  min_age: 16
+  max_age: 500
+  required_faction: "金刚寺"
+weight: 0.8
+prompt_template: "金刚寺的试炼场上，师兄们正在以肉身硬抗灵兽的攻击。住持方丈让你选择今日的修行方式：铁布衫功法修炼、与灵兽实战对练、或是在藏经阁研读佛法以心御体。"
+fallback_narrative: "金刚寺试炼场上，你面临三种修行选择：铁布衫功法、灵兽实战、佛法研读。"
+default_options:
+  - id: "opt1"
+    text: "修炼铁布衫 — 以肉身抗锤炼，增强根骨"
+    consequences:
+      cultivation_gain: 28
+      spirit_stones_gain: 0
+      age_advance: true
+  - id: "opt2"
+    text: "灵兽实战 — 与一头筑基期灵兽搏斗"
+    consequences:
+      cultivation_gain: 20
+      spirit_stones_gain: 10
+      age_advance: true
+  - id: "opt3"
+    text: "研读佛法 — 以心御体，悟得金刚不坏之真意"
+    consequences:
+      cultivation_gain: 22
+      spirit_stones_gain: 5
+      age_advance: true

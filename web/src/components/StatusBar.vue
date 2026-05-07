@@ -43,8 +43,8 @@ const spiritStones = useAnimatedNumber(spiritStonesSource, 600)
       >{{ spiritStones.formatted() }}</span>
     </span>
     <span class="sb-item">
-      <span class="sb-label">事件</span>
-      <span class="sb-value">{{ gameState.eventCount }}</span>
+      <span class="sb-label">修为进度</span>
+      <span class="sb-value">{{ gameState.realmProgress != null ? (gameState.realmProgress * 100).toFixed(0) + '%' : '—' }}</span>
     </span>
   </div>
 </template>

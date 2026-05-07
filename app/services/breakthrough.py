@@ -7,7 +7,7 @@ from app.services.life_stage import get_breakthrough_penalty
 
 REALM_PENALTY = {
     "凡人": 0.0,
-    "练气": 0.05,
+    "炼气": 0.05,
     "筑基": 0.10,
     "金丹": 0.15,
     "元婴": 0.20,
@@ -133,14 +133,23 @@ def attempt_breakthrough(player_state: dict, use_pill: bool = False) -> Breakthr
 
 
 def build_breakthrough_event(player_state: dict) -> dict:
+    inventory = player_state.get("inventory", [])
+    has_pill = "breakthrough_pill" in inventory
+
+    options = []
+    if has_pill:
+        options.append(
+            {"id": "use_pill", "text": "服用突破丹（成功率 +15%）", "consequence_preview": None}
+        )
+    options.append(
+        {"id": "direct", "text": "凭自身实力突破", "consequence_preview": None}
+    )
+
     return {
         "event_id": "breakthrough_pending",
         "title": "境界突破",
         "narrative": "你的修为已达瓶颈，丹田中灵力如潮水般涌动，周身经脉隐隐作痛。一道无形的屏障横亘在前，这是通往下一境界的壁障。",
-        "options": [
-            {"id": "use_pill", "text": "服用突破丹（成功率 +15%）", "consequence_preview": None},
-            {"id": "direct", "text": "凭自身实力突破", "consequence_preview": None},
-        ],
+        "options": options,
         "is_breakthrough": True,
         "has_options": True,
     }

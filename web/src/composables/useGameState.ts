@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue'
 import type { NormalizedGameState, LoopPhase } from '@/core/types'
+import { setActiveSlot, clearActiveSlot } from './useSaveLoad'
 
 const gameState = ref<NormalizedGameState | null>(null)
 const sessionId = ref<string | null>(null)
@@ -17,9 +18,12 @@ export function useGameState() {
     gameState.value = { ...state }
   }
 
-  function setSession(id: string) {
+  function setSession(id: string, slot?: number) {
     sessionId.value = id
     sessionStorage.setItem('gameSessionId', id)
+    if (slot !== undefined) {
+      setActiveSlot(slot)
+    }
   }
 
   function setPhase(p: LoopPhase) {
@@ -34,6 +38,7 @@ export function useGameState() {
     ending.value = ''
     grade.value = ''
     sessionStorage.removeItem('gameSessionId')
+    clearActiveSlot()
   }
 
   return {

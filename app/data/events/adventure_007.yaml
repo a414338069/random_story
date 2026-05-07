@@ -21,3 +21,50 @@ default_options:
     consequences:
       cultivation_gain: 5
       age_advance: true
+realm_narratives:
+  低阶: "你在山间采药时，一位白须老者从林中走出，笑眯眯地看着你。他说与你有缘，愿意传授一些基础修炼之法。"
+  中阶: "修炼中一位前辈的残影出现在你面前，他是一千年前陨落的上古修士。残影认可你的资质，将一门上乘功法灌入你识海。"
+  高阶: "天地间一道神念降临，那是远古飞升大能的传承。他不便显化的真灵透过虚空选中了你，将毕生对大道的领悟倾注于你的元神之中。"
+realm_prompt_templates:
+  低阶: "凡人或炼气修士意外遇到一位神秘前辈，获得基础传承。请描写低阶修士获得机缘时的惊喜和感恩，传承内容应是入门级的功法或心得。"
+  中阶: "筑基至化神阶段的修士获得上古前辈的真传。请描写中阶修士获得进阶传承时的震撼，传承内容应包含高深功法或独家秘术。"
+  高阶: "合体以上境界的大能获得远古飞升者的终极传承。请描写高阶修士获得至高传承时的天道感应，传承内容应涉及对大道本质的领悟。"
+realm_default_options:
+  低阶:
+    - id: "opt1"
+      text: "恭敬受教，用心铭记"
+      consequences:
+        cultivation_gain: 30
+        age_advance: true
+    - id: "opt2"
+      text: "婉言谢绝，自力更生"
+      consequences:
+        cultivation_gain: 5
+        age_advance: true
+  中阶:
+    - id: "opt1"
+      text: "跪拜受传，铭记前辈恩德"
+      consequences:
+        cultivation_gain: 70
+        age_advance: true
+    - id: "opt2"
+      text: "谨慎接受，保持警惕"
+      consequences:
+        cultivation_gain: 40
+        age_advance: true
+  高阶:
+    - id: "opt1"
+      text: "以元神承接全部传承"
+      consequences:
+        cultivation_gain: 150
+        age_advance: true
+    - id: "opt2"
+      text: "量力而行，只取所需"
+      consequences:
+        cultivation_gain: 80
+        age_advance: true
+realm_scale:
+  type: "tier"
+  低阶: 1.0
+  中阶: 2.5
+  高阶: 5.0

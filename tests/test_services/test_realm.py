@@ -33,7 +33,7 @@ def test_all_realms_have_required_fields():
 
 def test_all_realm_names_in_order():
     realms = load_realms()
-    expected = ["凡人", "练气", "筑基", "金丹", "元婴", "化神", "合体", "大乘", "渡劫飞升"]
+    expected = ["凡人", "炼气", "筑基", "金丹", "元婴", "化神", "合体", "大乘", "渡劫飞升"]
     names = [r["name"] for r in realms]
     assert names == expected
 
@@ -67,7 +67,7 @@ def test_mortal_config():
 
 
 def test_liangqi_config():
-    r = get_realm_config("练气")
+    r = get_realm_config("炼气")
     assert r["time_span"] == 1
     assert r["lifespan"] == 120
     assert r["stages"] == [
@@ -139,12 +139,12 @@ def test_mortal_no_stage():
 
 
 def test_liangqi_stage_mapping():
-    assert get_stage_name("练气", 0.0) == "1层"
-    assert get_stage_name("练气", 0.1) == "1层"
-    assert get_stage_name("练气", 0.15) == "2层"
-    assert get_stage_name("练气", 0.5) == "5层"
-    assert get_stage_name("练气", 0.95) == "9层"
-    assert get_stage_name("练气", 1.0) == "9层"
+    assert get_stage_name("炼气", 0.0) == "1层"
+    assert get_stage_name("炼气", 0.1) == "1层"
+    assert get_stage_name("炼气", 0.15) == "2层"
+    assert get_stage_name("炼气", 0.5) == "5层"
+    assert get_stage_name("炼气", 0.95) == "9层"
+    assert get_stage_name("炼气", 1.0) == "9层"
 
 
 def test_zhuji_stage_mapping():
@@ -175,17 +175,17 @@ def test_stage_name_unknown_realm():
 
 
 def test_can_breakthrough_below_req():
-    config = get_realm_config("练气")
+    config = get_realm_config("炼气")
     assert can_breakthrough(99, config) is False
 
 
 def test_can_breakthrough_at_req():
-    config = get_realm_config("练气")
+    config = get_realm_config("炼气")
     assert can_breakthrough(100, config) is True
 
 
 def test_can_breakthrough_above_req():
-    config = get_realm_config("练气")
+    config = get_realm_config("炼气")
     assert can_breakthrough(200, config) is True
 
 
@@ -205,8 +205,8 @@ def test_can_breakthrough_highest_realm():
 
 
 def test_get_next_realm_sequential():
-    assert get_next_realm("凡人") == "练气"
-    assert get_next_realm("练气") == "筑基"
+    assert get_next_realm("凡人") == "炼气"
+    assert get_next_realm("炼气") == "筑基"
     assert get_next_realm("筑基") == "金丹"
     assert get_next_realm("金丹") == "元婴"
     assert get_next_realm("大乘") == "渡劫飞升"

@@ -21,3 +21,50 @@ default_options:
     consequences:
       cultivation_gain: 30
       age_advance: true
+realm_narratives:
+  中阶: "修为达到金丹境界后，你对天地大道有了新的感悟。冥冥中似乎窥见了一丝天道运行的规律，金丹中隐隐有道韵流转。"
+  高阶: "修炼至元婴以上，你盘坐于山巅，天地灵气自发向你汇聚。突然间你对某条天道法则有了深刻理解，仿佛触摸到了道的本源。"
+  渡劫飞升: "你已站在飞升边缘，天道法则不再晦涩难懂，而是如同呼吸般自然。你开始理解天地运转的终极奥义，大道在你面前缓缓铺开全貌。"
+realm_prompt_templates:
+  中阶: "金丹或元婴修士对天道有了初步感悟。请描写修士初窥天道门径的体验，体现从凡人到初步理解天地规律的震撼和喜悦。"
+  高阶: "化神或大乘修士对天道有了深层感悟。请描写修士对天道法则的深层顿悟，体现道法自然、天人合一的高阶境界。"
+  渡劫飞升: "即将飞升的修士对天道有了终极感悟。请描写修士对天道法则终极奥义的理解，体现即将超脱轮回、与道合一的至高境界。"
+realm_default_options:
+  中阶:
+    - id: "opt1"
+      text: "深入参悟，穷究天道"
+      consequences:
+        cultivation_gain: 50
+        age_advance: true
+    - id: "opt2"
+      text: "顺其自然，水到渠成"
+      consequences:
+        cultivation_gain: 30
+        age_advance: true
+  高阶:
+    - id: "opt1"
+      text: "闭关参悟，打破桎梏"
+      consequences:
+        cultivation_gain: 80
+        age_advance: true
+    - id: "opt2"
+      text: "道法自然，不强求"
+      consequences:
+        cultivation_gain: 55
+        age_advance: true
+  渡劫飞升:
+    - id: "opt1"
+      text: "以身为媒，感悟终极大道"
+      consequences:
+        cultivation_gain: 150
+        age_advance: true
+    - id: "opt2"
+      text: "虚心悟道，静待飞升"
+      consequences:
+        cultivation_gain: 100
+        age_advance: true
+realm_scale:
+  type: "tier"
+  中阶: 1.0
+  高阶: 2.0
+  渡劫飞升: 4.0

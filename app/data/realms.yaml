@@ -9,8 +9,8 @@ realms:
     spirit_stone_cap: 50
     technique_slots: 0
 
-  # ====== 2. 练气 ======
-  - name: 练气
+  # ====== 2. 炼气 ======
+  - name: 炼气
     order: 2
     stages:
       - "1层"

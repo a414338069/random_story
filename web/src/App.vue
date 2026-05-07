@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NConfigProvider, NMessageProvider, zhCN } from 'naive-ui'
+import { NConfigProvider, NMessageProvider, NDialogProvider, zhCN } from 'naive-ui'
 import { themeOverrides } from './styles/theme'
 
 import './styles/variables.css'
@@ -10,13 +10,15 @@ import './styles/mobile.css'
 <template>
   <NConfigProvider :locale="zhCN" :theme-overrides="themeOverrides">
     <NMessageProvider>
-      <div id="app-root" class="rice-paper">
-        <router-view v-slot="{ Component }">
-          <transition name="fade" mode="out-in">
-            <component :is="Component" />
-          </transition>
-        </router-view>
-      </div>
+      <NDialogProvider>
+        <div id="app-root" class="rice-paper">
+          <router-view v-slot="{ Component }">
+            <transition name="fade" mode="out-in">
+              <component :is="Component" />
+            </transition>
+          </router-view>
+        </div>
+      </NDialogProvider>
     </NMessageProvider>
   </NConfigProvider>
 </template>

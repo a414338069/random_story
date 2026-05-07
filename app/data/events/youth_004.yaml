@@ -4,7 +4,7 @@ narrative_only: false
 title: "选择前路"
 trigger_conditions:
   min_realm: "凡人"
-  max_realm: "练气"
+  max_realm: "炼气"
   min_age: 13
   max_age: 16
   required_faction: null

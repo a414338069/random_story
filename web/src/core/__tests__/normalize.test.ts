@@ -11,7 +11,7 @@ const mockPydantic: PlayerStatePydantic = {
   comprehension: 3,
   mindset: 1,
   luck: 1,
-  realm: '练气',
+  realm: '炼气',
   realm_progress: 0.5,
   health: 100,
   qi: 0,
@@ -34,7 +34,7 @@ const mockDict: GameStateDict = {
   name: '测试仙人',
   gender: '男',
   attributes: { rootBone: 5, comprehension: 3, mindset: 1, luck: 1 },
-  realm: '练气',
+  realm: '炼气',
   realm_progress: 0.5,
   cultivation: 100,
   spirit_stones: 10,
@@ -58,7 +58,7 @@ describe('normalizeFromPydantic', () => {
     expect(result.name).toBe('测试仙人')
     expect(result.attributes.rootBone).toBe(5)
     expect(result.attributes.comprehension).toBe(3)
-    expect(result.realm).toBe('练气')
+    expect(result.realm).toBe('炼气')
     expect(result.realmProgress).toBe(0.5)
     expect(result.cultivation).toBe(0)
     expect(result.age).toBe(0)
@@ -75,7 +75,7 @@ describe('normalizeFromDict', () => {
     expect(result.sessionId).toBe('test123')
     expect(result.name).toBe('测试仙人')
     expect(result.attributes.rootBone).toBe(5)
-    expect(result.realm).toBe('练气')
+    expect(result.realm).toBe('炼气')
     expect(result.cultivation).toBe(100)
     expect(result.age).toBe(25)
     expect(result.score).toBe(0)

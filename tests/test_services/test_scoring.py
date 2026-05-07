@@ -72,8 +72,8 @@ class TestDetermineEnding:
         assert ending == "寿终正寝"
 
     def test_lianqi_shouzhong(self):
-        """练气 + age >= lifespan → "寿终正寝" (realm order 2 < 6)."""
-        player = _make_player(realm="练气", lifespan=120)
+        """炼气 + age >= lifespan → "寿终正寝" (realm order 2 < 6)."""
+        player = _make_player(realm="炼气", lifespan=120)
         ending = determine_ending(player, age=120)
         assert ending == "寿终正寝"
 
@@ -112,7 +112,7 @@ class TestCalculateScore:
 
     def test_deterministic(self):
         """同一状态调用两次 → 分数完全相同."""
-        player = _make_player(realm="练气", lifespan=120)
+        player = _make_player(realm="炼气", lifespan=120)
         ending = "寿终正寝"
         s1 = calculate_score(player, ending, age=120, technique_grades=[])
         s2 = calculate_score(player, ending, age=120, technique_grades=[])

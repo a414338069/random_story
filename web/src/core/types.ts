@@ -99,6 +99,14 @@ export interface EventResponse {
   has_options: boolean
   is_breakthrough: boolean
   metadata: Record<string, unknown> | null
+  state?: GameStateDict
+}
+
+export interface AftermathData {
+  cultivation_change: number
+  age_advance: number
+  narrative?: string
+  breakthrough?: BreakthroughInfo
 }
 
 export interface EventLogEntry {
@@ -107,10 +115,11 @@ export interface EventLogEntry {
   displayedText: string
   options: EventOption[]
   chosenOptionId: string | null
-  aftermath: { cultivation_change: number; age_advance: number; narrative?: string; breakthrough?: BreakthroughInfo } | null
+  aftermath: AftermathData | null
   phase: 'typing' | 'waiting_click' | 'choosing' | 'breakthrough_choosing' | 'submitting' | 'aftermath' | 'breakthrough' | 'done'
   hasOptions: boolean
   title: string | null
+  realm: string | null
 }
 
 export interface BreakthroughInfo {
@@ -122,12 +131,7 @@ export interface BreakthroughInfo {
 
 export interface ChooseResponse {
   state: GameStateDict
-  aftermath: {
-    cultivation_change: number
-    age_advance: number
-    narrative?: string
-    breakthrough?: BreakthroughInfo
-  }
+  aftermath: AftermathData
 }
 
 export interface GameStartRequest {
@@ -140,6 +144,8 @@ export interface GameStartRequest {
     mindset: number
     luck: number
   }
+  user_id?: string
+  save_slot?: number
 }
 
 export interface GameStartResponse {
@@ -160,6 +166,28 @@ export interface LeaderboardEntry {
   score: number
   realm: string
   ending_id: string | null
+}
+
+export interface SaveSlotInfo {
+  slot: number
+  sessionId: string
+  name: string
+  realm: string
+  age: number
+  eventCount: number
+  lastActiveAt: string | null
+  isAlive: boolean
+}
+
+export interface EventHistoryEntry {
+  eventIndex: number
+  eventType: string
+  narrative: string
+  realm: string | null
+  options: unknown  // backend deserializes JSON → may be array or string
+  chosenOptionId: number | null
+  consequences: unknown  // backend deserializes JSON → may be object or string
+  aftermath: AftermathData | null
 }
 
 export type LoopPhase = 'idle' | 'fetching' | 'typing' | 'waiting_click' | 'choosing' | 'breakthrough_choosing' | 'submitting' | 'aftermath' | 'gameover'

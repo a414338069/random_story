@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 
 from app.database import get_db
 
-_JSON_COLUMNS = frozenset({"talent_ids", "techniques", "inventory"})
+_JSON_COLUMNS = frozenset({"talent_ids", "techniques", "inventory", "technique_grades"})
 
 
 def _serialise_json_fields(row: dict) -> dict:
@@ -60,6 +60,14 @@ def _state_to_db_row(state: dict) -> dict:
         "ending_id": state.get("ending_id"),
         "is_alive": 1 if state.get("is_alive", True) else 0,
         "last_active_at": datetime.now(timezone.utc).isoformat(),
+        "user_id": state.get("user_id"),
+        "save_slot": state.get("save_slot", 0),
+        "age": state.get("age", 0),
+        "cultivation": state.get("cultivation", 0.0),
+        "ascended": 1 if state.get("ascended", False) else 0,
+        "technique_grades": list(state.get("technique_grades", [])),
+        "_pending_breakthrough": 1 if state.get("_pending_breakthrough", False) else 0,
+        "_breakthrough_next_req": state.get("_breakthrough_next_req", 0.0),
     }
 
 
@@ -97,10 +105,14 @@ def _db_row_to_state(row: sqlite3.Row) -> dict:
         "score": d.get("score", 0),
         "ending_id": d.get("ending_id"),
         "is_alive": bool(d.get("is_alive", 1)),
-        "age": 0,
-        "cultivation": 0.0,
-        "technique_grades": [],
-        "ascended": False,
+        "age": d.get("age", 0),
+        "cultivation": d.get("cultivation", 0.0),
+        "technique_grades": d["technique_grades"],
+        "ascended": bool(d.get("ascended", 0)),
+        "user_id": d.get("user_id"),
+        "save_slot": d.get("save_slot", 0),
+        "_pending_breakthrough": bool(d.get("_pending_breakthrough", 0)),
+        "_breakthrough_next_req": d.get("_breakthrough_next_req", 0.0),
     }
 
 
@@ -147,6 +159,8 @@ def save_event_log(
         "options": event_data.get("options", []),
         "chosen_option_id": event_data.get("chosen_option_id"),
         "consequences": event_data.get("consequences", {}),
+        "realm": event_data.get("realm", ""),
+        "aftermath": event_data.get("aftermath"),
     }
 
     if not isinstance(row["options"], str):
@@ -154,6 +168,10 @@ def save_event_log(
     if not isinstance(row["consequences"], str):
         row["consequences"] = json.dumps(
             row["consequences"], ensure_ascii=False
+        )
+    if row["aftermath"] is not None and not isinstance(row["aftermath"], str):
+        row["aftermath"] = json.dumps(
+            row["aftermath"], ensure_ascii=False
         )
 
     columns = list(row.keys())
@@ -183,6 +201,37 @@ def get_recent_event_summaries(
         if isinstance(entry.get("consequences"), str):
             try:
                 entry["consequences"] = json.loads(entry["consequences"])
+            except (json.JSONDecodeError, TypeError):
+                pass
+        result.append(entry)
+    return result
+
+
+def get_event_logs(
+    conn: sqlite3.Connection, session_id: str
+) -> list[dict]:
+    """Fetch ALL event log entries for a session, ordered by event_index ASC."""
+    rows = conn.execute(
+        "SELECT * FROM event_logs WHERE player_id = ? ORDER BY event_index ASC",
+        (session_id,),
+    ).fetchall()
+    result = []
+    for row in rows:
+        entry = dict(row)
+        # Deserialize JSON fields
+        if isinstance(entry.get("options"), str):
+            try:
+                entry["options"] = json.loads(entry["options"])
+            except (json.JSONDecodeError, TypeError):
+                pass
+        if isinstance(entry.get("consequences"), str):
+            try:
+                entry["consequences"] = json.loads(entry["consequences"])
+            except (json.JSONDecodeError, TypeError):
+                pass
+        if isinstance(entry.get("aftermath"), str) and entry["aftermath"]:
+            try:
+                entry["aftermath"] = json.loads(entry["aftermath"])
             except (json.JSONDecodeError, TypeError):
                 pass
         result.append(entry)

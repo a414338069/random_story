@@ -22,7 +22,15 @@ CREATE TABLE IF NOT EXISTS players (
     is_alive        INTEGER NOT NULL DEFAULT 1,
     last_active_at  TIMESTAMP,
     created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    user_id         TEXT DEFAULT NULL,
+    save_slot       INTEGER DEFAULT 0,
+    age             INTEGER DEFAULT 0,
+    cultivation     REAL DEFAULT 0.0,
+    ascended        INTEGER DEFAULT 0,
+    technique_grades TEXT DEFAULT '[]',
+    _pending_breakthrough INTEGER DEFAULT 0,
+    _breakthrough_next_req REAL DEFAULT 0.0
 );
 
 CREATE TABLE IF NOT EXISTS event_logs (
@@ -34,6 +42,8 @@ CREATE TABLE IF NOT EXISTS event_logs (
     options         TEXT NOT NULL DEFAULT '[]',
     chosen_option_id TEXT,
     consequences    TEXT NOT NULL DEFAULT '{}',
+    realm           TEXT DEFAULT NULL,
+    aftermath       TEXT DEFAULT NULL,
     created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -57,3 +67,7 @@ CREATE TABLE IF NOT EXISTS event_templates (
     default_options TEXT NOT NULL DEFAULT '[]',
     is_active       INTEGER NOT NULL DEFAULT 1
 );
+
+CREATE INDEX IF NOT EXISTS idx_players_user_slot ON players(user_id, save_slot);
+
+PRAGMA user_version = 2;

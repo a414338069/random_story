@@ -21,3 +21,50 @@ default_options:
     consequences:
       cultivation_gain: 20
       age_advance: true
+realm_narratives:
+  低阶: "修炼中你突然心神恍惚，眼前浮现出令人恐惧的幻象——黑暗中似有无形之手向你伸来，你感到一阵彻骨寒意。"
+  中阶: "打坐中一股执念突然涌上心头，那是你修炼路上深埋的执念——或为仇恨、或为情缘、或为求道之苦。心魔化为你的模样，冷笑着质问你修道的初衷。"
+  高阶: "天道法则在你识海中轰鸣，心魔不再是具象的恐惧或执念，而是对道心本质的根本拷问。你的元神被拉入一片混沌虚空，必须直面自己存在的意义。"
+realm_prompt_templates:
+  低阶: "筑基或金丹修士在修炼中遭遇心魔试炼，心魔以恐惧和幻象为主。请描写修士面对恐惧幻象的挣扎，体现低阶修士心性尚浅的特点，以及战胜恐惧后的成长。"
+  中阶: "元婴或化神修士在修炼中遭遇心魔试炼，心魔以执念和欲望为主。请描写修士面对深埋执念的考验，体现中阶修士虽有修为但心魔更深更复杂的特点。"
+  高阶: "合体或以上境界的大能在修炼中遭遇心魔试炼，心魔直指道心本质。请描写对存在意义和道心根本的终极拷问，体现高阶修士面临的哲学层面的心魔考验。"
+realm_default_options:
+  低阶:
+    - id: "opt1"
+      text: "以力破妄，强行驱散"
+      consequences:
+        cultivation_gain: 30
+        age_advance: true
+    - id: "opt2"
+      text: "静心感悟，直面恐惧"
+      consequences:
+        cultivation_gain: 20
+        age_advance: true
+  中阶:
+    - id: "opt1"
+      text: "以力斩断执念"
+      consequences:
+        cultivation_gain: 45
+        age_advance: true
+    - id: "opt2"
+      text: "与心魔对话，化解执念"
+      consequences:
+        cultivation_gain: 35
+        age_advance: true
+  高阶:
+    - id: "opt1"
+      text: "以道心之力镇压心魔"
+      consequences:
+        cultivation_gain: 80
+        age_advance: true
+    - id: "opt2"
+      text: "融合心魔，道心圆满"
+      consequences:
+        cultivation_gain: 60
+        age_advance: true
+realm_scale:
+  type: "tier"
+  低阶: 1.0
+  中阶: 2.0
+  高阶: 3.5

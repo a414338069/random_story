@@ -6,6 +6,11 @@ import pytest
 
 from app.services.event_engine import (
     FALLBACK_EVENT,
+    REALM_TIER_MAP,
+    _apply_consequence_scale,
+    _get_realm_tier,
+    _get_realm_value,
+    _safe_format,
     build_event_context,
     calculate_weights,
     filter_templates,
@@ -426,3 +431,395 @@ def test_weights_adult_no_youth_factor():
     weighted = calculate_weights(templates, player)
     assert weighted[0][1] == pytest.approx(1.0)   # daily: no factor
     assert weighted[1][1] == pytest.approx(0.55)   # adventure: 0.3 + 5*0.05
+
+
+# ---------------------------------------------------------------------------
+# REALM_TIER_MAP
+# ---------------------------------------------------------------------------
+
+
+def test_realm_tier_map_values():
+    """REALM_TIER_MAP 将 order 1-9 映射到正确的层级."""
+    assert REALM_TIER_MAP[1] == "低阶"
+    assert REALM_TIER_MAP[2] == "低阶"
+    assert REALM_TIER_MAP[3] == "低阶"
+    assert REALM_TIER_MAP[4] == "中阶"
+    assert REALM_TIER_MAP[5] == "中阶"
+    assert REALM_TIER_MAP[6] == "中阶"
+    assert REALM_TIER_MAP[7] == "高阶"
+    assert REALM_TIER_MAP[8] == "高阶"
+    assert REALM_TIER_MAP[9] == "高阶"
+
+
+# ---------------------------------------------------------------------------
+# _get_realm_tier()
+# ---------------------------------------------------------------------------
+
+
+def test_get_realm_tier_low():
+    """凡人(order=1) → 低阶."""
+    assert _get_realm_tier("凡人") == "低阶"
+    assert _get_realm_tier("炼气") == "低阶"
+    assert _get_realm_tier("筑基") == "低阶"
+
+
+def test_get_realm_tier_mid():
+    """金丹(order=4) → 中阶."""
+    assert _get_realm_tier("金丹") == "中阶"
+    assert _get_realm_tier("元婴") == "中阶"
+    assert _get_realm_tier("化神") == "中阶"
+
+
+def test_get_realm_tier_high():
+    """合体(order=7) → 高阶."""
+    assert _get_realm_tier("合体") == "高阶"
+    assert _get_realm_tier("大乘") == "高阶"
+    assert _get_realm_tier("渡劫飞升") == "高阶"
+
+
+def test_get_realm_tier_unknown():
+    """未知境界返回 None."""
+    assert _get_realm_tier("不存在") is None
+    assert _get_realm_tier("") is None
+
+
+# ---------------------------------------------------------------------------
+# _get_realm_value()
+# ---------------------------------------------------------------------------
+
+
+def test_get_realm_value_exact_match():
+    """精确境界匹配优先."""
+    values = {"金丹": "金丹专属文本", "中阶": "中阶通用文本"}
+    assert _get_realm_value(values, "金丹") == "金丹专属文本"
+
+
+def test_get_realm_value_tier_fallback():
+    """无精确匹配时回退到层级匹配."""
+    values = {"中阶": "中阶通用文本"}
+    # 元婴是"中阶"
+    assert _get_realm_value(values, "元婴") == "中阶通用文本"
+
+
+def test_get_realm_value_no_match():
+    """无精确匹配也无层级匹配时返回 None."""
+    values = {"金丹": "金丹专属文本"}
+    assert _get_realm_value(values, "凡人") is None  # 低阶不在 values 中
+    assert _get_realm_value({}, "金丹") is None
+
+
+def test_get_realm_value_empty_dict():
+    """空 dict 返回 None."""
+    assert _get_realm_value({}, "金丹") is None
+
+
+def test_get_realm_value_none_values():
+    """values 为 None 时返回 None (dict.get 返回 None 时不会报错)."""
+    assert _get_realm_value(None, "金丹") is None
+
+
+# ---------------------------------------------------------------------------
+# _apply_consequence_scale()
+# ---------------------------------------------------------------------------
+
+
+def test_apply_consequence_scale_tier_type():
+    """scale_config type=tier → 按层级缩放."""
+    options = [
+        {
+            "id": "opt1",
+            "text": "修炼",
+            "consequences": {"cultivation_gain": 100, "spirit_stones_gain": 50},
+        },
+    ]
+    scale_config = {"type": "tier", "低阶": 1.0, "中阶": 1.5, "高阶": 2.0}
+    # 元婴是"中阶" → factor=1.5
+    result = _apply_consequence_scale(options, scale_config, "元婴")
+
+    assert result is not options  # deep copy
+    assert result[0]["consequences"]["cultivation_gain"] == 150.0
+    assert result[0]["consequences"]["spirit_stones_gain"] == 75.0
+
+
+def test_apply_consequence_scale_realm_type():
+    """scale_config type=realm → 按精确境界缩放."""
+    options = [
+        {
+            "id": "opt1",
+            "text": "突破",
+            "consequences": {"cultivation_gain": 200},
+        },
+    ]
+    scale_config = {"type": "realm", "金丹": 1.5}
+    result = _apply_consequence_scale(options, scale_config, "金丹")
+    assert result[0]["consequences"]["cultivation_gain"] == 300.0
+
+
+def test_apply_consequence_scale_no_match():
+    """scale_config 中无匹配境界 → factor=1.0 (不变)."""
+    options = [
+        {
+            "id": "opt1",
+            "text": "修炼",
+            "consequences": {"cultivation_gain": 100},
+        },
+    ]
+    scale_config = {"type": "realm", "金丹": 1.5}
+    result = _apply_consequence_scale(options, scale_config, "凡人")
+    assert result[0]["consequences"]["cultivation_gain"] == 100.0
+
+
+def test_apply_consequence_scale_empty_options():
+    """空 options → 返回空列表."""
+    result = _apply_consequence_scale([], {"type": "tier", "中阶": 2.0}, "金丹")
+    assert result == []
+
+
+def test_apply_consequence_scale_empty_scale_config():
+    """空 scale_config → 返回深拷贝."""
+    options = [{"id": "opt1", "text": "test", "consequences": {"cultivation_gain": 5}}]
+    result = _apply_consequence_scale(options, {}, "金丹")
+    assert result is not options
+    assert result[0]["consequences"]["cultivation_gain"] == 5
+
+
+def test_apply_consequence_scale_non_numeric_preserved():
+    """非数值字段 (如 age_advance:True) 保持不变."""
+    options = [
+        {
+            "id": "opt1",
+            "text": "修炼",
+            "consequences": {"cultivation_gain": 100, "age_advance": True},
+        },
+    ]
+    scale_config = {"type": "realm", "金丹": 2.0}
+    result = _apply_consequence_scale(options, scale_config, "金丹")
+    assert result[0]["consequences"]["cultivation_gain"] == 200.0
+    assert result[0]["consequences"]["age_advance"] is True
+
+
+def test_apply_consequence_scale_does_not_mutate_original():
+    """原始 options 不被修改."""
+    options = [
+        {"id": "opt1", "consequences": {"cultivation_gain": 100}},
+    ]
+    original_val = options[0]["consequences"]["cultivation_gain"]
+    _apply_consequence_scale(options, {"type": "realm", "金丹": 2.0}, "金丹")
+    assert options[0]["consequences"]["cultivation_gain"] == original_val
+
+
+# ---------------------------------------------------------------------------
+# _safe_format() / _SafeFormatDict
+# ---------------------------------------------------------------------------
+
+
+def test_safe_format_normal():
+    """正常占位符应被替换."""
+    assert _safe_format("你已{age}岁", age=500) == "你已500岁"
+
+
+def test_safe_format_missing_key():
+    """未知占位符保留原始形式."""
+    assert _safe_format("你已{age}岁，{unknown}", age=500) == "你已500岁，{unknown}"
+
+
+def test_safe_format_no_args():
+    """无占位符的文本原样返回."""
+    assert _safe_format("你在山中修炼了一天。") == "你在山中修炼了一天。"
+
+
+def test_safe_format_multiple_missing():
+    """多个未知占位符全部保留."""
+    assert _safe_format("{a} and {b} and {c}", x=1) == "{a} and {b} and {c}"
+
+
+# ---------------------------------------------------------------------------
+# build_event_context() — realm differentiation
+# ---------------------------------------------------------------------------
+
+
+def test_build_event_context_realm_prompt_templates():
+    """realm_prompt_templates 按境界覆盖 prompt."""
+    template = {
+        "id": "test_realm_prompt",
+        "type": "daily",
+        "title": "测试",
+        "trigger_conditions": {
+            "min_realm": "凡人", "max_realm": "渡劫飞升",
+            "min_age": 0, "max_age": 9999, "required_faction": None,
+        },
+        "weight": 1.0,
+        "prompt_template": "默认叙事",
+        "fallback_narrative": "",
+        "default_options": [],
+        "realm_prompt_templates": {
+            "金丹": "金丹专属叙事 - realm={realm}",
+            "中阶": "中阶通用叙事",
+        },
+    }
+    player = {"realm": "金丹", "age": 500}
+    ctx = build_event_context(template, player)
+    assert "金丹专属叙事 - realm=金丹" in ctx["prompt"]
+
+
+def test_build_event_context_realm_prompt_tier_fallback():
+    """realm_prompt_templates 中无精确匹配时使用层级回退."""
+    template = {
+        "id": "test_realm_prompt",
+        "type": "daily",
+        "title": "测试",
+        "trigger_conditions": {
+            "min_realm": "凡人", "max_realm": "渡劫飞升",
+            "min_age": 0, "max_age": 9999, "required_faction": None,
+        },
+        "weight": 1.0,
+        "prompt_template": "默认叙事",
+        "fallback_narrative": "",
+        "default_options": [],
+        "realm_prompt_templates": {
+            "中阶": "中阶通用叙事 - {realm_variant}",
+        },
+    }
+    player = {"realm": "元婴", "age": 800}
+    ctx = build_event_context(template, player)
+    assert "中阶通用叙事 - 中阶" in ctx["prompt"]
+
+
+def test_build_event_context_realm_narratives():
+    """realm_narratives 按境界覆盖 fallback_narrative."""
+    template = {
+        "id": "test_realm_narrative",
+        "type": "daily",
+        "title": "测试",
+        "trigger_conditions": {
+            "min_realm": "凡人", "max_realm": "渡劫飞升",
+            "min_age": 0, "max_age": 9999, "required_faction": None,
+        },
+        "weight": 1.0,
+        "prompt_template": "",
+        "fallback_narrative": "默认叙事",
+        "default_options": [],
+        "realm_narratives": {
+            "高阶": "高阶专属叙事",
+        },
+    }
+    player = {"realm": "合体", "age": 2000}
+    ctx = build_event_context(template, player)
+    assert ctx["fallback_narrative"] == "高阶专属叙事"
+
+
+def test_build_event_context_realm_default_options():
+    """realm_default_options 按境界覆盖 default_options."""
+    realm_opts = [
+        {"id": "realm_opt", "text": "境界专属选项", "consequences": {"cultivation_gain": 50}},
+    ]
+    template = {
+        "id": "test_realm_opts",
+        "type": "daily",
+        "title": "测试",
+        "trigger_conditions": {
+            "min_realm": "凡人", "max_realm": "渡劫飞升",
+            "min_age": 0, "max_age": 9999, "required_faction": None,
+        },
+        "weight": 1.0,
+        "prompt_template": "",
+        "fallback_narrative": "",
+        "default_options": [
+            {"id": "default_opt", "text": "默认选项", "consequences": {"cultivation_gain": 5}},
+        ],
+        "realm_default_options": {
+            "金丹": realm_opts,
+        },
+    }
+    player = {"realm": "金丹", "age": 300}
+    ctx = build_event_context(template, player)
+    assert ctx["default_options"] == realm_opts
+
+
+def test_build_event_context_realm_scale():
+    """realm_scale 对 consequences 数值字段进行缩放."""
+    template = {
+        "id": "test_realm_scale",
+        "type": "daily",
+        "title": "测试",
+        "trigger_conditions": {
+            "min_realm": "凡人", "max_realm": "渡劫飞升",
+            "min_age": 0, "max_age": 9999, "required_faction": None,
+        },
+        "weight": 1.0,
+        "prompt_template": "",
+        "fallback_narrative": "",
+        "default_options": [
+            {"id": "opt1", "text": "修炼", "consequences": {"cultivation_gain": 100}},
+        ],
+        "realm_scale": {"type": "tier", "低阶": 1.0, "中阶": 2.0, "高阶": 3.0},
+    }
+    player = {"realm": "金丹", "age": 500}  # 金丹=中阶 → factor=2.0
+    ctx = build_event_context(template, player)
+    assert ctx["default_options"][0]["consequences"]["cultivation_gain"] == 200.0
+
+
+def test_build_event_context_realm_variable():
+    """{realm_variant} 格式化变量可用."""
+    template = {
+        "id": "test_realm_variant",
+        "type": "daily",
+        "title": "测试",
+        "trigger_conditions": {
+            "min_realm": "凡人", "max_realm": "渡劫飞升",
+            "min_age": 0, "max_age": 9999, "required_faction": None,
+        },
+        "weight": 1.0,
+        "prompt_template": "你处于{realm_variant}境界",
+        "fallback_narrative": "",
+        "default_options": [],
+    }
+    player = {"realm": "金丹", "age": 500}
+    ctx = build_event_context(template, player)
+    assert "中阶" in ctx["prompt"]
+
+
+def test_build_event_context_backward_compatible():
+    """无 realm_* 字段的模板行为完全不变."""
+    template = {
+        "id": "test_backward",
+        "type": "daily",
+        "title": "测试",
+        "trigger_conditions": {
+            "min_realm": "凡人", "max_realm": "渡劫飞升",
+            "min_age": 0, "max_age": 9999, "required_faction": None,
+        },
+        "weight": 1.0,
+        "prompt_template": "你已{age}岁",
+        "fallback_narrative": "修为增长",
+        "default_options": [
+            {"id": "opt1", "text": "修炼", "consequences": {"cultivation_gain": 5}},
+        ],
+    }
+    player = {"realm": "金丹", "age": 500}
+    ctx = build_event_context(template, player)
+    assert ctx["prompt"] == "你已500岁"
+    assert ctx["fallback_narrative"] == "修为增长"
+    assert ctx["default_options"] == template["default_options"]
+    assert ctx["player"] == player
+
+
+def test_build_event_context_safe_format_unknown_keys():
+    """prompt_template 中的未知占位符被保留而非抛异常."""
+    template = {
+        "id": "test_safe_format",
+        "type": "daily",
+        "title": "测试",
+        "trigger_conditions": {
+            "min_realm": "凡人", "max_realm": "渡劫飞升",
+            "min_age": 0, "max_age": 9999, "required_faction": None,
+        },
+        "weight": 1.0,
+        "prompt_template": "{realm}境界，{unknown_key}未知",
+        "fallback_narrative": "",
+        "default_options": [],
+    }
+    player = {"realm": "金丹", "age": 500}
+    ctx = build_event_context(template, player)
+    assert "金丹境界" in ctx["prompt"]
+    assert "{unknown_key}未知" in ctx["prompt"]
