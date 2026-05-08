@@ -7,12 +7,12 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ../data:/app/app/data
+      - ../data:/app/data
     environment:
       - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
       - DEEPSEEK_MODEL=${DEEPSEEK_MODEL:-deepseek-v4-flash}
       - DEEPSEEK_BASE_URL=${DEEPSEEK_BASE_URL:-https://api.deepseek.com}
-      - DATABASE_PATH=/app/app/data/game.db
+      - DATABASE_PATH=/app/data/game.db
       - CORS_ORIGINS=${CORS_ORIGINS:-*}
       - MAX_EVENTS_PER_GAME=${MAX_EVENTS_PER_GAME:-60}
       - CACHE_TTL=${CACHE_TTL:-1800}

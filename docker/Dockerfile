@@ -37,8 +37,8 @@ COPY schema.sql ./
 # 复制前端构建产物
 COPY --from=frontend-builder /app/web/dist ./web/dist
 
-# 创建数据库持久化目录
-RUN mkdir -p /app/app/data
+# 创建数据库持久化目录（与游戏静态数据分离）
+RUN mkdir -p /app/data
 
 # 暴露端口
 EXPOSE 8000
