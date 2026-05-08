@@ -12,14 +12,22 @@ const saves = ref<SaveSlotInfo[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
 
+function generateUUIDv4(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0
+    const v = c === 'x' ? r : (r & 0x3) | 0x8
+    return v.toString(16)
+  })
+}
+
 /**
  * Get or create a stable user ID stored in localStorage.
- * Format: UUID v4 (crypto.randomUUID())
+ * Format: UUID v4
  */
 export function getOrCreateUserId(): string {
   let id = localStorage.getItem(LS_USER_ID)
   if (!id || !/^[0-9a-f-]{36}$/.test(id)) {
-    id = crypto.randomUUID()
+    id = generateUUIDv4()
     localStorage.setItem(LS_USER_ID, id)
   }
   return id
