@@ -1,0 +1,38 @@
+# ============================================================
+# 修仙人生模拟器 — Docker Compose 部署
+# 用法:
+#   1. 创建 .env 文件（参考 .env.example）
+#   2. docker compose up -d
+#   3. 访问 http://localhost:8000
+# ============================================================
+
+services:
+  random-story:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: random-story
+    ports:
+      - "8000:8000"
+    volumes:
+      # SQLite 数据库持久化
+      - ./data:/app/app/data
+    environment:
+      # DeepSeek API 配置（必须设置）
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - DEEPSEEK_MODEL=${DEEPSEEK_MODEL:-deepseek-v4-flash}
+      - DEEPSEEK_BASE_URL=${DEEPSEEK_BASE_URL:-https://api.deepseek.com}
+      # 数据库路径（使用挂载卷中的路径）
+      - DATABASE_PATH=/app/app/data/game.db
+      # CORS 配置
+      - CORS_ORIGINS=${CORS_ORIGINS:-*}
+      # 游戏逻辑配置
+      - MAX_EVENTS_PER_GAME=${MAX_EVENTS_PER_GAME:-60}
+      - CACHE_TTL=${CACHE_TTL:-1800}
+    restart: unless-stopped
+    networks:
+      - story-network
+
+networks:
+  story-network:
+    driver: bridge

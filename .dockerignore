@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.python-version
+
+# Environment
+.env
+*.db
+
+# Frontend
+web/node_modules/
+web/dist/
+web/.vscode/
+web/test-results/
+
+# Git
+.git/
+.gitignore
+.worktrees/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Misc
+README.md
+AGENTS.md
+app/services/AGENTS.md
+app/data/events/AGENTS.md
+web/src/AGENTS.md
+web/README.md
+start-dev.sh
+.sisyphus/
+maa-screenshot.png
+maa-snapshot.txt
+maa-snapshot2.txt
+tests/
+web/e2e/
