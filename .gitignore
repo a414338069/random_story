@@ -3,6 +3,8 @@ __pycache__/
 *.pyo
 .env
 *.db
+*.db-shm
+*.db-wal
 .venv/
 *.egg-info/
 dist/
@@ -16,3 +18,5 @@ web/node_modules/
 web/dist/
 
 .worktrees/
+.sisyphus/
+

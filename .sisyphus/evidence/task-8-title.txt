@@ -1,6 +1,0 @@
-TitleScreen.vue built successfully
-undefined
-/Users/haochen/developer/private_project/random_story:
- ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command "build" not found
-
-Did you mean "pnpm esbuild"?
