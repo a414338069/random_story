@@ -393,18 +393,17 @@ def test_filter_adult_no_additional_filtering():
 
 
 def test_filter_infant_empty_returns_fallback():
-    """age=5 且无 narrative_only 模板 → filter_templates 返回空列表,
-    select_event 应返回 FALLBACK_EVENT."""
+    """age=5 且无 narrative_only 模板 → filter_templates 自动返回 FALLBACK_EVENT."""
     templates = _make_templates(
         ("daily", False),
         ("adventure", False),
     )
     player = {"realm": "凡人", "age": 5, "faction": ""}
     filtered = filter_templates(templates, player)
-    assert filtered == []
-    # Verify select_event falls back correctly
+    assert len(filtered) == 1
+    assert filtered[0]["id"] == "fallback"
     event = select_event(calculate_weights(filtered, player))
-    assert event is FALLBACK_EVENT
+    assert event["id"] == "fallback"
 
 
 def test_weights_youth_factor():
@@ -823,3 +822,402 @@ def test_build_event_context_safe_format_unknown_keys():
     ctx = build_event_context(template, player)
     assert "金丹境界" in ctx["prompt"]
     assert "{unknown_key}未知" in ctx["prompt"]
+
+
+# ---------------------------------------------------------------------------
+# trigger_tags filtering (T12) — filter_templates()
+# ---------------------------------------------------------------------------
+
+
+def _make_tag_template(
+    tid: str, require_all=None, require_any=None, block=None, **overrides
+) -> dict:
+    """Build a synthetic template with trigger_tags."""
+    return {
+        "id": tid,
+        "type": "daily",
+        "title": f"template {tid}",
+        "trigger_conditions": {
+            "min_realm": "凡人",
+            "max_realm": "渡劫飞升",
+            "min_age": 0,
+            "max_age": 9999,
+            "required_faction": None,
+        },
+        "weight": 1.0,
+        "prompt_template": "",
+        "fallback_narrative": "",
+        "default_options": [],
+        "trigger_tags": {
+            "require_all": require_all or [],
+            "require_any": require_any or [],
+            "block": block or [],
+        },
+        **overrides,
+    }
+
+
+def _make_tagset(keys: list[str]) -> "TagSet":
+    from app.models.tags import Tag, TagCategory, TagSet
+
+    tags = []
+    for key in keys:
+        tags.append(Tag(category=TagCategory.IDENTITY, key=key, value=key))
+    return TagSet(tags=tags)
+
+
+class TestTriggerTagsFiltering:
+    """Tests for trigger_tags-based filtering in filter_templates()."""
+
+    def test_no_tags_passes_through(self):
+        """Templates with empty trigger_tags pass through regardless of player tags."""
+        t1 = _make_tag_template("t1")
+        t2 = _make_tag_template("t2")
+        player = {"realm": "凡人", "age": 20, "faction": ""}
+        result = filter_templates([t1, t2], player)
+        assert {t["id"] for t in result} == {"t1", "t2"}
+
+    def test_no_player_tags_passes_through(self):
+        """When player has no tags, all templates pass through (no tag filtering)."""
+        t1 = _make_tag_template("t1", require_all=["identity:test"])
+        t2 = _make_tag_template("t2")
+        player = {"realm": "凡人", "age": 20, "faction": ""}
+        result = filter_templates([t1, t2], player)
+        assert {t["id"] for t in result} == {"t1", "t2"}
+
+    def test_require_all_single_match(self):
+        """require_all with a single key: template passes when player has the tag."""
+        t1 = _make_tag_template("t1", require_all=["identity:青云门"])
+        t2 = _make_tag_template("t2")
+        player = {
+            "realm": "凡人",
+            "age": 20,
+            "faction": "",
+            "tags": _make_tagset(["identity:青云门"]),
+        }
+        result = filter_templates([t1, t2], player)
+        ids = {t["id"] for t in result}
+        assert "t1" in ids
+        assert "t2" in ids
+
+    def test_require_all_single_mismatch(self):
+        """require_all with missing tag → template excluded."""
+        t1 = _make_tag_template("t1", require_all=["identity:万剑山庄"])
+        t2 = _make_tag_template("t2")
+        player = {
+            "realm": "凡人",
+            "age": 20,
+            "faction": "",
+            "tags": _make_tagset(["identity:青云门"]),
+        }
+        result = filter_templates([t1, t2], player)
+        ids = {t["id"] for t in result}
+        assert "t1" not in ids
+        assert "t2" in ids
+
+    def test_require_all_multiple_all_present(self):
+        """require_all with multiple keys: ALL must be present."""
+        t1 = _make_tag_template("t1", require_all=["identity:青云门", "skill:剑法入门"])
+        t2 = _make_tag_template("t2")
+        player = {
+            "realm": "凡人",
+            "age": 20,
+            "faction": "",
+            "tags": _make_tagset(["identity:青云门", "skill:剑法入门"]),
+        }
+        result = filter_templates([t1, t2], player)
+        ids = {t["id"] for t in result}
+        assert "t1" in ids
+
+    def test_require_all_multiple_partial(self):
+        """require_all with multiple keys: missing one → excluded."""
+        t1 = _make_tag_template(
+            "t1", require_all=["identity:青云门", "skill:剑法精通"]
+        )
+        t2 = _make_tag_template("t2")
+        player = {
+            "realm": "凡人",
+            "age": 20,
+            "faction": "",
+            "tags": _make_tagset(["identity:青云门", "skill:剑法入门"]),
+        }
+        result = filter_templates([t1, t2], player)
+        ids = {t["id"] for t in result}
+        assert "t1" not in ids  # missing "skill:剑法精通"
+
+    def test_require_any_single_match(self):
+        """require_any: at least one of the listed tags must exist."""
+        t1 = _make_tag_template("t1", require_any=["skill:剑法入门", "skill:剑法精通"])
+        player = {
+            "realm": "凡人",
+            "age": 20,
+            "faction": "",
+            "tags": _make_tagset(["skill:剑法入门"]),
+        }
+        result = filter_templates([t1], player)
+        ids = {t["id"] for t in result}
+        assert "t1" in ids
+
+    def test_require_any_none_match(self):
+        """require_any: none present → excluded."""
+        t1 = _make_tag_template("t1", require_any=["skill:剑法入门", "skill:剑法精通"])
+        player = {
+            "realm": "凡人",
+            "age": 20,
+            "faction": "",
+            "tags": _make_tagset(["skill:拳法入门"]),
+        }
+        result = filter_templates([t1], player)
+        assert result == [FALLBACK_EVENT.copy()]
+
+    def test_require_any_multiple_any_one_matches(self):
+        """require_any with multiple keys: at least one match passes."""
+        t1 = _make_tag_template(
+            "t1", require_any=["skill:剑法入门", "skill:炼丹入门", "skill:符箓入门"]
+        )
+        player = {
+            "realm": "凡人",
+            "age": 20,
+            "faction": "",
+            "tags": _make_tagset(["skill:炼丹入门"]),
+        }
+        result = filter_templates([t1], player)
+        ids = {t["id"] for t in result}
+        assert "t1" in ids
+
+    def test_block_single_match(self):
+        """block: any matching tag → template excluded."""
+        t1 = _make_tag_template("t1", block=["state:injured"])
+        t2 = _make_tag_template("t2")
+        player = {
+            "realm": "凡人",
+            "age": 20,
+            "faction": "",
+            "tags": _make_tagset(["state:injured"]),
+        }
+        result = filter_templates([t1, t2], player)
+        ids = {t["id"] for t in result}
+        assert "t1" not in ids
+        assert "t2" in ids
+
+    def test_block_no_match(self):
+        """block tag not present on player → template passes."""
+        t1 = _make_tag_template("t1", block=["state:injured"])
+        t2 = _make_tag_template("t2")
+        player = {
+            "realm": "凡人",
+            "age": 20,
+            "faction": "",
+            "tags": _make_tagset(["state:blessed"]),
+        }
+        result = filter_templates([t1, t2], player)
+        ids = {t["id"] for t in result}
+        assert "t1" in ids
+
+    def test_block_multiple_one_matches(self):
+        """block with multiple keys: any single match → excluded."""
+        t1 = _make_tag_template(
+            "t1", block=["state:injured", "state:poisoned", "state:cursed"]
+        )
+        player = {
+            "realm": "凡人",
+            "age": 20,
+            "faction": "",
+            "tags": _make_tagset(["state:poisoned"]),
+        }
+        result = filter_templates([t1], player)
+        assert result == [FALLBACK_EVENT.copy()]
+
+    def test_combined_require_all_and_block(self):
+        """require_all passes AND no block match → template included."""
+        t1 = _make_tag_template(
+            "t1",
+            require_all=["identity:青云门"],
+            block=["state:injured"],
+        )
+        player = {
+            "realm": "凡人",
+            "age": 20,
+            "faction": "",
+            "tags": _make_tagset(["identity:青云门"]),
+        }
+        result = filter_templates([t1], player)
+        ids = {t["id"] for t in result}
+        assert "t1" in ids
+
+    def test_combined_require_all_passes_but_blocked(self):
+        """require_all passes but block matches → excluded."""
+        t1 = _make_tag_template(
+            "t1",
+            require_all=["identity:青云门"],
+            block=["state:injured"],
+        )
+        player = {
+            "realm": "凡人",
+            "age": 20,
+            "faction": "",
+            "tags": _make_tagset(["identity:青云门", "state:injured"]),
+        }
+        result = filter_templates([t1], player)
+        assert result == [FALLBACK_EVENT.copy()]
+
+    def test_combined_require_all_and_require_any(self):
+        """Both require_all and require_any must pass."""
+        t1 = _make_tag_template(
+            "t1",
+            require_all=["identity:青云门"],
+            require_any=["skill:剑法入门", "skill:剑法精通"],
+        )
+        player = {
+            "realm": "凡人",
+            "age": 20,
+            "faction": "",
+            "tags": _make_tagset(["identity:青云门", "skill:剑法精通"]),
+        }
+        result = filter_templates([t1], player)
+        ids = {t["id"] for t in result}
+        assert "t1" in ids
+
+    def test_fallback_when_all_filtered_by_tags(self):
+        """When all templates are excluded by trigger_tags, return FALLBACK_EVENT."""
+        t1 = _make_tag_template("t1", require_all=["identity:nonexistent"])
+        t2 = _make_tag_template("t2", block=["state:injured"])
+        player = {
+            "realm": "凡人",
+            "age": 20,
+            "faction": "",
+            "tags": _make_tagset(["state:injured"]),
+        }
+        result = filter_templates([t1, t2], player)
+        assert result == [FALLBACK_EVENT.copy()]
+
+    def test_youth_filtering_preserved_with_tags(self):
+        """Life-stage filtering still works alongside trigger_tags filtering."""
+        t1 = _make_tag_template("t1", require_all=["identity:青云门"])
+        t1["type"] = "adventure"
+        t2 = _make_tag_template("t2")
+        player = {
+            "realm": "凡人",
+            "age": 14,
+            "faction": "",
+            "tags": _make_tagset(["identity:青云门"]),
+        }
+        result = filter_templates([t1, t2], player)
+        ids = {t["id"] for t in result}
+        assert "t1" not in ids  # excluded due to YOUTH adventure filter
+
+
+# ---------------------------------------------------------------------------
+# trigger_tags — calculate_weights() tag relevance bonus
+# ---------------------------------------------------------------------------
+
+
+class TestTriggerTagsWeights:
+    """Tests for tag relevance bonus in calculate_weights()."""
+
+    def test_tag_relevance_bonus_single_tag(self):
+        """One matched require_all tag → +0.1 weight bonus."""
+        t1 = _make_tag_template("t1", require_all=["identity:青云门"])
+        player = {
+            "realm": "金丹",
+            "luck": 5,
+            "cultivation": 0,
+            "age": 500,
+            "faction": "",
+            "tags": _make_tagset(["identity:青云门"]),
+        }
+        weighted = calculate_weights([t1], player)
+        # daily base = 1.0, +0.1 bonus = 1.1
+        assert weighted[0][1] == pytest.approx(1.1)
+
+    def test_tag_relevance_bonus_multiple_tags(self):
+        """Two matched require_all tags → +0.2 weight bonus."""
+        t1 = _make_tag_template(
+            "t1", require_all=["identity:青云门", "skill:剑法精通"]
+        )
+        player = {
+            "realm": "金丹",
+            "luck": 5,
+            "cultivation": 0,
+            "age": 500,
+            "faction": "",
+            "tags": _make_tagset(["identity:青云门", "skill:剑法精通"]),
+        }
+        weighted = calculate_weights([t1], player)
+        # daily base = 1.0, +0.2 bonus = 1.2
+        assert weighted[0][1] == pytest.approx(1.2)
+
+    def test_tag_relevance_bonus_partial_match(self):
+        """Only matched tags count; unmatched ones give no bonus."""
+        t1 = _make_tag_template(
+            "t1", require_all=["identity:青云门", "skill:剑法精通"]
+        )
+        player = {
+            "realm": "金丹",
+            "luck": 5,
+            "cultivation": 0,
+            "age": 500,
+            "faction": "",
+            "tags": _make_tagset(["identity:青云门"]),
+        }
+        weighted = calculate_weights([t1], player)
+        # daily base = 1.0, +0.1 bonus (only 1 matched)
+        assert weighted[0][1] == pytest.approx(1.1)
+
+    def test_tag_relevance_no_bonus_no_tags(self):
+        """No trigger_tags on template → no bonus."""
+        t1 = {
+            "id": "t1",
+            "type": "daily",
+            "title": "test",
+            "trigger_conditions": {
+                "min_realm": "凡人",
+                "max_realm": "渡劫飞升",
+                "min_age": 0,
+                "max_age": 9999,
+                "required_faction": None,
+            },
+            "weight": 1.0,
+            "prompt_template": "",
+            "fallback_narrative": "",
+            "default_options": [],
+            "trigger_tags": {"require_all": [], "require_any": [], "block": []},
+        }
+        player = {
+            "realm": "金丹",
+            "luck": 5,
+            "cultivation": 0,
+            "age": 500,
+            "faction": "",
+            "tags": _make_tagset(["identity:青云门"]),
+        }
+        weighted = calculate_weights([t1], player)
+        assert weighted[0][1] == pytest.approx(1.0)
+
+    def test_tag_relevance_no_bonus_no_player_tags(self):
+        """No player tags → no bonus."""
+        t1 = _make_tag_template("t1", require_all=["identity:青云门"])
+        player = {
+            "realm": "金丹",
+            "luck": 5,
+            "cultivation": 0,
+            "age": 500,
+            "faction": "",
+        }
+        weighted = calculate_weights([t1], player)
+        assert weighted[0][1] == pytest.approx(1.0)
+
+    def test_tag_bonus_with_youth_factor(self):
+        """Tag bonus is added AFTER youth factor, not diluted by it."""
+        t1 = _make_tag_template("t1", require_all=["identity:青云门"])
+        player = {
+            "realm": "金丹",
+            "luck": 5,
+            "cultivation": 0,
+            "age": 14,
+            "faction": "",
+            "tags": _make_tagset(["identity:青云门"]),
+        }
+        weighted = calculate_weights([t1], player)
+        # daily base = 1.0 * 0.7 = 0.7, +0.1 bonus = 0.8
+        assert weighted[0][1] == pytest.approx(0.8)

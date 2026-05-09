@@ -5,11 +5,12 @@ This is the core orchestration layer: it calls all other services
 the player's game session.
 """
 
+import json
 import logging
 import random
 import uuid
 
-from app.services.talent_service import validate_selection
+from app.services.talent_service import load_talents, validate_selection
 from app.services.realm_service import get_realm_config, get_next_realm
 from app.services.event_engine import (
     load_templates,
@@ -23,16 +24,65 @@ from app.services.scoring import determine_ending, calculate_score, get_grade
 from app.services.breakthrough import attempt_breakthrough, BreakthroughResult, build_breakthrough_event
 from app.services.ai_service import DeepSeekService, MockAIService
 from app.services.ai_validator import check_narrative_option_alignment
+from app.services.cache_service import get_cached, set_cached
+from app.services.context_engine import determine_scenario_pool, match_scenarios
+from app.services.event_factory import should_use_ai, generate_event as factory_generate_event
 from app.services.life_stage import get_life_stage, get_cultivation_multiplier, can_attempt_breakthrough
+from app.models.memory import StoryMemory, StoryMemorySet
 from app.models.player import PlayerState
+from app.models.tags import Tag, TagSet, TagCategory
 from app.repositories import game_repo
 from app.database import get_db, init_db
 
 _games: dict[str, dict] = {}
+_ai_service_instance = None
 
 
 def _new_session_id() -> str:
     return uuid.uuid4().hex[:16]
+
+
+def _bootstrap_tags(state: dict) -> TagSet:
+    """Derive initial tags from existing player state (for old saves)."""
+    tags = TagSet()
+    tags.add(Tag(category=TagCategory.IDENTITY, key="name", value=f"姓名={state.get('name', '')}"))
+    tags.add(Tag(category=TagCategory.IDENTITY, key="gender", value=f"性别={state.get('gender', '')}"))
+    tags.add(Tag(category=TagCategory.IDENTITY, key="age_group", value=f"年龄={state.get('age', 0)}岁"))
+
+    faction = state.get("faction", "")
+    if faction:
+        tags.add(Tag(category=TagCategory.IDENTITY, key="faction", value=f"门派={faction}"))
+    else:
+        tags.add(Tag(category=TagCategory.IDENTITY, key="identity", value="散修"))
+
+    techniques = state.get("techniques", [])
+    for tech in techniques:
+        if tech:
+            tags.add(Tag(category=TagCategory.SKILL, key=f"tech_{tech}", value=f"功法={tech}"))
+
+    inventory = state.get("inventory", [])
+    for item in inventory:
+        if item:
+            tags.add(Tag(category=TagCategory.STATE, key=f"item_{item}", value=f"物品={item}"))
+
+    tags.add(Tag(category=TagCategory.STATE, key="realm_current", value=f"境界={state.get('realm', '凡人')}"))
+
+    return tags
+
+
+def _ensure_tags_and_memory(state: dict) -> None:
+    """Bootstrap tags/story_memory if missing (e.g. old saves from before the tag system).
+
+    Never crashes — graceful degradation on bootstrap failure.
+    """
+    _logger = logging.getLogger(__name__)
+    try:
+        if state.get("tags") is None:
+            state["tags"] = _bootstrap_tags(state)
+        if state.get("story_memory") is None:
+            state["story_memory"] = StoryMemorySet()
+    except Exception:
+        _logger.warning("标签引导失败，使用空标签")
 
 
 def start_game(
@@ -99,6 +149,50 @@ def start_game(
             "save_slot": save_slot if save_slot is not None else 0,
         }
 
+        state = _games[session_id]
+        tags = TagSet()
+        tags.add(Tag(
+            category=TagCategory.IDENTITY,
+            key="name",
+            value=f"姓名={name}",
+            description=f"角色姓名: {name}",
+        ))
+        tags.add(Tag(
+            category=TagCategory.IDENTITY,
+            key="gender",
+            value=f"性别={gender}",
+            description=f"角色性别: {gender}",
+        ))
+        tags.add(Tag(
+            category=TagCategory.IDENTITY,
+            key="age_group",
+            value="年龄=0",
+        ))
+
+        all_talents = load_talents()
+        talent_map = {t["id"]: t["name"] for t in all_talents}
+        for tid in talent_card_ids:
+            tname = talent_map.get(tid, tid)
+            tags.add(Tag(
+                category=TagCategory.BOND,
+                key=f"talent_{tname}",
+                value=f"天赋={tname}",
+                description=f"先天拥有天赋: {tname}",
+                priority=2,
+            ))
+
+        faction = state.get("faction", "")
+        if faction:
+            tags.add(Tag(
+                category=TagCategory.IDENTITY,
+                key="faction",
+                value=f"门派={faction}",
+                description=f"所属门派: {faction}",
+            ))
+
+        state["tags"] = tags
+        state["story_memory"] = StoryMemorySet()
+
         game_repo.save_player(conn, _games[session_id])
         conn.commit()
     finally:
@@ -120,6 +214,7 @@ def get_state(session_id: str) -> dict:
     if state is None:
         raise ValueError(f"无效的 session_id: {session_id}")
 
+    _ensure_tags_and_memory(state)
     _games[session_id] = state
     return state
 
@@ -133,6 +228,7 @@ def _to_engine_context(state: dict) -> dict:
         "cultivation": state["cultivation"],
         "comprehension": state["attributes"]["comprehension"],
         "life_stage": get_life_stage(state["age"]).value,
+        "consecutive_events": state.get("_consecutive_events", 0),
     }
 
 
@@ -141,12 +237,20 @@ def _get_ai_service():
 
     Uses MockAIService when DEEPSEEK_API_KEY is not set (e.g. tests / CI),
     otherwise uses the real DeepSeekService.
+
+    Singleton: the same service instance is reused across requests to avoid
+    creating a new OpenAI client on every call.
     """
+    global _ai_service_instance
+    if _ai_service_instance is not None:
+        return _ai_service_instance
     from app.config import Settings
     settings = Settings()
     if settings.DEEPSEEK_API_KEY:
-        return DeepSeekService(settings)
-    return MockAIService()
+        _ai_service_instance = DeepSeekService(settings)
+    else:
+        _ai_service_instance = MockAIService()
+    return _ai_service_instance
 
 
 def _build_ai_prompt(
@@ -169,10 +273,25 @@ def _build_ai_prompt(
         f"【属性面板】根骨={attrs.get('rootBone', 0)}, 悟性={attrs.get('comprehension', 0)}, "
         f"心性={attrs.get('mindset', 0)}, 气运={attrs.get('luck', 0)}",
         f"【所属势力】{state.get('faction', '无')}",
+    ]
+
+    tags = state.get("tags")
+    if isinstance(tags, TagSet) and len(tags.tags) > 0:
+        parts.append("")
+        parts.append(tags.to_context_string())
+
+    story_memory = state.get("story_memory")
+    if isinstance(story_memory, StoryMemorySet) and len(story_memory.memories) > 0:
+        mem_str = story_memory.to_prompt_context()
+        if mem_str:
+            parts.append("")
+            parts.append(mem_str)
+
+    parts.extend([
         f"【事件类型】{event_ctx.get('event_type', '')}",
         f"【事件标题】{event_ctx.get('title', '')}",
         f"【事件模板】{event_ctx.get('prompt', '')}",
-    ]
+    ])
 
     if recent_summaries:
         parts.append("")
@@ -218,6 +337,77 @@ def _build_ai_prompt(
     return "\n".join(parts)
 
 
+def prepare_stream_event(session_id: str) -> dict:
+    """Prepare event context for SSE streaming endpoint.
+
+    Selects template, advances age, builds AI prompt, determines tier.
+    Does NOT call AI or set _current_event/_current_narrative —
+    the caller (SSE endpoint) handles generation and final state tracking.
+    """
+    state = get_state(session_id)
+
+    if state.get("_pending_breakthrough"):
+        return {"_breakthrough": True, "state": state, "breakthrough_event": build_breakthrough_event(state)}
+
+    ctx = _to_engine_context(state)
+
+    templates = load_templates()
+    filtered = filter_templates(templates, ctx)
+    weighted = calculate_weights(filtered, ctx)
+
+    if weighted:
+        template_dicts = [t for t, _ in weighted]
+        scenarios = determine_scenario_pool(state.get("tags"), ctx)
+        matched_scenarios_list = match_scenarios(template_dicts, scenarios)
+        if matched_scenarios_list:
+            matched_ids = {id(t) for t in matched_scenarios_list}
+            weighted = [(t, w) for t, w in weighted if id(t) in matched_ids]
+
+    chosen = select_event(weighted, state)
+
+    realm_config = get_realm_config(state["realm"])
+    time_span = realm_config.get("time_span", 1) if realm_config else 1
+    if time_span is None:
+        time_span = 1
+    state["age"] += time_span
+    ctx["age"] = state["age"]
+
+    event_ctx = build_event_context(chosen, ctx)
+    event_ctx["template"] = chosen
+
+    conn = get_db()
+    try:
+        recent_summaries = game_repo.get_recent_event_summaries(conn, session_id, limit=5)
+    finally:
+        conn.close()
+
+    prompt = _build_ai_prompt(
+        event_ctx, state,
+        recent_summaries=recent_summaries,
+        last_outcome=state.get("_last_choice_outcome"),
+    )
+
+    warning = _check_breakthrough_warning(state)
+    if warning:
+        prompt += f"\n\n【突破预警】{warning['message']}"
+
+    tier = should_use_ai(event_ctx, state)
+
+    seen_ids = state.get("_seen_event_ids", [])
+    event_id = chosen.get("id", "")
+    if event_id:
+        seen_ids.append(event_id)
+        state["_seen_event_ids"] = seen_ids[-20:]
+
+    return {
+        "state": state,
+        "event_ctx": event_ctx,
+        "prompt": prompt,
+        "tier": tier,
+        "chosen": chosen,
+    }
+
+
 def get_next_event(session_id: str) -> dict:
     state = get_state(session_id)
 
@@ -230,6 +420,16 @@ def get_next_event(session_id: str) -> dict:
     templates = load_templates()
     filtered = filter_templates(templates, ctx)
     weighted = calculate_weights(filtered, ctx)
+
+    # ── Scenario matching via context_engine ──
+    if weighted:
+        template_dicts = [t for t, _ in weighted]
+        scenarios = determine_scenario_pool(state.get("tags"), ctx)
+        matched_scenarios_list = match_scenarios(template_dicts, scenarios)
+        if matched_scenarios_list:
+            matched_ids = {id(t) for t in matched_scenarios_list}
+            weighted = [(t, w) for t, w in weighted if id(t) in matched_ids]
+
     chosen = select_event(weighted, state)
 
     # 先推进年龄，确保 build_event_context 中的 {age} 使用新值
@@ -243,6 +443,7 @@ def get_next_event(session_id: str) -> dict:
     ctx["age"] = state["age"]
 
     event_ctx = build_event_context(chosen, ctx)
+    event_ctx["template"] = chosen  # for factory's tier decision
 
     narrative = event_ctx["fallback_narrative"]
     options = event_ctx["default_options"]
@@ -254,6 +455,7 @@ def get_next_event(session_id: str) -> dict:
     finally:
         conn.close()
 
+    # ── Event factory: tier-based generation with cascade fallback ──
     try:
         ai_service = _get_ai_service()
         prompt = _build_ai_prompt(
@@ -267,47 +469,72 @@ def get_next_event(session_id: str) -> dict:
         if warning:
             prompt += f"\n\n【突破预警】{warning['message']}"
 
-        skip_ai = bool(event_ctx.get("narrative_only")) and bool(event_ctx.get("fallback_narrative"))
-        ai_result = ai_service.generate_event(prompt=prompt, context=state, skip_ai=skip_ai)
+        tier = should_use_ai(event_ctx, state)
 
-        if ai_result and isinstance(ai_result, dict) and ai_result.get("narrative"):
-            narrative = ai_result["narrative"]
-            ai_options = ai_result.get("options", [])
-            if ai_options:
-                cleaned = []
-                for opt in ai_options:
-                    if isinstance(opt, dict):
-                        # 验证并保留consequences（白名单验证）
-                        raw_consequences = opt.get("consequences", {})
-                        safe_consequences = {}
-                        if isinstance(raw_consequences, dict):
-                            if "spirit_stones_gain" in raw_consequences:
-                                val = raw_consequences["spirit_stones_gain"]
-                                if isinstance(val, (int, float)):
-                                    safe_consequences["spirit_stones_gain"] = max(-100, min(100, int(val)))
-                            if "cultivation_gain" in raw_consequences:
-                                val = raw_consequences["cultivation_gain"]
-                                if isinstance(val, (int, float)):
-                                    safe_consequences["cultivation_gain"] = max(0, min(200, int(val)))
-                        cleaned.append({
-                            "id": opt.get("id", ""),
-                            "text": opt.get("text", ""),
-                            "consequences": safe_consequences,
-                        })
-                if cleaned:
-                    if check_narrative_option_alignment(narrative, cleaned):
-                        options = cleaned
-                        is_fallback = False
-                    else:
-                        logging.getLogger(__name__).warning(
-                            "options-narrative alignment check failed, falling back to default options"
-                        )
-                        # Keep AI narrative but fall back to template options
+        # Check AI result cache: key = {template_id}:{realm}:{tier}
+        cache_template_id = chosen.get('id', '')
+        cache_realm = state['realm']
+        cached = get_cached(cache_template_id, cache_realm, tier)
+
+        if cached and isinstance(cached, dict) and cached.get("narrative"):
+            narrative = cached["narrative"]
+            cached_options = cached.get("options", [])
+            if cached_options:
+                options = cached_options
+                is_fallback = False
             elif event_ctx.get("narrative_only"):
                 options = []
                 is_fallback = False
+        else:
+            factory_result = factory_generate_event(event_ctx, state, ai_service, prompt)
+            used_tier = factory_result.get("_tier", tier)
+
+            if factory_result and isinstance(factory_result, dict) and factory_result.get("narrative"):
+                narrative = factory_result["narrative"]
+                ai_options = factory_result.get("options", [])
+                if ai_options:
+                    cleaned = []
+                    for opt in ai_options:
+                        if isinstance(opt, dict):
+                            raw_consequences = opt.get("consequences", {})
+                            safe_consequences = {}
+                            if isinstance(raw_consequences, dict):
+                                if "spirit_stones_gain" in raw_consequences:
+                                    val = raw_consequences["spirit_stones_gain"]
+                                    if isinstance(val, (int, float)):
+                                        safe_consequences["spirit_stones_gain"] = max(-100, min(100, int(val)))
+                                if "cultivation_gain" in raw_consequences:
+                                    val = raw_consequences["cultivation_gain"]
+                                    if isinstance(val, (int, float)):
+                                        safe_consequences["cultivation_gain"] = max(0, min(200, int(val)))
+                            cleaned.append({
+                                "id": opt.get("id", ""),
+                                "text": opt.get("text", ""),
+                                "consequences": safe_consequences,
+                            })
+                    if cleaned:
+                        if check_narrative_option_alignment(narrative, cleaned):
+                            options = cleaned
+                            is_fallback = False
+                            # Cache validated AI result by tier
+                            set_cached(cache_template_id, cache_realm, used_tier,
+                                       {"narrative": narrative, "options": options})
+                        else:
+                            logging.getLogger(__name__).warning(
+                                "options-narrative alignment check failed, falling back to default options"
+                            )
+                elif event_ctx.get("narrative_only"):
+                    options = []
+                    is_fallback = False
+                elif used_tier in ("L1", "L2"):
+                    # L1/L2 results are deterministic, treat as non-fallback
+                    options = ai_options
+                    is_fallback = False
+            elif event_ctx.get("narrative_only") and event_ctx.get("fallback_narrative"):
+                # L1/L2 results came back empty but we have fallback
+                pass  # keep narrative from event_ctx["fallback_narrative"]
     except Exception:
-        pass
+        logging.getLogger(__name__).warning("AI 叙事生成异常，使用默认叙事和选项")
 
     narrative_only = bool(event_ctx.get("narrative_only")) and len(options) == 0
 
@@ -337,6 +564,57 @@ def get_next_event(session_id: str) -> dict:
         "options": options,
         "is_fallback": is_fallback,
     }
+
+
+def _parse_tag_spec(tag_spec) -> Tag | None:
+    """Parse a tag specification from option consequences into a Tag object.
+
+    Supports two formats:
+      - String: ``"category:key=value"`` (e.g. ``"state:injured"``, ``"bond:master=拜师青云真人"``)
+      - Dict: ``{"category":"state", "key":"injured", "value":"受伤"}``
+
+    Returns ``None`` if parsing fails (malformed input, invalid category, etc.).
+    """
+    if isinstance(tag_spec, dict):
+        try:
+            category = TagCategory(tag_spec.get("category", "state"))
+            return Tag(
+                category=category,
+                key=tag_spec.get("key", ""),
+                value=tag_spec.get("value", ""),
+                description=tag_spec.get("description", ""),
+            )
+        except (ValueError, KeyError, TypeError):
+            return None
+
+    if isinstance(tag_spec, str):
+        parts = tag_spec.split(":", 1)
+        if len(parts) != 2:
+            return None
+        cat_str, rest = parts
+        kv = rest.split("=", 1)
+        key = kv[0] if len(kv) >= 1 else ""
+        value = kv[1] if len(kv) >= 2 else ""
+        try:
+            category = TagCategory(cat_str)
+        except ValueError:
+            return None
+        return Tag(category=category, key=key, value=value)
+
+    return None
+
+
+def _persist_tags(state: dict, session_id: str) -> None:
+    """Persist tag changes to SQLite. Graceful degradation on failure."""
+    try:
+        conn = get_db()
+        try:
+            game_repo.save_player(conn, state)
+            conn.commit()
+        finally:
+            conn.close()
+    except Exception:
+        logging.getLogger(__name__).warning("标签持久化失败: session_id=%s", session_id)
 
 
 CONSEQUENCE_TEMPLATES = {
@@ -587,6 +865,41 @@ def process_choice(session_id: str, option_id: str | None = None) -> dict:
     if faction_assign and isinstance(faction_assign, str):
         state["faction"] = faction_assign
 
+    # ── Tag updates from option consequences ──
+    tag_add = consequences.get("tag_add", [])
+    tag_remove = consequences.get("tag_remove", [])
+    tags = state.get("tags")
+    tags_changed = False
+    tags_involved: list[str] = []
+    if tags is not None and (tag_add or tag_remove):
+        for tag_spec in tag_add:
+            tag = _parse_tag_spec(tag_spec)
+            if tag:
+                tags.add(tag)
+                tags_involved.append(tag.key)
+        for key in tag_remove:
+            if isinstance(key, str):
+                tags.remove(key)
+        tags_changed = True
+        _persist_tags(state, session_id)
+
+    # ── StoryMemory entry ──
+    memory_text = chosen.get("text", "事件推进") if chosen else "岁月流逝"
+    template_id = current_event.get("id", "unknown")
+    memory = StoryMemory(
+        event_id=template_id,
+        summary=f"{current_event.get('title', '事件')}: {memory_text[:60]}",
+        tags_involved=tags_involved,
+        happened_at_age=state["age"],
+        emotional_weight=3.0 if memory_text else 2.0,
+    )
+    story_memory = state.get("story_memory")
+    if story_memory is not None:
+        story_memory.add(memory)
+    else:
+        state["story_memory"] = StoryMemorySet()
+        state["story_memory"].add(memory)
+
     realm_config = get_realm_config(state["realm"])
     if realm_config:
         cap = realm_config.get("spirit_stone_cap", 0)
@@ -833,6 +1146,7 @@ def load_save(user_id: str, save_slot: int) -> dict:
         raise ValueError(f"存档不存在: user_id={user_id}, slot={save_slot}")
 
     state = game_repo._db_row_to_state(row)
+    _ensure_tags_and_memory(state)
     _games[state["session_id"]] = state
     return state
 

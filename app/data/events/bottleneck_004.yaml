@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 1000
   required_faction: null
 weight: 2.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你的金丹已经圆润无瑕，内有生机孕育，元婴即将破丹而出..."
 fallback_narrative: "你以神识牵引，金丹碎裂，一个幼小的元婴从中诞生，天地为之变色。"
 default_options:

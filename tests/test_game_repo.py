@@ -134,6 +134,42 @@ class TestSaveLoadRoundtrip:
         assert loaded is None
         conn2.close()
 
+    def test_roundtrip_with_tags(self, db):
+        state = dict(_SAMPLE_STATE)
+        state["tags"] = '{"tags":[{"category":"identity","key":"sect","value":"青云门"}]}'
+        state["story_memory"] = '{"memories":[{"event_id":"e1","summary":"入门","happened_at_age":16,"emotional_weight":3.0}]}'
+        save_player(db, state)
+        db.commit()
+
+        loaded = load_player(db, "abc123")
+        assert loaded["tags"] == {"tags": [{"category": "identity", "key": "sect", "value": "青云门"}]}
+        assert loaded["story_memory"] == {"memories": [{"event_id": "e1", "summary": "入门", "happened_at_age": 16, "emotional_weight": 3.0}]}
+
+    def test_tags_default_to_none_in_db(self, db):
+        state = dict(_SAMPLE_STATE)
+        state.pop("tags", None)
+        state.pop("story_memory", None)
+        save_player(db, state)
+        db.commit()
+
+        loaded = load_player(db, "abc123")
+        assert loaded.get("tags") is None
+        assert loaded.get("story_memory") is None
+
+    def test_tags_updated_preserves_content(self, db):
+        state = dict(_SAMPLE_STATE)
+        state["tags"] = '{"tags":[{"category":"identity","key":"sect","value":"青云门"}]}'
+        save_player(db, state)
+        db.commit()
+
+        updated = dict(state)
+        updated["tags"] = '{"tags":[{"category":"identity","key":"sect","value":"魔教"}]}'
+        save_player(db, updated)
+        db.commit()
+
+        loaded = load_player(db, "abc123")
+        assert loaded["tags"]["tags"][0]["value"] == "魔教"
+
     def test_empty_lists_for_json_columns(self, db):
         state = dict(_SAMPLE_STATE)
         state["talent_ids"] = []

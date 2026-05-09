@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 50
   required_faction: null
 weight: 0.7
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "镇上的修行者发布了一些杂务，完成后可获得灵石报酬..."
 fallback_narrative: "镇上的修行者发布了一些杂务，完成后可获得灵石报酬，虽不多但聊胜于无。"
 default_options:

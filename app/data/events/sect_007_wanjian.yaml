@@ -1,0 +1,42 @@
+id: "sect_007_wanjian"
+type: "daily"
+title: "铸剑入道"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "渡劫飞升"
+  min_age: 16
+  max_age: 500
+  required_faction: "万剑山庄"
+weight: 0.8
+scenarios:
+  - faction_万剑山庄
+  - faction_life
+  - sword_ritual
+trigger_tags:
+  require_all:
+    - "identity:门派=万剑山庄"
+  require_any: []
+  block: []
+event_tier: "L3"
+narrative_only: false
+prompt_template: "万剑山庄的炼剑堂中炉火通明，铸剑长老正在锻造一批新的灵剑。他见你到来，招手让你上前。'选一块剑胚，以心火淬炼，以剑气开刃。'你看着面前三块剑胚——寒铁、赤铜、玄玉——各有优劣。"
+fallback_narrative: "万剑山庄炼剑堂中，铸剑长老让你选择一块剑胚亲手铸剑。寒铁坚韧、赤铜炽烈、玄玉通灵，三块剑胚各有不同特性。"
+default_options:
+  - id: "opt1"
+    text: "选择寒铁剑胚 — 以力破巧，铸就坚韧之剑"
+    consequences:
+      cultivation_gain: 20
+      spirit_stones_gain: 0
+      age_advance: true
+  - id: "opt2"
+    text: "选择赤铜剑胚 — 以火淬剑，铸就炽烈之剑"
+    consequences:
+      cultivation_gain: 25
+      spirit_stones_gain: 5
+      age_advance: true
+  - id: "opt3"
+    text: "选择玄玉剑胚 — 以神御剑，铸就通灵之剑"
+    consequences:
+      cultivation_gain: 22
+      spirit_stones_gain: 10
+      age_advance: true

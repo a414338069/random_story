@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 9999
   required_faction: null
 weight: 1.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你选择了一处灵脉之地，闭目静坐冥想..."
 fallback_narrative: "你心神沉入识海，感受着天地灵气的脉动，心境愈发通透澄明。"
 default_options:

@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 25
   required_faction: null
 weight: 0.6
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你在山间遇到一位白发老者，他看了你一眼后微微点头..."
 fallback_narrative: "你在山间遇到一位白发老者，他看了你一眼后微微点头，似乎对你的资质颇为满意。"
 default_options:

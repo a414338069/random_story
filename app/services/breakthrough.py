@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import random
 from dataclasses import dataclass
 
+from app.models.tags import Tag, TagCategory, TagSet
 from app.services.realm_service import get_realm_config, get_next_realm, load_realms
 from app.services.talent_service import load_talents
 from app.services.life_stage import get_breakthrough_penalty
@@ -34,7 +37,11 @@ def get_realm_penalty(current_realm: str) -> float:
     return REALM_PENALTY.get(current_realm, 0.0)
 
 
-def calculate_success_rate(player_state: dict, use_pill: bool = False) -> float:
+def calculate_success_rate(
+    player_state: dict,
+    use_pill: bool = False,
+    tags: TagSet | None = None,
+) -> float:
     root_bone = player_state.get("rootBone", 0)
     comprehension = player_state.get("comprehension", 0)
     mindset = player_state.get("mindset", 0)
@@ -46,6 +53,23 @@ def calculate_success_rate(player_state: dict, use_pill: bool = False) -> float:
 
     if use_pill:
         rate += PILL_BONUS
+
+    # Tag-based modifiers
+    if tags:
+        # Master bond: +5% success rate
+        master = tags.get_by_key("bond_master")
+        if master:
+            rate += 0.05
+
+        # Blessed state: +3% success rate (temporary)
+        blessed = tags.get_by_key("state_blessed")
+        if blessed and blessed.is_active:
+            rate += 0.03
+
+        # Injured state: -10% success rate
+        injured = tags.get_by_key("state_injured")
+        if injured and injured.is_active:
+            rate -= 0.10
 
     # 年龄惩罚
     age_penalty = get_breakthrough_penalty(age)
@@ -77,7 +101,11 @@ def _has_talent(player_state: dict, talent_name: str) -> bool:
     return talent_id in player_state.get("talent_ids", [])
 
 
-def attempt_breakthrough(player_state: dict, use_pill: bool = False) -> BreakthroughResult:
+def attempt_breakthrough(
+    player_state: dict,
+    use_pill: bool = False,
+    tags: TagSet | None = None,
+) -> BreakthroughResult:
     realm = player_state.get("realm", "凡人")
     cultivation = player_state.get("cultivation", 0)
 
@@ -91,11 +119,20 @@ def attempt_breakthrough(player_state: dict, use_pill: bool = False) -> Breakthr
             ascended=True,
         )
 
-    rate = calculate_success_rate(player_state, use_pill)
+    rate = calculate_success_rate(player_state, use_pill, tags)
     success = random.random() < rate
 
     if success:
         ascended = next_realm == "渡劫飞升"
+
+        if tags:
+            tags.add(Tag(
+                category=TagCategory.STATE,
+                key="realm_current",
+                value=f"境界={next_realm}",
+                description=f"当前修炼境界: {next_realm}",
+            ))
+
         return BreakthroughResult(
             success=True,
             new_realm=next_realm,

@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 3000
   required_faction: null
 weight: 1.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你{age}岁，已臻合体之境，元婴与肉身合一..."
 fallback_narrative: "你体内元婴与肉身彻底融合，天地法则在你周身流转不息。"
 default_options:

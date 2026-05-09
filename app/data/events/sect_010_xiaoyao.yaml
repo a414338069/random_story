@@ -1,0 +1,42 @@
+id: "sect_010_xiaoyao"
+type: "daily"
+title: "琴音悟道"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "渡劫飞升"
+  min_age: 16
+  max_age: 500
+  required_faction: "逍遥派"
+weight: 0.7
+scenarios:
+  - faction_逍遥派
+  - faction_life
+  - freedom_path
+trigger_tags:
+  require_all:
+    - "identity:门派=逍遥派"
+  require_any: []
+  block: []
+event_tier: "L3"
+narrative_only: false
+prompt_template: "逍遥派的竹林深处，师姐正在抚琴。琴声如清泉流淌，闻之令人心旷神怡。她见你驻足聆听，微微一笑：'师弟可愿一试？'她将古琴推向你，让你选择一首曲子弹奏——《高山》、《流水》、或是《广陵散》。"
+fallback_narrative: "竹林琴音袅袅，师姐邀你抚琴一曲。高山巍峨、流水绵长、广陵散慷慨激昂——三首古曲各有意境，也代表着不同的悟道路径。"
+default_options:
+  - id: "opt1"
+    text: "弹奏《高山》— 以沉稳心性感悟天地之厚重"
+    consequences:
+      cultivation_gain: 20
+      spirit_stones_gain: 0
+      age_advance: true
+  - id: "opt2"
+    text: "弹奏《流水》— 以灵动悟性顺应天道之流转"
+    consequences:
+      cultivation_gain: 25
+      spirit_stones_gain: 5
+      age_advance: true
+  - id: "opt3"
+    text: "弹奏《广陵散》— 以不羁之意打破常规"
+    consequences:
+      cultivation_gain: 22
+      spirit_stones_gain: 10
+      age_advance: true

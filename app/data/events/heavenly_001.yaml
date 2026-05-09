@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 5000
   required_faction: null
 weight: 0.3
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "修炼中你突然心神恍惚，一念之间仿佛看到了另一个自己..."
 fallback_narrative: "修炼中你突然心神恍惚，一念之间仿佛看到了另一个自己，心魔趁虚而入。"
 default_options:

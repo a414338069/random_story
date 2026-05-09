@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 80
   required_faction: null
 weight: 0.8
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你在历练途中遇到一位修为相当的修士，相谈甚欢..."
 fallback_narrative: "你在历练途中遇到一位修为相当的修士，相谈甚欢，彼此交流了不少修炼心得。"
 default_options:

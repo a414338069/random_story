@@ -169,6 +169,102 @@ class TestPlayersTable:
         assert row is None
 
 
+class TestMigrationV3:
+    """Migration v2→v3 adds tags and story_memory columns to players."""
+
+    def _create_v2_database(self, conn):
+        """Create a DB with the v2 schema (no tags/story_memory columns)."""
+        conn.executescript("""
+            CREATE TABLE IF NOT EXISTS players (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL DEFAULT '',
+                gender TEXT NOT NULL DEFAULT '',
+                talent_ids TEXT NOT NULL DEFAULT '[]',
+                root_bone INTEGER NOT NULL DEFAULT 0,
+                comprehension INTEGER NOT NULL DEFAULT 0,
+                mindset INTEGER NOT NULL DEFAULT 0,
+                luck INTEGER NOT NULL DEFAULT 0,
+                realm TEXT NOT NULL DEFAULT '',
+                realm_progress REAL NOT NULL DEFAULT 0.0,
+                health REAL NOT NULL DEFAULT 100.0,
+                qi REAL NOT NULL DEFAULT 0.0,
+                lifespan INTEGER NOT NULL DEFAULT 100,
+                faction TEXT NOT NULL DEFAULT '',
+                spirit_stones INTEGER NOT NULL DEFAULT 0,
+                techniques TEXT NOT NULL DEFAULT '[]',
+                inventory TEXT NOT NULL DEFAULT '[]',
+                event_count INTEGER NOT NULL DEFAULT 0,
+                score INTEGER NOT NULL DEFAULT 0,
+                ending_id TEXT,
+                is_alive INTEGER NOT NULL DEFAULT 1,
+                last_active_at TIMESTAMP,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                user_id TEXT DEFAULT NULL,
+                save_slot INTEGER DEFAULT 0,
+                age INTEGER DEFAULT 0,
+                cultivation REAL DEFAULT 0.0,
+                ascended INTEGER DEFAULT 0,
+                technique_grades TEXT DEFAULT '[]',
+                _pending_breakthrough INTEGER DEFAULT 0,
+                _breakthrough_next_req REAL DEFAULT 0.0
+            );
+            PRAGMA user_version = 2;
+        """)
+        conn.commit()
+
+    def test_migration_adds_tags_column(self):
+        conn = get_db(":memory:")
+        self._create_v2_database(conn)
+
+        table_info = conn.execute("PRAGMA table_info(players)").fetchall()
+        columns = {row[1] for row in table_info}
+        assert "tags" not in columns
+        assert "story_memory" not in columns
+
+        init_db(conn)
+
+        table_info = conn.execute("PRAGMA table_info(players)").fetchall()
+        columns = {row[1] for row in table_info}
+        assert "tags" in columns
+        assert "story_memory" in columns
+        conn.close()
+
+    def test_migration_after_v3_is_noop(self):
+        conn = get_db(":memory:")
+        self._create_v2_database(conn)
+        init_db(conn)
+
+        # Second init_db should not fail
+        init_db(conn)
+
+        table_info = conn.execute("PRAGMA table_info(players)").fetchall()
+        columns = {row[1] for row in table_info}
+        assert "tags" in columns
+        assert "story_memory" in columns
+        conn.close()
+
+    def test_user_version_becomes_3(self):
+        conn = get_db(":memory:")
+        self._create_v2_database(conn)
+        init_db(conn)
+        version = conn.execute("PRAGMA user_version").fetchone()[0]
+        assert version == 3
+        conn.close()
+
+    def test_new_database_gets_v3_columns(self):
+        conn = get_db(":memory:")
+        init_db(conn)
+        version = conn.execute("PRAGMA user_version").fetchone()[0]
+        assert version == 3
+
+        table_info = conn.execute("PRAGMA table_info(players)").fetchall()
+        columns = {row[1] for row in table_info}
+        assert "tags" in columns
+        assert "story_memory" in columns
+        conn.close()
+
+
 class TestEventLogsTable:
     """Schema validation + CRUD for event_logs."""
 

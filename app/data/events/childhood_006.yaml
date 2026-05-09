@@ -9,6 +9,12 @@ trigger_conditions:
   max_age: 8
   required_faction: null
 weight: 8.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你{age}岁了，村子后面有一座大山，大人们从不让小孩靠近。但你总觉得山里有什么东西在召唤你。描述你偷偷靠近后山时感受到的奇异体验——空气中的光点、耳边的低语、皮肤的刺痛感。200字以内，第二人称。"
 fallback_narrative: "你{age}岁了。村子后面的大山终年云雾缭绕，大人们说山里有猛兽，不让孩子们靠近。但你总觉得那片山林在呼唤你。有一天你偷偷溜到山脚，刚踏入林中，便感到一阵奇异的酥麻从脚底蔓延上来。空气中飘浮着肉眼可见的细小光点，像是无数萤火虫在起舞。你深吸一口气，胸腔里涌起一股说不清的畅快——那是你第一次真切地感受到灵气的存在。"
 default_options: []

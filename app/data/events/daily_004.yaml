@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 500
   required_faction: null
 weight: 1.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你已{age}岁，金丹在丹田中缓缓旋转..."
 fallback_narrative: "你内视丹田，金丹光华流转，每一次旋转都牵引着庞大的灵力。"
 default_options:

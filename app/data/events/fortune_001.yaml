@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 30
   required_faction: null
 weight: 0.4
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你在一个隐蔽的山洞中意外发现了一枚发光的玉简..."
 fallback_narrative: "你在一个隐蔽的山洞中意外发现了一枚发光的玉简，上面刻满了你看不懂的符文。"
 default_options:

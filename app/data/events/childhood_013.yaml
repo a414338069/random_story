@@ -1,0 +1,74 @@
+id: "childhood_013"
+type: "childhood"
+name: "启蒙抉择"
+title: "启蒙抉择"
+narrative_only: false
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 9
+  max_age: 11
+  required_faction: null
+age_min: 9
+age_max: 11
+realm_min: "凡人"
+realm_max: "凡人"
+weight: 1.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: |
+  你{age}岁了，已经到了该开蒙的年纪。村里的长辈们商量着要给你找个出路——是送你去镇上私塾读书识理，还是请村里退伍的老兵教你些拳脚功夫？又或者，你心里有其他想法？描述这个决定你人生方向的时刻——周围大人们的建议、你自己内心的倾向、以及你最终做出的选择。200字以内，第二人称。
+fallback_narrative: |
+  日子一天天过去，你渐渐长大了。村里的老人们聚在一起闲聊时，总爱议论哪家孩子有出息、该学什么本事。你爹坐在门槛上抽着旱烟，皱着眉头想了半天，把你叫到跟前：'娃啊，你也到了该学点本事的年纪了。镇上有个先生，学问不错，送你去读两年书？还是跟你二叔学几手把式，以后不吃亏？'你挠了挠脑袋，一时间也不知该怎么选。你隐约觉得，似乎还有别的路可以走，但那是什么路，你也说不清楚。
+default_options:
+  - id: "choose_reading"
+    text: "选择读书"
+    consequences:
+      cultivation_gain: 0
+      spirit_stones_gain: 0
+      age_advance: true
+  - id: "choose_martial"
+    text: "选择习武"
+    consequences:
+      cultivation_gain: 0
+      spirit_stones_gain: 0
+      age_advance: true
+  - id: "wait_decision"
+    text: "再等等看"
+    consequences:
+      cultivation_gain: 0
+      spirit_stones_gain: 0
+      age_advance: true
+options:
+  - id: "choose_reading"
+    text: "选择读书"
+    consequences:
+      cultivation_gain: 0
+      spirit_stones_gain: 0
+      attribute_changes:
+        comprehension: 0.5
+      tag_add:
+        - "bond:childhood_memory=读书启蒙"
+    aftermath_template: "你最终决定去镇上读书。开蒙那天，先生教你念《三字经》，你只读了两遍就能完整背诵，先生惊讶地摘下老花镜多看了你几眼。你的记忆力比同龄孩子好得多，那些文字在你脑海中像是找到了自己的位置，轻轻松松就扎下了根。"
+  - id: "choose_martial"
+    text: "选择习武"
+    consequences:
+      cultivation_gain: 0
+      spirit_stones_gain: 0
+      attribute_changes:
+        root_bone: 0.5
+      tag_add:
+        - "bond:childhood_memory=习武启蒙"
+    aftermath_template: "你决定跟着退伍的老兵学些拳脚功夫。第一天扎马步，你的双腿不停打颤，但你咬着牙坚持了下来。老兵赞许地拍了拍你的肩膀，说你这孩子底盘稳、有韧性，是块练武的好材料。你心里暗暗高兴，练得更起劲了。虽然每天浑身酸痛，但你明显感觉到自己的身体一天比一天结实有力。"
+  - id: "wait_decision"
+    text: "再等等看"
+    consequences:
+      cultivation_gain: 0
+      spirit_stones_gain: 0
+      tag_add:
+        - "state:thoughtful_child"
+    aftermath_template: "你没有急着做决定，只是跟爹说再想想。你总觉得读书和练武都好像缺了点什么。夜里你躺在床上望着窗外的月亮，心里模模糊糊有一个念头——你想去更远的地方看看，想知道那些游方道人口中说的修仙世界究竟是不是真的。这个念头像一颗种子，悄悄在你心里扎下了根。"

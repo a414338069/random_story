@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 9999
   required_faction: null
 weight: 1.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你在藏经阁中找到了一本上古修炼心得..."
 fallback_narrative: "你翻阅前人留下的修炼笔记，学到了许多精妙的修炼技巧。"
 default_options:

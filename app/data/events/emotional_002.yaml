@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 1000
   required_faction: null
 weight: 0.3
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你在一个偏僻的小镇上遇到了前世的故人..."
 fallback_narrative: "你在一个偏僻的小镇上遇到了前世的故人，往事如烟涌上心头。"
 default_options:

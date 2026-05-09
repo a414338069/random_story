@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 500
   required_faction: null
 weight: 0.4
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你在一处荒山中发现了隐秘的阵法痕迹，似乎通往一处秘境..."
 fallback_narrative: "你在一处荒山中发现了隐秘的阵法痕迹，似乎通往一处秘境，灵气从缝隙中不断涌出。"
 default_options:

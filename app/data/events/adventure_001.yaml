@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 30
   required_faction: null
 weight: 0.6
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你在山中砍柴时，突然遇到了一头凶猛的妖兽..."
 fallback_narrative: "你在山中遇到一头妖兽，拼尽全力才逃脱，但也在危机中激发了潜能。"
 default_options:

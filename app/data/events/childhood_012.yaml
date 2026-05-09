@@ -1,0 +1,74 @@
+id: "childhood_012"
+type: "childhood"
+name: "山间奇遇"
+title: "山间奇遇"
+narrative_only: false
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 4
+  max_age: 8
+  required_faction: null
+age_min: 4
+age_max: 8
+realm_min: "凡人"
+realm_max: "凡人"
+weight: 1.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: |
+  你{age}岁那年夏天，独自跑到村后的山坡上玩耍。山间野果累累，鸟鸣啾啾，溪水潺潺。你在追逐一只蝴蝶时，发现了一处平时从没注意过的隐秘角落。描述这个场景——你看到了什么？那里有什么特别之处？你当时的心情如何？200字以内，第二人称。
+fallback_narrative: |
+  夏日的午后，你趁大人午睡偷偷溜出家门，光着脚丫沿着山间小路一路向上。路边的野花开得正好，紫的黄的白的，星星点点铺了半面山坡。你追着一只蓝色翅膀的蝴蝶跑进一片灌木丛，拨开密密的枝条后，眼前豁然开朗——一棵巨大的老樟树矗立在那里，树干粗得要三四个你才能合抱。树根下有一个不大不小的树洞，洞口爬满了青苔蔓藤，像是一间天然的小屋子。阳光透过树叶的缝隙洒下来，在地上印出斑驳的光影，空气中弥漫着草木和泥土的气息。
+default_options:
+  - id: "pick_fruit"
+    text: "摘取野果"
+    consequences:
+      cultivation_gain: 0
+      spirit_stones_gain: 0
+      age_advance: true
+  - id: "explore_cave"
+    text: "探索山洞"
+    consequences:
+      cultivation_gain: 0
+      spirit_stones_gain: 0
+      age_advance: true
+  - id: "observe_silently"
+    text: "静静观察"
+    consequences:
+      cultivation_gain: 0
+      spirit_stones_gain: 0
+      age_advance: true
+options:
+  - id: "pick_fruit"
+    text: "摘取野果"
+    consequences:
+      cultivation_gain: 0
+      spirit_stones_gain: 0
+      attribute_changes:
+        mindset: 0.5
+      tag_add:
+        - "bond:childhood_memory=山间采果"
+    aftermath_template: "你爬上古樟树，摘下了一串紫红色的野果。果实饱满多汁，咬一口满嘴都是甜丝丝的味道。你坐在树干上晃着腿，一边吃一边看远山近树，心里说不出的惬意。山风吹过，树叶沙沙作响，你忽然觉得天地间的一切都是那么美好有趣。这份宁静愉悦的心情，在之后的日子里偶尔还会浮上心头。"
+  - id: "explore_cave"
+    text: "探索山洞"
+    consequences:
+      cultivation_gain: 0
+      spirit_stones_gain: 0
+      attribute_changes:
+        luck: 0.5
+      tag_add:
+        - "bond:childhood_memory=山间探洞"
+    aftermath_template: "你壮着胆子钻进树洞，里面比想象中宽敞许多。洞壁上长着一些发光的苔藓，幽幽的蓝光照亮了这个小天地。你注意到洞壁一角刻着一个奇怪的符号——看起来像是一个古老的文字，但你完全不认识。你伸手摸了摸那个符号，指尖传来一丝微弱的温热。你决定把这个秘密藏在心底，当作自己的小小宝藏。"
+  - id: "observe_silently"
+    text: "静静观察"
+    consequences:
+      cultivation_gain: 0
+      spirit_stones_gain: 0
+      tag_add:
+        - "state:nature_child"
+    aftermath_template: "你没有急着做什么，只是靠在大樟树下静静地待着。你注意到树上有两只小松鼠在追逐打闹，一只蚂蚁正艰难地拖着一片树叶翻越树根，远处有一只老鹰在天空画着圆圈。你发现当你安静下来的时候，周围的世界变得格外清晰——你能听到溪水叮咚的声音，能分辨出七八种不同的鸟叫，甚至能感觉到山风穿过树叶时那种细腻的触感。"

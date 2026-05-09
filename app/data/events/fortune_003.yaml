@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 3000
   required_faction: null
 weight: 0.2
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你在一处古墓中找到了一位前辈修士的毕生修炼心得..."
 fallback_narrative: "你在一处古墓中找到了一位前辈修士的毕生修炼心得，字字珠玑，令人受益匪浅。"
 default_options:

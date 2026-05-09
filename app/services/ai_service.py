@@ -1,11 +1,12 @@
 """AI service — DeepSeek API wrapper with JSON mode and retry logic."""
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import time
 
-from openai import APIConnectionError, APIError, OpenAI
+from openai import APIConnectionError, APIError, AsyncOpenAI, OpenAI
 
 from app.config import Settings
 
@@ -236,6 +237,87 @@ class DeepSeekService:
             return None
 
 
+    async def generate_event_stream(self, prompt: str, context: dict):
+        """Two-phase streaming generation for SSE endpoint.
+
+        Phase 1: stream=True → narrative tokens in real time.
+        Phase 2: json_object → options parsed from structured response.
+
+        Yields dicts with ``type`` key:
+          - ``{"type": "narrative_chunk", "text": "..."}``
+          - ``{"type": "options", "options": [...]}``
+        """
+        aclient = AsyncOpenAI(
+            api_key=self._client.api_key,
+            base_url=str(self._client.base_url),
+            timeout=60.0,
+        )
+
+        # ── Phase 1: Stream narrative (pure text, no JSON wrapper) ──
+        narrative_prompt = (
+            "请为以下修仙世界事件生成一段叙事文本（80-200字），"
+            "只输出纯文本，不要JSON格式，不要markdown代码块。\n\n"
+            + prompt
+        )
+
+        stream = await aclient.chat.completions.create(
+            model=self._model,
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": narrative_prompt},
+            ],
+            stream=True,
+            temperature=0.8,
+            max_tokens=300,
+        )
+
+        full_narrative = ""
+        async for chunk in stream:
+            if chunk.choices and chunk.choices[0].delta.content:
+                text = chunk.choices[0].delta.content
+                full_narrative += text
+                yield {"type": "narrative_chunk", "text": text}
+
+        if not full_narrative.strip():
+            logger.warning("Phase 1 streaming returned empty narrative")
+            yield {"type": "options", "options": []}
+            return
+
+        # ── Phase 2: Generate options as structured JSON ──
+        options_prompt = (
+            prompt
+            + f"\n\n已生成的叙事：\n{full_narrative}\n\n"
+            "请基于以上叙事生成2-3个玩家选项。"
+            '返回JSON格式，只包含options数组：'
+            '{"options": [{"id": "opt1", "text": "...", "consequences": {...}}, ...]}'
+        )
+
+        try:
+            response = await aclient.chat.completions.create(
+                model="deepseek-chat",
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": options_prompt},
+                ],
+                response_format={"type": "json_object"},
+                temperature=0.7,
+                max_tokens=300,
+            )
+
+            content = response.choices[0].message.content
+            if not content or content.strip() == "":
+                yield {"type": "options", "options": []}
+                return
+
+            result = json.loads(content)
+            options = result.get("options", [])
+        except (json.JSONDecodeError, AttributeError, APIError) as e:
+            logger.warning(f"Phase 2 options generation failed: {e}")
+            options = []
+
+        yield {"type": "options", "options": options}
+
+
 class MockAIService:
     def __init__(self, response: dict | None = None):
         self._response = response or {
@@ -256,3 +338,16 @@ class MockAIService:
         return {
             "narrative": f"你{chosen}之际，灵台清明，细细体悟大道之妙，修为有所精进。"
         }
+
+    async def generate_event_stream(self, prompt: str, context: dict):
+        """Mock streaming: yields narrative in small chunks for frontend typing effect."""
+        narrative = self._response.get("narrative", "")
+        options = self._response.get("options", [])
+
+        chunk_size = max(1, len(narrative) // 20) if narrative else 1
+        for i in range(0, len(narrative), chunk_size):
+            text = narrative[i : i + chunk_size]
+            yield {"type": "narrative_chunk", "text": text}
+            await asyncio.sleep(0.01)
+
+        yield {"type": "options", "options": list(options)}

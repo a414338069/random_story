@@ -1,0 +1,41 @@
+id: "sect_015_sanxiu"
+type: "adventure"
+title: "独行秘境"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "渡劫飞升"
+  min_age: 16
+  max_age: 500
+  required_faction: "散修"
+weight: 0.7
+scenarios:
+  - faction_散修
+  - rogue_cultivator
+trigger_tags:
+  require_all:
+    - "identity:门派=散修"
+  require_any: []
+  block: []
+event_tier: "L3"
+narrative_only: false
+prompt_template: "作为散修，你习惯了独来独往。今日你在山中游历时发现了一处隐蔽的古修洞府，石门半掩，散发出一股若有若无的灵力波动。洞内可能有功法秘籍、灵丹妙药，也可能有机关陷阱、妖兽盘踞。你需要决定如何探索。"
+fallback_narrative: "你在山中发现一处古修洞府，石门半掩。是谨慎探查、直入核心，还是先在洞口布置退路后再进入？散修没有师门庇护，一切只能靠自己。"
+default_options:
+  - id: "opt1"
+    text: "谨慎探查 — 步步为营，仔细搜索每处角落"
+    consequences:
+      cultivation_gain: 25
+      spirit_stones_gain: 15
+      age_advance: true
+  - id: "opt2"
+    text: "直入核心 — 以最快速度突入洞府深处"
+    consequences:
+      cultivation_gain: 35
+      spirit_stones_gain: 5
+      age_advance: true
+  - id: "opt3"
+    text: "先行布阵 — 在洞口设下退路再进入"
+    consequences:
+      cultivation_gain: 18
+      spirit_stones_gain: 20
+      age_advance: true

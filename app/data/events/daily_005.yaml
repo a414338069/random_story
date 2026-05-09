@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 1000
   required_faction: null
 weight: 1.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你{age}岁，元婴已成，神识覆盖百里..."
 fallback_narrative: "你闭目养神，体内的元婴与你心神合一，天地灵气汹涌而来。"
 default_options:

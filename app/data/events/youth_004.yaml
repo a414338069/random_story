@@ -9,6 +9,12 @@ trigger_conditions:
   max_age: 16
   required_faction: null
 weight: 5.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你{age}岁了。你已经在灵力感知上初窥门径，但前路如何走，你面临抉择。一条路是留在村中继续以凡人身份修炼，自悟自证；另一条路是离开家乡，前往传闻中有修仙宗门坐落的青云山寻访机缘。两条路各有利弊。200字以内描写你的纠结与抉择，第二人称。"
 fallback_narrative: "你{age}岁了。你体内的灵力已经从一缕细流壮大成了一条小溪，虽然微弱却真真切切地存在着。村里的日子平静安稳，但你心中那团火越烧越旺——你渴望知道更多，想看看传说中翻江倒海的修仙者到底有多强大。东边三百里外的青云山据说有仙门坐落，但那里山高路远、妖兽出没。而留在村中继续自悟，虽然安全，却不知何年何月才能突破。站在村口的岔路上，你攥紧了拳头。"
 default_options:

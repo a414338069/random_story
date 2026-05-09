@@ -1,0 +1,42 @@
+id: "sect_011_xiaoyao"
+type: "adventure"
+title: "云游悟道"
+trigger_conditions:
+  min_realm: "炼气"
+  max_realm: "元婴"
+  min_age: 16
+  max_age: 500
+  required_faction: "逍遥派"
+weight: 0.6
+scenarios:
+  - faction_逍遥派
+  - faction_life
+  - freedom_path
+trigger_tags:
+  require_all:
+    - "identity:门派=逍遥派"
+  require_any: []
+  block: []
+event_tier: "L3"
+narrative_only: false
+prompt_template: "逍遥派不尚苦修，讲究在天地间感悟大道。师尊命你外出云游历练，给你三个方向：东行至东海观潮悟道、西行至大漠感受天地苍茫、或是南行至十万大山寻访灵草。每个方向都有不同的机缘。"
+fallback_narrative: "师尊让你选择云游方向：东海观潮悟水之柔韧、大漠感受天地之苍茫、十万大山寻访灵草奇珍。前路未知，但逍遥派的修行本就在路上。"
+default_options:
+  - id: "opt1"
+    text: "东行东海 — 观潮起潮落，悟水之柔韧"
+    consequences:
+      cultivation_gain: 25
+      spirit_stones_gain: 10
+      age_advance: true
+  - id: "opt2"
+    text: "西行大漠 — 感天地之苍茫，修心性之坚韧"
+    consequences:
+      cultivation_gain: 30
+      spirit_stones_gain: 5
+      age_advance: true
+  - id: "opt3"
+    text: "南行十万大山 — 寻奇花异草，炼丹药以辅修行"
+    consequences:
+      cultivation_gain: 20
+      spirit_stones_gain: 25
+      age_advance: true

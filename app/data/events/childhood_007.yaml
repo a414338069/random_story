@@ -9,6 +9,12 @@ trigger_conditions:
   max_age: 10
   required_faction: null
 weight: 7.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你{age}岁了。一个云游的老道士来到你们村子里借宿。他鹤发童颜，手持拂尘，和村里的人格格不入。描述你和这位老道士的相遇——他对你说了什么？他是否看出了你的不凡？200字以内，第二人称。"
 fallback_narrative: "你{age}岁了。一个白发苍苍的老道士背着褡裢来到村口，说是云游路过，想借宿几日。村里人对他敬而远之，只有你被他那双清澈如水的眼睛所吸引。你跟在他身后看他晒太阳、喝茶、对着天空发呆。临走那天，他蹲下身摸了摸你的头顶，说了一句让你一辈子都忘不了的话：'小家伙，你的根骨……倒是有几分意思。好好活着，会有缘法的。'说完便飘然而去，再也没回来过。"
 default_options: []

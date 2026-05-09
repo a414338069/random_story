@@ -82,3 +82,6 @@ class PlayerState(BaseModel):
     last_active_at: Optional[str] = None
     created_at: str = ""
     updated_at: str = ""
+
+    tags_json: Optional[str] = None
+    story_memory_json: Optional[str] = None

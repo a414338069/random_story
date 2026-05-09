@@ -1,6 +1,6 @@
 id: "childhood_002"
-type: "narrative"
-narrative_only: true
+type: "childhood"
+narrative_only: false
 title: "少年时光"
 trigger_conditions:
   min_realm: "凡人"
@@ -9,6 +9,31 @@ trigger_conditions:
   max_age: 14
   required_faction: null
 weight: 6.0
+scenarios:
+  - childhood
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
 prompt_template: "你{age}岁了，正是少年意气时。描述你少年时期的生活——帮家里干活、上山采药、偷偷修炼感受到的那一丝灵气。有没有遇到什么改变你命运的小事？200字以内，第二人称。"
 fallback_narrative: "你{age}岁了。白天帮父亲耕田砍柴，夜里偷偷按照记忆中的片段盘膝打坐。虽然没有功法指引，但你隐约能感知到天地间流动的灵气。有时夜里修炼，指尖会泛起若有若无的微光。你知道，这不是凡人该有的能力。"
-default_options: []
+default_options:
+  - id: "opt1"
+    text: "白日认真劳作，夜里有空再修炼 — 不引人注目"
+    consequences:
+      cultivation_gain: 2
+      spirit_stones_gain: 2
+      age_advance: true
+  - id: "opt2"
+    text: "找借口避开劳作，把时间都用在感应灵气上"
+    consequences:
+      cultivation_gain: 4
+      spirit_stones_gain: 0
+      age_advance: true
+  - id: "opt3"
+    text: "上山采药时偷偷尝试引气入体"
+    consequences:
+      cultivation_gain: 5
+      spirit_stones_gain: 1
+      age_advance: true

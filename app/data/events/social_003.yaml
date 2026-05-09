@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 300
   required_faction: null
 weight: 0.5
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你在一次争夺灵药时与另一修士发生冲突..."
 fallback_narrative: "你在一次争夺灵药时与另一修士发生冲突，对方咄咄逼人，局势一触即发。"
 default_options:

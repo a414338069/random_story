@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 9999
   required_faction: null
 weight: 1.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你{age}岁，天劫随时将至，成败在此一举..."
 fallback_narrative: "你沐浴更衣，焚香祷告，将毕生修为调整至巅峰状态以迎接天劫。"
 default_options:

@@ -338,6 +338,36 @@ class TestPlayerState:
         assert state.event_count == 0
 
 
+class TestPlayerStateTagsAndMemory:
+    """tags_json and story_memory_json fields on PlayerState."""
+
+    def test_tags_json_defaults_to_none(self):
+        state = PlayerState(id="p1", name="玩家")
+        assert state.tags_json is None
+        assert state.story_memory_json is None
+
+    def test_tags_json_accepts_string(self):
+        state = PlayerState(id="p1", name="玩家", tags_json='[{"category":"identity","key":"sect","value":"青云门"}]')
+        assert state.tags_json is not None
+        assert "青云门" in state.tags_json
+
+    def test_story_memory_json_accepts_string(self):
+        state = PlayerState(id="p1", name="玩家", story_memory_json='[{"event_id":"e1","summary":"入门","happened_at_age":16}]')
+        assert state.story_memory_json is not None
+        assert "入门" in state.story_memory_json
+
+    def test_serialization_roundtrip(self):
+        state = PlayerState(
+            id="p1", name="玩家",
+            tags_json='{"tags":[{"category":"identity","key":"sect","value":"青云门"}]}',
+            story_memory_json='{"memories":[{"event_id":"e1","summary":"入门","happened_at_age":16,"emotional_weight":3.0}]}',
+        )
+        data = state.model_dump()
+        restored = PlayerState.model_validate(data)
+        assert restored.tags_json == state.tags_json
+        assert restored.story_memory_json == state.story_memory_json
+
+
 # ── ChooseResponse / AftermathResponse / BreakthroughInfo ─────────────────────
 
 

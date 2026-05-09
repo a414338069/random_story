@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 9999
   required_faction: null
 weight: 0.3
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "域外天魔降临，天地震动，你作为大能必须挺身而出..."
 fallback_narrative: "你与域外天魔展开惊天大战，虽身受重伤但也得到了天道馈赠。"
 default_options:

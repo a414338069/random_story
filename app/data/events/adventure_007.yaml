@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 9999
   required_faction: null
 weight: 0.3
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你在修炼时遇到一位神秘老者，他说与你有缘..."
 fallback_narrative: "一位神秘前辈看中你的资质，将毕生修炼心得传授于你。"
 default_options:

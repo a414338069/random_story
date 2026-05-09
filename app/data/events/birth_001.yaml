@@ -9,6 +9,12 @@ trigger_conditions:
   max_age: 0
   required_faction: null
 weight: 10.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你是一个刚出生的婴儿，带着前世的记忆降临到这个修仙世界。描述你的出生场景——家庭环境、父母的反应、你初次感受到天地灵气的奇妙体验。200字以内，用第二人称。"
 fallback_narrative: "伴随着一声啼哭，你降生于世。模糊的前世记忆如潮水般涌来，又迅速退去。你睁开眼，看到的是一间简朴的农家小院，空气中弥漫着淡淡的草药清香。母亲将你紧紧抱在怀里，父亲在一旁擦拭着额头的汗珠，脸上露出欣慰的笑容。"
 default_options: []

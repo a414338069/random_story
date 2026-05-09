@@ -9,6 +9,12 @@ trigger_conditions:
   max_age: 3
   required_faction: null
 weight: 8.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你一两岁了，正在牙牙学语。描述你喃喃自语的场景——你是否说出了什么令大人惊讶的话？是否偶尔蹦出一些不属于这个世界的词汇？用天真又神秘的笔触描写，150字以内，第二人称。"
 fallback_narrative: "你已经能说一些简单的词语了，但有时候你会突然安静下来，盯着空气中的某个方向，嘴里嘟囔着大人听不懂的话。有一次你指着夜空中的某颗星星，清清楚楚地说了句'那里……有人'。母亲以为你在说胡话，父亲却若有所思地看了你一眼，转头对母亲说：'这孩子，或许不凡。'"
 default_options: []

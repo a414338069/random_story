@@ -40,7 +40,6 @@ router.beforeEach(async (to, _from) => {
     try {
       const userId = getOrCreateUserId()
       const { loadSave } = await import('@/api/save')
-      const { normalizeFromPydantic } = await import('@/core/normalize')
       const result = await loadSave(userId, activeSlot)
 
       const { useGameState } = await import('@/composables/useGameState')

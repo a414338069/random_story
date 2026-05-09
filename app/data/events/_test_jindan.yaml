@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 1000
   required_faction: null
 weight: 1.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你在修炼中遇到了奇遇..."
 fallback_narrative: "你在洞府中发现了一枚丹药。"
 default_options:

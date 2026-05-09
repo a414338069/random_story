@@ -5,6 +5,7 @@ EVENTS_DIR = Path(__file__).parent / "events"
 VALID_TYPES = {"daily", "adventure", "bottleneck", "narrative", "combat", "social", "economy", "emotional", "heavenly", "fortune", "sect", "stones", "explore", "birth", "childhood", "youth"}
 REALMS = ["凡人", "炼气", "筑基", "金丹", "元婴", "化神", "合体", "大乘", "渡劫飞升"]
 TIER_NAMES = {"低阶", "中阶", "高阶"}
+KNOWN_OPTIONAL = {"scenarios", "trigger_tags", "event_tier", "narrative_only", "realm_narratives", "realm_prompt_templates", "realm_default_options", "realm_scale"}
 
 def validate_all_templates() -> bool:
     errors = []
@@ -20,6 +21,12 @@ def validate_all_templates() -> bool:
         for key in ("id", "type", "title", "fallback_narrative", "default_options", "weight", "trigger_conditions", "prompt_template"):
             if key not in data:
                 errors.append(f"{f.name}: missing {key}")
+        if "scenarios" in data and not isinstance(data["scenarios"], list):
+            errors.append(f"{f.name}: scenarios must be a list")
+        if "trigger_tags" in data and not isinstance(data["trigger_tags"], dict):
+            errors.append(f"{f.name}: trigger_tags must be a dict")
+        if "event_tier" in data and not isinstance(data["event_tier"], str):
+            errors.append(f"{f.name}: event_tier must be a string")
         if data.get("type") not in VALID_TYPES:
             errors.append(f"{f.name}: invalid type {data.get('type')}")
         narr = data.get("fallback_narrative", "")

@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 150
   required_faction: null
 weight: 0.4
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你在一处山洞中发现了小型灵石矿脉的痕迹..."
 fallback_narrative: "你在一处山洞中发现了小型灵石矿脉的痕迹，灵光闪烁间似乎有不少灵石。"
 default_options:

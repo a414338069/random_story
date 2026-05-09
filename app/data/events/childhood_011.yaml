@@ -1,0 +1,74 @@
+id: "childhood_011"
+type: "childhood"
+name: "村里来了个游方道人"
+title: "村里来了个游方道人"
+narrative_only: false
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 6
+  max_age: 10
+  required_faction: null
+age_min: 6
+age_max: 10
+realm_min: "凡人"
+realm_max: "凡人"
+weight: 1.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: |
+  你{age}岁那年，村里来了一个云游四方的老道人。他衣衫简朴，腰间挂着一个葫芦，一双眼睛却亮得惊人。他在村口的大槐树下歇脚，村民们围了过去，有的求药，有的问卦，有的只是看热闹。你站在人群外围，好奇地打量着他。描述这个场景——老道人是否注意到了你？他看向你时是什么神情？200字以内，第二人称。
+fallback_narrative: |
+  老道人在村口歇脚的消息很快传遍了整个村子。你跟着大人们围了过去，挤在人群缝隙里偷偷打量他。他看上去六十来岁，鬓发花白，但腰杆挺得笔直，一双眼睛不像村里老人那般浑浊，反而清澈通透。村民们七嘴八舌地问东问西，他只是笑呵呵地一一应付。你正准备转身回家，他却忽然朝你这边看了一眼，目光在你身上停顿了片刻，微微点了点头。你心里莫名一动，脚步也不自觉地停了下来。
+default_options:
+  - id: "seek_guidance"
+    text: "请教修炼之法"
+    consequences:
+      cultivation_gain: 0
+      spirit_stones_gain: 0
+      age_advance: true
+  - id: "listen_story"
+    text: "听他讲述故事"
+    consequences:
+      cultivation_gain: 0
+      spirit_stones_gain: 0
+      age_advance: true
+  - id: "help_out"
+    text: "帮忙搭把手"
+    consequences:
+      cultivation_gain: 0
+      spirit_stones_gain: 0
+      age_advance: true
+options:
+  - id: "seek_guidance"
+    text: "请教修炼之法"
+    consequences:
+      cultivation_gain: 0
+      spirit_stones_gain: 0
+      attribute_changes:
+        root_bone: 0.5
+      tag_add:
+        - "bond:childhood_memory=请教游方道人"
+    aftermath_template: "你鼓起勇气挤到老道人面前，结结巴巴地问他怎样才能像传说中的仙人一样飞天遁地。老道人闻言哈哈大笑，伸出粗糙的手掌在你头顶轻轻一拍，说了一句你似懂非懂的话：'根骨尚可，心性未定。若有机缘，自会相见。'你只觉得一股暖流从头窜到脚底，浑身说不出的舒坦。"
+  - id: "listen_story"
+    text: "听他讲述故事"
+    consequences:
+      cultivation_gain: 0
+      spirit_stones_gain: 0
+      attribute_changes:
+        comprehension: 0.5
+      tag_add:
+        - "bond:childhood_memory=聆听游方道人故事"
+    aftermath_template: "你找了个树墩坐下，托着腮听老道人讲那些山外的事。他说南方有座剑山，山上修士御剑飞行，剑气纵横百里；他说东海有蛟龙，翻江倒海之时可令天地变色；他说九天之上有仙宫，仙人俯瞰众生，超脱轮回。你听得入了迷，直到月上枝头才依依不舍地回家。那些光怪陆离的故事像种子一样埋在了你心里。"
+  - id: "help_out"
+    text: "帮忙搭把手"
+    consequences:
+      cultivation_gain: 0
+      spirit_stones_gain: 0
+      tag_add:
+        - "state:diligent_child"
+    aftermath_template: "你见老道人的葫芦滚落在地，赶紧跑过去捡起来双手递还。他愣了一下，笑着接过葫芦，从怀里摸出一颗黑乎乎的药丸塞到你手里：'这是辟谷丹，三天不吃东西也不饿。拿着吧，算是还你的人情。'你如获至宝地攥着那颗药丸跑回家，心里美滋滋的。"

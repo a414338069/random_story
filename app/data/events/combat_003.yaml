@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 2000
   required_faction: null
 weight: 0.6
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "一位修士向你发起切磋邀请，你答应了..."
 fallback_narrative: "一位修士向你发起切磋邀请，你答应了，两人你来我往，各展所长。"
 default_options:

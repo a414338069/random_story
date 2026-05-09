@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 9999
   required_faction: null
 weight: 1.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你与同修论道切磋，互相印证修炼心得..."
 fallback_narrative: "与同道交流修炼心得，你受益匪浅，许多困惑迎刃而解。"
 default_options:

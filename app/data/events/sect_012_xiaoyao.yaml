@@ -1,0 +1,42 @@
+id: "sect_012_xiaoyao"
+type: "social"
+title: "逍遥酒会"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "化神"
+  min_age: 16
+  max_age: 500
+  required_faction: "逍遥派"
+weight: 0.6
+scenarios:
+  - faction_逍遥派
+  - faction_life
+  - freedom_path
+trigger_tags:
+  require_all:
+    - "identity:门派=逍遥派"
+  require_any: []
+  block: []
+event_tier: "L3"
+narrative_only: false
+prompt_template: "逍遥派的月下酒会是同门交流的最佳时机。明月当空，众弟子围坐在桃花林中对酌论道。师兄们正在争论一则玄妙的道题：'道在天地间，还是在方寸心间？'他们让你也说说看法。"
+fallback_narrative: "月下酒会，逍遥派同门围坐论道。'道在天地还是心间？'——每个人都给出自己的答案，现在轮到你了。"
+default_options:
+  - id: "opt1"
+    text: "道在天地间 — 顺应自然，天人合一"
+    consequences:
+      cultivation_gain: 15
+      spirit_stones_gain: 5
+      age_advance: true
+  - id: "opt2"
+    text: "道在方寸心间 — 一切外相皆由心生"
+    consequences:
+      cultivation_gain: 20
+      spirit_stones_gain: 0
+      age_advance: true
+  - id: "opt3"
+    text: "道在杯中酒 — 大笑道之所在，何须拘泥"
+    consequences:
+      cultivation_gain: 18
+      spirit_stones_gain: 10
+      age_advance: true

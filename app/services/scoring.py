@@ -1,10 +1,13 @@
 """Scoring service — ending determination, score calculation, and grade mapping.
-
+ 
 All functions are pure and deterministic (same inputs always produce same output).
 No AI involvement, no randomness.
 """
 
+from __future__ import annotations
+
 from app.models.player import PlayerState
+from app.models.tags import TagSet
 from app.services.realm_service import get_realm_config
 
 _GRADE_SCORE = {
@@ -50,8 +53,31 @@ def _has_infinite_lifespan(realm: str) -> bool:
     return config.get("lifespan") == "无限"
 
 
+def _calculate_tag_score(tags: TagSet | None) -> float:
+    """Calculate bonus score from character tags.
+
+    - Tag variety bonus: 2 points per distinct active category (max 8)
+    - Master lost bond: +5 points (tragic hero ending weight)
+    """
+    if not tags:
+        return 0.0
+
+    categories = {t.category for t in tags.tags if t.is_active}
+    tag_bonus = len(categories) * 2.0
+    tag_bonus = min(tag_bonus, 8.0)
+
+    master_lost = tags.get_by_key("bond_master_lost")
+    if master_lost:
+        tag_bonus += 5.0
+
+    return tag_bonus
+
+
 def determine_ending(
-    player_state: PlayerState, age: int, ascended: bool = False
+    player_state: PlayerState,
+    age: int,
+    ascended: bool = False,
+    tags: TagSet | None = None,
 ) -> str:
     """Determine ending type from player state and game context.
 
@@ -62,6 +88,11 @@ def determine_ending(
     """
     if ascended:
         return "飞升成仙"
+
+    if tags:
+        master_lost = tags.get_by_key("bond_master_lost")
+        if master_lost:
+            return "道心破碎"
 
     # Infinite lifespan (渡劫飞升) prevents natural death endings
     if _has_infinite_lifespan(player_state.realm):
@@ -82,14 +113,16 @@ def calculate_score(
     ending: str,
     age: int,
     technique_grades: list[str] | None = None,
+    tags: TagSet | None = None,
 ) -> int:
-    """Calculate final score (0-100) from 4 dimensions.
+    """Calculate final score (0-100) from 5 dimensions.
 
     Formula:
       - 境界分 (50%): (realm_order / max_order) * 50
       - 寿命分 (20%): min(age / lifespan, 1.0) * 20
       - 功法分 (20%): avg_technique_grade_score * 20
       - 结局分 (10%): ending_bonus * 10
+      - 标签分 (up to 13): tag variety + master_lost bonus
 
     technique_grades are explicit strings like "凡品"/"灵品"/"玄品"/"仙品".
     Pass empty list for no techniques.
@@ -117,7 +150,15 @@ def calculate_score(
     bonus = _ENDING_BONUS.get(ending, _ENDING_BONUS_DEFAULT)
     ending_component = bonus * 10
 
-    total = realm_component + lifespan_component + technique_component + ending_component
+    tag_component = _calculate_tag_score(tags)
+
+    total = (
+        realm_component
+        + lifespan_component
+        + technique_component
+        + ending_component
+        + tag_component
+    )
     return max(0, min(100, round(total)))
 
 

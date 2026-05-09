@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 9999
   required_faction: null
 weight: 1.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你发现了一处隐蔽的秘境入口，里面灵气极其浓郁..."
 fallback_narrative: "你在秘境中小心探索，发现了不少前人留下的修炼资源。"
 default_options:

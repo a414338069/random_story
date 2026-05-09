@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 12
   required_faction: null
 weight: 10.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "一个修仙宗门正在附近的城镇招收弟子，你决定前去一试..."
 fallback_narrative: "你参加了宗门的入门考核，虽然资质平平，但你的毅力打动了长老。"
 default_options:

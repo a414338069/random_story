@@ -1,6 +1,6 @@
 id: "childhood_001"
-type: "narrative"
-narrative_only: true
+type: "childhood"
+narrative_only: false
 title: "童年启蒙"
 trigger_conditions:
   min_realm: "凡人"
@@ -9,6 +9,23 @@ trigger_conditions:
   max_age: 8
   required_faction: null
 weight: 8.0
+scenarios:
+  - childhood
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
 prompt_template: "你已经{age}岁了。描述你童年时期的一个场景——是否展现出与众不同之处？村里的老人或游方道人是否注意到了你？你的性格特点如何体现？200字以内，第二人称。"
 fallback_narrative: "你渐渐长大，村里的孩子们都在嬉戏玩耍，你却总喜欢一个人蹲在山脚下，静静感受着什么。有时候你能看到空气中飘浮的细小光点——别人说那是萤火虫，但你知道那不是。一个云游的老道士路过村子时，看了你一眼，停下了脚步。"
-default_options: []
+default_options:
+  - id: "opt1"
+    text: "跟着老道士学认字 — 也许能解开那些光点的秘密"
+    consequences:
+      cultivation_gain: 2
+      age_advance: true
+  - id: "opt2"
+    text: "继续在山脚下独处 — 静静地感受那些光点"
+    consequences:
+      cultivation_gain: 3
+      age_advance: true

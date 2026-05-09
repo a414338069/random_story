@@ -58,6 +58,9 @@ def load_templates() -> list[dict]:
         with open(path, "r", encoding="utf-8") as f:
             template = yaml.safe_load(f)
             if isinstance(template, dict):
+                template.setdefault("scenarios", [])
+                template.setdefault("trigger_tags", {"require_all": [], "require_any": [], "block": []})
+                template.setdefault("event_tier", "L3")
                 templates.append(template)
     _templates_cache = templates
     return _templates_cache
@@ -161,9 +164,9 @@ def filter_templates(templates: list[dict], player_state: dict) -> list[dict]:
         if cond.get("requires_any_faction", False) and not player_faction:
             continue
 
-        # Life-stage filtering
+        # Life-stage filtering: children (<12) get childhood/birth events or narrative-only events
         if player_age < 12:
-            if not t.get("narrative_only", False):
+            if not t.get("narrative_only", False) and t.get("type", "") not in ("childhood", "birth"):
                 continue
         elif player_age <= 15:
             if t.get("type") == "adventure":
@@ -177,6 +180,38 @@ def filter_templates(templates: list[dict], player_state: dict) -> list[dict]:
 
         result.append(t)
 
+    player_tags = player_state.get("tags")
+    if player_tags and hasattr(player_tags, 'get_by_key'):
+        tag_filtered = []
+        for t in result:
+            trigger = t.get("trigger_tags")
+            if not trigger or (
+                not trigger.get("require_all")
+                and not trigger.get("require_any")
+                and not trigger.get("block")
+            ):
+                tag_filtered.append(t)
+                continue
+
+            blocked = any(
+                player_tags.get_by_key(k) for k in trigger.get("block", [])
+            )
+            if blocked:
+                continue
+
+            all_required = trigger.get("require_all", [])
+            if all_required and not all(player_tags.get_by_key(k) for k in all_required):
+                continue
+
+            any_required = trigger.get("require_any", [])
+            if any_required and not any(player_tags.get_by_key(k) for k in any_required):
+                continue
+
+            tag_filtered.append(t)
+        result = tag_filtered
+
+    if not result:
+        return [FALLBACK_EVENT.copy()]
     return result
 
 
@@ -187,6 +222,7 @@ def calculate_weights(
     cultivation = player_state.get("cultivation", 0)
     realm = player_state.get("realm", "")
     player_age = player_state.get("age", 0)
+    consecutive_events = player_state.get("consecutive_events", 0)
 
     youth_weight_factor = 0.7 if 12 <= player_age <= 15 else 1.0
 
@@ -195,6 +231,9 @@ def calculate_weights(
         event_type = t.get("type", "daily")
         if event_type == "daily":
             weight = 1.0
+            # 连续多次事件后降低日常事件权重，推动出现非日常事件
+            if should_force_non_daily(consecutive_events, threshold=3):
+                weight *= 0.3
         elif event_type == "adventure":
             weight = 0.3 + luck * 0.05
         elif event_type == "bottleneck":
@@ -208,6 +247,14 @@ def calculate_weights(
             weight = 1.0
 
         weight *= youth_weight_factor
+
+        player_tags = player_state.get("tags")
+        if player_tags and hasattr(player_tags, 'get_by_key'):
+            req_all = t.get("trigger_tags", {}).get("require_all", [])
+            if req_all:
+                matched = sum(1 for k in req_all if player_tags.get_by_key(k))
+                weight += matched * 0.1
+
         weighted.append((t, weight))
 
     return weighted

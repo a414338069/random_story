@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 400
   required_faction: null
 weight: 0.6
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你来到坊市，各种灵物丹药琳琅满目..."
 fallback_narrative: "你来到坊市，各种灵物丹药琳琅满目，吆喝声此起彼伏，好不热闹。"
 default_options:

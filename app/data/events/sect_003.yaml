@@ -9,6 +9,12 @@ trigger_conditions:
   required_faction: null
   requires_any_faction: true
 weight: 0.3
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你获得了参加内门弟子晋升考核的资格。考核分为：生死擂台赛、丹道炼器二选一、以及长老面试。你需要选择主攻方向。"
 fallback_narrative: "内门晋升考核在即，三大试炼：生死擂台、丹道炼器、长老面试。你必须选择主攻方向。"
 default_options:

@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 50
   required_faction: null
 weight: 0.7
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你在山间采到了一些灵草，可以拿到镇上换些灵石..."
 fallback_narrative: "你在山间采到了一些灵草，可以拿到镇上换些灵石，贴补修炼所需。"
 default_options:

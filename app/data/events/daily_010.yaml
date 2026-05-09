@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 9999
   required_faction: null
 weight: 1.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你在山中采集药草，发现了几株罕见的灵药..."
 fallback_narrative: "你在深山中采集到了不少珍稀灵药，准备带回丹房炼制。"
 default_options:

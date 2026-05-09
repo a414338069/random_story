@@ -5,6 +5,27 @@ export interface Attributes {
   luck: number
 }
 
+// === Tag System & Story Memory ===
+export type TagCategory = 'identity' | 'skill' | 'bond' | 'state'
+
+export interface Tag {
+  category: TagCategory
+  key: string
+  value: string
+  description: string
+  years_active: number
+  priority: number
+  is_active: boolean
+}
+
+export interface StoryMemory {
+  event_id: string
+  summary: string
+  tags_involved: string[]
+  happened_at_age: number
+  emotional_weight: number
+}
+
 export interface PlayerStatePydantic {
   id: string
   name: string
@@ -32,6 +53,8 @@ export interface PlayerStatePydantic {
   last_active_at: string | null
   created_at: string
   updated_at: string
+  tags?: Tag[]
+  story_memory?: StoryMemory[]
 }
 
 export interface GameStateDict {
@@ -53,6 +76,8 @@ export interface GameStateDict {
   is_alive: boolean
   event_count: number
   ascended: boolean
+  tags?: Tag[]
+  story_memory?: StoryMemory[]
 }
 
 export interface NormalizedGameState {
@@ -75,6 +100,8 @@ export interface NormalizedGameState {
   ascended: boolean
   score: number
   endingId: string | null
+  tags?: Tag[]
+  story_memory?: StoryMemory[]
 }
 
 export interface TalentCard {
@@ -190,4 +217,4 @@ export interface EventHistoryEntry {
   aftermath: AftermathData | null
 }
 
-export type LoopPhase = 'idle' | 'fetching' | 'typing' | 'waiting_click' | 'choosing' | 'breakthrough_choosing' | 'submitting' | 'aftermath' | 'gameover'
+export type LoopPhase = 'idle' | 'fetching' | 'streaming' | 'typing' | 'waiting_click' | 'choosing' | 'breakthrough_choosing' | 'submitting' | 'aftermath' | 'degraded' | 'gameover'

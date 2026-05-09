@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 20000
   required_faction: null
 weight: 0.2
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "修为达到一定境界后，你对天地大道有了新的感悟..."
 fallback_narrative: "修为达到一定境界后，你对天地大道有了新的感悟，仿佛触到了更高层次的门槛。"
 default_options:

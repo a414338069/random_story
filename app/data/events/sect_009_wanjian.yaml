@@ -1,0 +1,42 @@
+id: "sect_009_wanjian"
+type: "adventure"
+title: "剑崖悟道"
+trigger_conditions:
+  min_realm: "金丹"
+  max_realm: "合体"
+  min_age: 50
+  max_age: 800
+  required_faction: "万剑山庄"
+weight: 0.5
+scenarios:
+  - faction_万剑山庄
+  - faction_life
+  - sword_ritual
+trigger_tags:
+  require_all:
+    - "identity:门派=万剑山庄"
+  require_any: []
+  block: []
+event_tier: "L3"
+narrative_only: false
+prompt_template: "万剑山庄后山的剑崖上，刻满了历代剑仙留下的剑痕。每一道剑痕都蕴含着一式绝世剑法。你站在崖前，感应到三道剑意与你产生共鸣——一道霸道凌厉，一道飘逸出尘，一道厚重如山。"
+fallback_narrative: "剑崖之上，三道剑意与你共鸣：霸道剑意欲摧山断岳，飘逸剑意如云卷云舒，厚重剑意似大地沉凝。你需要选择一道剑意参悟。"
+default_options:
+  - id: "opt1"
+    text: "参悟霸道剑意 — 以攻为守，一剑破万法"
+    consequences:
+      cultivation_gain: 40
+      spirit_stones_gain: 0
+      age_advance: true
+  - id: "opt2"
+    text: "参悟飘逸剑意 — 身剑合一，无迹可寻"
+    consequences:
+      cultivation_gain: 30
+      spirit_stones_gain: 15
+      age_advance: true
+  - id: "opt3"
+    text: "参悟厚重剑意 — 以拙胜巧，大巧不工"
+    consequences:
+      cultivation_gain: 35
+      spirit_stones_gain: 5
+      age_advance: true

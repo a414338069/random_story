@@ -9,6 +9,12 @@ trigger_conditions:
   required_faction: null
   requires_any_faction: true
 weight: 0.5
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "宗门一年一度的考核开始了。你所在门派的师兄弟们摩拳擦掌，长老们严肃地注视着众人。考核分为三关：阵法、剑术和丹道。你必须选择一关主攻。"
 fallback_narrative: "宗门一年一度的考核开始了，三关试炼在即：阵法、剑术、丹道。你必须选择一关主攻。"
 default_options:

@@ -12,6 +12,8 @@ import sqlite3
 from datetime import datetime, timezone
 
 from app.database import get_db
+from app.models.memory import StoryMemorySet
+from app.models.tags import TagSet
 
 _JSON_COLUMNS = frozenset({"talent_ids", "techniques", "inventory", "technique_grades"})
 
@@ -33,9 +35,31 @@ def _deserialise_json_fields(row: dict) -> dict:
     return row
 
 
+def _deserialize_json_value(val: str | None) -> dict | list | str | None:
+    """Try to parse a JSON string value, returning the original string on failure."""
+    if isinstance(val, str):
+        try:
+            return json.loads(val)
+        except (json.JSONDecodeError, TypeError):
+            return val
+    return val
+
+
 def _state_to_db_row(state: dict) -> dict:
     """Flatten a game_service state dict into a row for the ``players`` table."""
     attrs = state.get("attributes", {})
+
+    tags = state.get("tags")
+    if isinstance(tags, TagSet):
+        tags = tags.model_dump_json()
+    elif isinstance(tags, dict):
+        tags = json.dumps(tags, ensure_ascii=False)
+
+    story_memory = state.get("story_memory")
+    if isinstance(story_memory, StoryMemorySet):
+        story_memory = story_memory.model_dump_json()
+    elif isinstance(story_memory, dict):
+        story_memory = json.dumps(story_memory, ensure_ascii=False)
 
     return {
         "id": state["session_id"],
@@ -68,6 +92,8 @@ def _state_to_db_row(state: dict) -> dict:
         "technique_grades": list(state.get("technique_grades", [])),
         "_pending_breakthrough": 1 if state.get("_pending_breakthrough", False) else 0,
         "_breakthrough_next_req": state.get("_breakthrough_next_req", 0.0),
+        "tags": tags,
+        "story_memory": story_memory,
     }
 
 
@@ -113,6 +139,8 @@ def _db_row_to_state(row: sqlite3.Row) -> dict:
         "save_slot": d.get("save_slot", 0),
         "_pending_breakthrough": bool(d.get("_pending_breakthrough", 0)),
         "_breakthrough_next_req": d.get("_breakthrough_next_req", 0.0),
+        "tags": _deserialize_json_value(d.get("tags")),
+        "story_memory": _deserialize_json_value(d.get("story_memory")),
     }
 
 

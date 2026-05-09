@@ -108,4 +108,24 @@ def init_db(db=None):
                 )
         db.execute("PRAGMA user_version = 2")
 
+    # Migration v2 → v3: add tags and story_memory columns to players
+    if version < 3:
+        players_exists = (
+            db.execute(
+                "SELECT name FROM sqlite_master "
+                "WHERE type='table' AND name='players'"
+            ).fetchone()
+            is not None
+        )
+        if players_exists:
+            table_info = db.execute("PRAGMA table_info(players)").fetchall()
+            columns = {row[1] for row in table_info}
+            if "tags" not in columns:
+                db.execute("ALTER TABLE players ADD COLUMN tags TEXT DEFAULT NULL")
+            if "story_memory" not in columns:
+                db.execute(
+                    "ALTER TABLE players ADD COLUMN story_memory TEXT DEFAULT NULL"
+                )
+        db.execute("PRAGMA user_version = 3")
+
     return db

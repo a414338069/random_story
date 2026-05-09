@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 3500
   required_faction: null
 weight: 0.4
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "天降异象，七彩祥云笼罩天地，似乎有绝世宝物出世..."
 fallback_narrative: "天地异象降临，你循着灵气的指引找到了一件上古至宝的线索。"
 default_options:

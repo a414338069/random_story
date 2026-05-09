@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 500
   required_faction: null
 weight: 0.4
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你的师父将毕生所学倾囊相授，你心中既感动又沉重..."
 fallback_narrative: "你的师父将毕生所学倾囊相授，你心中既感动又沉重，暗下决心不负师恩。"
 default_options:

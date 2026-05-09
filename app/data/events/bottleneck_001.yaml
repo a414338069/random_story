@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 100
   required_faction: null
 weight: 2.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你感觉体内有灵气汇聚，似乎到了突破的边缘..."
 fallback_narrative: "你全力冲击瓶颈，经脉在灵气的冲击下拓宽了几分，距离突破不远了。"
 default_options:

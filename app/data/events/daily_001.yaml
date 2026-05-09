@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 15
   required_faction: null
 weight: 1.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你是一个{age}岁的凡人少年，在山间劳作..."
 fallback_narrative: "你每日砍柴挑水，虽然辛苦但也锻炼了体魄，隐约感受到天地间灵气的存在。"
 default_options:

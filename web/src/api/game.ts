@@ -10,6 +10,7 @@ import type {
   EndGameResponse,
   LeaderboardEntry,
   BreakthroughInfo,
+  EventOption,
 } from '@/core/types'
 
 export async function startGame(
@@ -64,4 +65,18 @@ export async function endGame(sessionId: string): Promise<EndGameResponse> {
 
 export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
   return await apiRequest('/api/v1/game/leaderboard')
+}
+
+/**
+ * SSE streaming stub for Phase 4.
+ * Consumes the event endpoint as a Server-Sent Events stream.
+ * Falls back to getEvent() when not implemented.
+ */
+export async function getEventStream(
+  _sessionId: string,
+  _onChunk: (text: string) => void,
+  _onOptions: (options: EventOption[]) => void,
+  _signal?: AbortSignal
+): Promise<void> {
+  throw new Error('SSE streaming not yet implemented (Phase 4)')
 }

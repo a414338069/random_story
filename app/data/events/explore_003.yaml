@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 150
   required_faction: null
 weight: 0.5
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你在一处幽谷中发现了一汪灵泉，泉水散发着淡淡的灵光..."
 fallback_narrative: "你在一处幽谷中发现了一汪灵泉，泉水散发着淡淡的灵光，周围灵气浓郁得几乎化为实质。"
 default_options:

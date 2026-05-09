@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 1000
   required_faction: null
 weight: 0.3
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "一个神秘的商人找到你，声称有一笔有利可图的交易..."
 fallback_narrative: "一个神秘的商人找到你，声称有一笔有利可图的交易，眼神闪烁不定。"
 default_options:

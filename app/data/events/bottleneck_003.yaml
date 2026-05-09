@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 500
   required_faction: null
 weight: 2.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你丹田中的灵力已经饱和，结丹的时机已经成熟..."
 fallback_narrative: "你将全身灵力汇聚丹田，凝气成液、聚液成丹，向金丹大道迈出关键一步。"
 default_options:

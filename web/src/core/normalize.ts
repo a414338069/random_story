@@ -26,6 +26,8 @@ export function normalizeFromPydantic(state: PlayerStatePydantic): NormalizedGam
     ascended: false,
     score: state.score,
     endingId: state.ending_id,
+    tags: state.tags,
+    story_memory: state.story_memory,
   }
 }
 
@@ -55,5 +57,7 @@ export function normalizeFromDict(state: GameStateDict): NormalizedGameState {
     ascended: state.ascended,
     score: 0,
     endingId: null,
+    tags: state.tags,
+    story_memory: state.story_memory,
   }
 }

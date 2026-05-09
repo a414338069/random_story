@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 9999
   required_faction: null
 weight: 0.4
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "大地震动，一条灵脉在你脚下喷发，浓郁的灵气弥漫四周..."
 fallback_narrative: "灵脉喷发出的精纯灵气洗涤你的全身，修为突飞猛进。"
 default_options:

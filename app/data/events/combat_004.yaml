@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 400
   required_faction: null
 weight: 0.4
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "一位商队掌柜请你护送一批货物通过妖兽出没的山谷..."
 fallback_narrative: "一位商队掌柜请你护送一批货物通过妖兽出没的山谷，报酬颇为丰厚。"
 default_options:

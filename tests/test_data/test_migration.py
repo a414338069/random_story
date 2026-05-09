@@ -100,7 +100,7 @@ class TestDBMigration:
             init_db(conn)
 
             v_after = conn.execute("PRAGMA user_version").fetchone()[0]
-            assert v_after == 2
+            assert v_after == 3
             conn.close()
         finally:
             if os.path.exists(db_path):
@@ -125,7 +125,7 @@ class TestDBMigration:
             conn = get_db(db_path)
             init_db(conn)
             v = conn.execute("PRAGMA user_version").fetchone()[0]
-            assert v == 2
+            assert v == 3
             conn.close()
         finally:
             if os.path.exists(db_path):
@@ -145,7 +145,7 @@ class TestDBMigration:
                 assert col in cols, f"{col} should exist in new DB"
 
             v = conn.execute("PRAGMA user_version").fetchone()[0]
-            assert v == 2
+            assert v == 3
             conn.close()
         finally:
             if os.path.exists(db_path):
@@ -261,7 +261,7 @@ class TestEventLogsMigration:
             conn = get_db(db_path)
             init_db(conn)
             v = conn.execute("PRAGMA user_version").fetchone()[0]
-            assert v == 2
+            assert v == 3
             conn.close()
         finally:
             if os.path.exists(db_path):
@@ -281,14 +281,14 @@ class TestEventLogsMigration:
                 assert col in cols, f"{col} should exist in new DB"
 
             v = conn.execute("PRAGMA user_version").fetchone()[0]
-            assert v == 2
+            assert v == 3
             conn.close()
         finally:
             if os.path.exists(db_path):
                 os.unlink(db_path)
 
-    def test_migration_sets_user_version_to_2(self):
-        """Old-schema DB after migration has PRAGMA user_version = 2."""
+    def test_migration_sets_user_version_to_current(self):
+        """Old-schema DB after migration has PRAGMA user_version = 3."""
         db_path = os.path.join(tempfile.gettempdir(), "test_event_logs_migration_ver.db")
         try:
             conn = get_db(db_path)
@@ -305,7 +305,7 @@ class TestEventLogsMigration:
             init_db(conn)
 
             v_after = conn.execute("PRAGMA user_version").fetchone()[0]
-            assert v_after == 2
+            assert v_after == 3
             conn.close()
         finally:
             if os.path.exists(db_path):

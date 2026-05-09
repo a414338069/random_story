@@ -9,6 +9,12 @@ trigger_conditions:
   max_age: 16
   required_faction: null
 weight: 7.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你{age}岁了。多年来对灵气的模糊感知越来越清晰，你隐约意识到这个世界上存在着超越凡人的力量。今天你在后山遇到了一件奇事——一块巨石上浮现出淡金色的符文。你面临一个选择：是尝试触碰那些符文，还是先回去告诉家人？用200字以内描写这个场景和你的内心挣扎，第二人称。"
 fallback_narrative: "你{age}岁了。这些年你越来越清晰地感知到天地间流动的灵气，那种感觉像是有什么东西在你的血脉中苏醒。今天你又独自来到后山，却发现平日里那块寻常的巨石表面浮现出一层淡金色的符文，在阳光下若隐若现。你伸出手，指尖离石面只有一寸之遥，心中既兴奋又忐忑——你知道，一旦踏出这一步，你的人生将彻底不同。"
 default_options:

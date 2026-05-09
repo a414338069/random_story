@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 2000
   required_faction: null
 weight: 1.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你身为{age}岁的化神大能，距离飞升又近一步..."
 fallback_narrative: "你端坐于云端之上，神识融入天地法则，感悟大道玄妙。"
 default_options:

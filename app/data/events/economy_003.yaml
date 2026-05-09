@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 150
   required_faction: null
 weight: 0.5
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你获得了一批炼丹材料，尝试自己炼制一炉丹药..."
 fallback_narrative: "你获得了一批炼丹材料，尝试自己炼制一炉丹药，成败在此一举。"
 default_options:

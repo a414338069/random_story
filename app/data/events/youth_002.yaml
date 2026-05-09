@@ -9,6 +9,12 @@ trigger_conditions:
   max_age: 16
   required_faction: null
 weight: 6.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你{age}岁了。一位游方修士路过你们村子，你察觉到他身上有和后山灵气相似却又浓郁百倍的气息。他似乎也注意到了你。你面临选择：是鼓起勇气上前请求拜师，还是默默观察等待时机？200字以内，第二人称。"
 fallback_narrative: "你{age}岁了。一位身穿青灰道袍的中年人路过村子，在村口茶摊歇脚。旁人只当他是个普通道士，你却感到他周身萦绕着一股令人窒息的灵压——比后山的灵气浓郁了不知多少倍。他似乎察觉到了你的注视，微微侧头看了你一眼，嘴角浮现一丝意味深长的笑。你的心跳加速了。"
 default_options:

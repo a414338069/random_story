@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 200
   required_faction: null
 weight: 0.5
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你在野外发现了一处古修洞府的遗迹，禁制已经松动..."
 fallback_narrative: "你发现了一处上古修士留下的洞府，在里面找到了珍贵的功法残篇。"
 default_options:

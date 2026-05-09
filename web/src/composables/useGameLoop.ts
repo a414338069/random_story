@@ -68,7 +68,7 @@ export function useGameLoop() {
 
       // After typewriter finishes, decide next phase
       if (event.is_breakthrough) {
-        // Breakthrough event: show options (use_pill / direct)
+        // Breakthrough event: show dynamic options from API
         setPhase('breakthrough_choosing')
         entry.phase = 'breakthrough_choosing'
       } else if (event.has_options) {
@@ -135,7 +135,9 @@ export function useGameLoop() {
       if (!result.state.isAlive) {
         setTimeout(() => handleGameOver(), 2500)
       } else {
-        entry.phase = 'done'
+        if (entry) {
+          entry.phase = 'done'
+        }
         setPhase('waiting_click')
         if (!aftermath.value?.breakthrough) {
           setTimeout(() => {

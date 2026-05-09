@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 2000
   required_faction: null
 weight: 0.4
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "一位前辈高人路过，见你根基不错，随口点拨了几句..."
 fallback_narrative: "一位前辈高人路过，见你根基不错，随口点拨了几句，令你茅塞顿开。"
 default_options:

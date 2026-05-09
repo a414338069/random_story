@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 400
   required_faction: null
 weight: 0.5
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "修行者公会上张贴了一份悬赏任务..."
 fallback_narrative: "修行者公会上张贴了一份悬赏任务，完成者可获得丰厚的灵石报酬。"
 default_options:

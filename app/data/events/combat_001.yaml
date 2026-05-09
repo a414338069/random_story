@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 100
   required_faction: null
 weight: 0.5
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "一头妖兽突然从林中窜出，向你扑来..."
 fallback_narrative: "一头妖兽突然从林中窜出，向你扑来，你不得不全力应对这场突如其来的战斗。"
 default_options:

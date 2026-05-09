@@ -9,6 +9,12 @@ trigger_conditions:
   max_age: 1
   required_faction: null
 weight: 10.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你满周岁了。描述抓周场景和家中的氛围——你抓了什么？家人的反应？有没有展现出什么不凡的天赋迹象？200字以内，第二人称。"
 fallback_narrative: "转眼你已满周岁。家中摆了抓周礼，面前摆满了书本、算盘、小木剑、草药等物。你不假思索，一把抓起了那本泛黄的古书，又好奇地摸了摸旁边的小木剑。父亲与你对视一眼，若有所思。"
 default_options: []

@@ -1,0 +1,42 @@
+id: "sect_013_jingang"
+type: "daily"
+title: "禅坐入定"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "渡劫飞升"
+  min_age: 16
+  max_age: 500
+  required_faction: "金刚寺"
+weight: 0.7
+scenarios:
+  - faction_金刚寺
+  - faction_life
+  - monastic_life
+trigger_tags:
+  require_all:
+    - "identity:门派=金刚寺"
+  require_any: []
+  block: []
+event_tier: "L3"
+narrative_only: false
+prompt_template: "金刚寺的达摩堂中，檀香缭绕。首座让你在三种禅修方式中选择：面壁观心、行脚参禅、或是翻经悟法。每种修行都能锤炼不同的心境与体魄。"
+fallback_narrative: "达摩堂中檀香阵阵，首座让你在面壁观心、行脚参禅、翻经悟法三种修行中选择一条路。"
+default_options:
+  - id: "opt1"
+    text: "面壁观心 — 内观自性，破除心魔"
+    consequences:
+      cultivation_gain: 25
+      spirit_stones_gain: 0
+      age_advance: true
+  - id: "opt2"
+    text: "行脚参禅 — 以肉身之苦锤炼道心"
+    consequences:
+      cultivation_gain: 20
+      spirit_stones_gain: 5
+      age_advance: true
+  - id: "opt3"
+    text: "翻经悟法 — 从佛经中寻得智慧"
+    consequences:
+      cultivation_gain: 18
+      spirit_stones_gain: 10
+      age_advance: true

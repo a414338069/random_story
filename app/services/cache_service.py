@@ -2,12 +2,15 @@
 from __future__ import annotations
 
 import json
+import logging
 import time
 from collections import OrderedDict
 from typing import Optional
 
 _MAX_LRU_SIZE = 100
 _TTL_SECONDS = 1800  # 30 分钟
+
+_logger = logging.getLogger(__name__)
 
 # 内存 LRU 缓存
 _lru_cache: OrderedDict[str, tuple[str, float]] = OrderedDict()  # key → (response_json, timestamp)
@@ -48,7 +51,7 @@ def get_cached(template_id: str, realm: str, category: str = "", db=None) -> Opt
                 db.execute("DELETE FROM ai_cache WHERE cache_key = ?", (key,))
                 db.commit()
         except Exception:
-            pass
+            _logger.warning("缓存查询或清理异常: key=%s", key)
 
     return None
 
@@ -77,7 +80,7 @@ def set_cached(template_id: str, realm: str, category: str, response: dict, db=N
             )
             db.commit()
         except Exception:
-            pass
+            _logger.warning("缓存写入异常: key=%s", key)
 
 
 def clear_cache() -> None:

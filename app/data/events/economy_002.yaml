@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 1000
   required_faction: null
 weight: 0.3
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "一场百年一遇的大型拍卖会即将开始，各路修士云集..."
 fallback_narrative: "一场百年一遇的大型拍卖会即将开始，各路修士云集，珍奇宝物层出不穷。"
 default_options:

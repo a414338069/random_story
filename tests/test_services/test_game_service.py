@@ -9,6 +9,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from app.database import get_db
+from app.models.tags import Tag, TagCategory, TagSet
+from app.models.memory import StoryMemorySet
 from app.services.breakthrough import BreakthroughResult
 from app.services.game_service import (
     start_game,
@@ -22,6 +24,8 @@ from app.services.game_service import (
     _build_ai_prompt,
     _check_breakthrough_warning,
     _handle_cultivation_overflow,
+    _bootstrap_tags,
+    _ensure_tags_and_memory,
     _games,
 )
 
@@ -837,4 +841,168 @@ class TestHandleBreakthroughChoice:
         random.seed(2)
         handle_breakthrough_choice(_games[sid], use_pill=False)
         assert "_pending_breakthrough" not in _games[sid]
+
+
+class TestOldSaveTagBootstrap:
+
+    def test_bootstrap_tags_creates_identity_tags(self):
+        state = {
+            "name": "测试角色",
+            "gender": "男",
+            "age": 25,
+            "realm": "筑基",
+            "faction": "",
+            "techniques": [],
+            "inventory": [],
+        }
+        tags = _bootstrap_tags(state)
+
+        name_tag = tags.get_by_key("name")
+        assert name_tag is not None
+        assert "测试角色" in name_tag.value
+
+        gender_tag = tags.get_by_key("gender")
+        assert gender_tag is not None
+        assert "男" in gender_tag.value
+
+    def test_bootstrap_creates_faction_tag_when_present(self):
+        state = {
+            "name": "剑修",
+            "gender": "男",
+            "age": 30,
+            "realm": "金丹",
+            "faction": "万剑山庄",
+            "techniques": [],
+            "inventory": [],
+        }
+        tags = _bootstrap_tags(state)
+
+        faction_tag = tags.get_by_key("faction")
+        assert faction_tag is not None
+        assert "万剑山庄" in faction_tag.value
+        assert faction_tag.category == TagCategory.IDENTITY
+
+    def test_bootstrap_creates_identity_for_no_faction(self):
+        state = {
+            "name": "散修",
+            "gender": "女",
+            "age": 18,
+            "realm": "凡人",
+            "faction": "",
+            "techniques": [],
+            "inventory": [],
+        }
+        tags = _bootstrap_tags(state)
+
+        identity_tag = tags.get_by_key("identity")
+        assert identity_tag is not None
+        assert identity_tag.value == "散修"
+
+    def test_bootstrap_creates_technique_tags(self):
+        state = {
+            "name": "武修",
+            "gender": "男",
+            "age": 22,
+            "realm": "炼气",
+            "faction": "",
+            "techniques": ["万剑诀", "逍遥游"],
+            "inventory": [],
+        }
+        tags = _bootstrap_tags(state)
+
+        tech1 = tags.get_by_key("tech_万剑诀")
+        assert tech1 is not None
+        assert tech1.category == TagCategory.SKILL
+
+        tech2 = tags.get_by_key("tech_逍遥游")
+        assert tech2 is not None
+        assert tech2.category == TagCategory.SKILL
+
+    def test_bootstrap_creates_inventory_tags(self):
+        state = {
+            "name": "富商",
+            "gender": "男",
+            "age": 35,
+            "realm": "筑基",
+            "faction": "",
+            "techniques": [],
+            "inventory": ["聚灵丹", "筑基丹"],
+        }
+        tags = _bootstrap_tags(state)
+
+        item1 = tags.get_by_key("item_聚灵丹")
+        assert item1 is not None
+        assert item1.category == TagCategory.STATE
+
+        item2 = tags.get_by_key("item_筑基丹")
+        assert item2 is not None
+
+    def test_bootstrap_creates_realm_tag(self):
+        state = {
+            "name": "仙人",
+            "gender": "男",
+            "age": 100,
+            "realm": "元婴",
+            "faction": "青云宗",
+            "techniques": [],
+            "inventory": [],
+        }
+        tags = _bootstrap_tags(state)
+
+        realm_tag = tags.get_by_key("realm_current")
+        assert realm_tag is not None
+        assert realm_tag.category == TagCategory.STATE
+        assert "元婴" in realm_tag.value
+
+    def test_ensure_tags_and_memory_bootstraps_missing_tags(self):
+        state = {
+            "session_id": "test-old-save",
+            "name": "旧档角色",
+            "gender": "女",
+            "age": 42,
+            "realm": "化神",
+            "faction": "万剑山庄",
+            "techniques": ["万剑诀"],
+            "inventory": ["破境丹"],
+            "attributes": {"rootBone": 5, "comprehension": 3, "mindset": 1, "luck": 1},
+            "cultivation": 0,
+            "spirit_stones": 0,
+            "lifespan": 500,
+            "is_alive": True,
+            "event_count": 10,
+        }
+        _ensure_tags_and_memory(state)
+
+        assert isinstance(state["tags"], TagSet)
+        assert isinstance(state["story_memory"], StoryMemorySet)
+
+        tags = state["tags"]
+        assert tags.get_by_key("name") is not None
+        assert tags.get_by_key("faction") is not None
+        assert tags.get_by_key("realm_current") is not None
+
+    def test_ensure_tags_noop_when_tags_exist(self):
+        existing_tags = _bootstrap_tags({
+            "name": "已有标签", "gender": "男", "age": 20,
+            "realm": "凡人", "faction": "", "techniques": [], "inventory": [],
+        })
+        state = {
+            "session_id": "test-existing",
+            "tags": existing_tags,
+            "story_memory": StoryMemorySet(),
+            "name": "已有标签",
+            "age": 20,
+        }
+        _ensure_tags_and_memory(state)
+        assert state["tags"] is existing_tags
+
+    def test_bootstrap_handles_empty_techniques(self):
+        state = {
+            "name": "小白", "gender": "女", "age": 10,
+            "realm": "凡人", "faction": "",
+            "techniques": [], "inventory": [],
+        }
+        tags = _bootstrap_tags(state)
+        skills = tags.get_by_category(TagCategory.SKILL)
+        assert len(skills) == 0
 

@@ -9,6 +9,12 @@ trigger_conditions:
   required_faction: null
   requires_any_faction: true
 weight: 0.6
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "宗门长老召见你，布置了一项关键任务：护送一批灵药穿过妖兽横行的山谷。同行的还有一位你不太信任的师弟。"
 fallback_narrative: "宗门长老召见你，布置了护送灵药穿过妖兽山谷的任务。与你同行的是一位来历不明的师弟。"
 default_options:

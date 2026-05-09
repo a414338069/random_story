@@ -1,0 +1,42 @@
+id: "sect_014_jingang"
+type: "daily"
+title: "金刚锻体"
+trigger_conditions:
+  min_realm: "炼气"
+  max_realm: "化神"
+  min_age: 16
+  max_age: 500
+  required_faction: "金刚寺"
+weight: 0.8
+scenarios:
+  - faction_金刚寺
+  - faction_life
+  - monastic_life
+trigger_tags:
+  require_all:
+    - "identity:门派=金刚寺"
+  require_any: []
+  block: []
+event_tier: "L3"
+narrative_only: false
+prompt_template: "金刚寺的锻体台上，武僧们正在以各种方式锤炼肉身。首座交给你三个选择：以铜人阵锤炼筋骨、在瀑布下承受水流冲击、或是进入地火室引地火淬体。每一种都能让你的金刚不坏体更上一层。"
+fallback_narrative: "锻体台上三途选一：铜人阵锤炼筋骨、瀑布冲击磨砺肉身、地火室淬炼经脉。每种修行都伴随着痛苦与收获。"
+default_options:
+  - id: "opt1"
+    text: "闯铜人阵 — 以拳脚硬撼铜人，锤炼筋骨"
+    consequences:
+      cultivation_gain: 28
+      spirit_stones_gain: 0
+      age_advance: true
+  - id: "opt2"
+    text: "瀑布冲击 — 以肉身承受千钧水流"
+    consequences:
+      cultivation_gain: 22
+      spirit_stones_gain: 5
+      age_advance: true
+  - id: "opt3"
+    text: "地火淬体 — 引地火入经脉，涅槃重生"
+    consequences:
+      cultivation_gain: 35
+      spirit_stones_gain: 0
+      age_advance: true

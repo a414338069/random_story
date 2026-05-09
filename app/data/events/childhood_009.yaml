@@ -9,6 +9,12 @@ trigger_conditions:
   max_age: 10
   required_faction: null
 weight: 7.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你{age}岁了。你在溪边或田埂上捡到了一块奇怪的石头——它比普通石头温暖，隐约散发着微光。描述你发现石头的过程和它带给你的奇异感受。这块石头似乎和你有某种联系。200字以内，第二人称。"
 fallback_narrative: "你{age}岁了。那天午后你独自在溪边玩耍，脚下一滑差点摔倒，手却摸到了一块嵌在泥里的石头。你把它挖出来洗净，发现这块石头通体温润如玉，比鹅蛋略小，表面隐隐有流光浮动。你握在掌心，一阵暖意从石头传入身体，舒服得让你不想放手。从那以后你把石头藏在枕头底下，夜里握着它睡觉时，总能做一个格外清晰的梦——梦里有一片无边无际的星空，而你正漂浮其中。"
 default_options: []

@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 1200
   required_faction: null
 weight: 0.5
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "宗门百年一度的论剑大会即将开始，各路高手云集..."
 fallback_narrative: "你在论剑大会上连战连捷，名声大噪，也获得了丰厚的修炼资源。"
 default_options:

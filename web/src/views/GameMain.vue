@@ -86,7 +86,7 @@ const displayAftermath = computed(() => currentEntry.value?.aftermath ?? afterma
           @continue-click="handleContinueClick"
         />
 
-        <div v-if="(phase === 'aftermath' || phase === 'waiting_click') && (currentEntry?.aftermath || aftermath)" class="gm-aftermath">
+        <div v-if="(phase === 'aftermath' || phase === 'waiting_click') && displayAftermath" class="gm-aftermath">
           <p v-if="displayAftermath.narrative" class="gm-aftermath-narrative">
             {{ displayAftermath.narrative }}
           </p>

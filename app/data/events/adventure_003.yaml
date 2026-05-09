@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 600
   required_faction: null
 weight: 0.5
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你追踪一头受伤的妖兽来到它的巢穴，发现里面堆满了宝物..."
 fallback_narrative: "你闯入妖兽巢穴，经过一番激战后发现了大量修炼资源和灵石。"
 default_options:

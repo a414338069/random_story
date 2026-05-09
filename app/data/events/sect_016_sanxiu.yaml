@@ -1,0 +1,41 @@
+id: "sect_016_sanxiu"
+type: "social"
+title: "散修集会"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "金丹"
+  min_age: 16
+  max_age: 400
+  required_faction: "散修"
+weight: 0.6
+scenarios:
+  - faction_散修
+  - rogue_cultivator
+trigger_tags:
+  require_all:
+    - "identity:门派=散修"
+  require_any: []
+  block: []
+event_tier: "L3"
+narrative_only: false
+prompt_template: "附近的散修们在黑风岭的破庙中组织了一场小型集会，互通有无、交换情报。有散修在出售一枚筑基丹，有人在叫卖一张残破的地图，还有人在招募队友探索一处危险的古墓。你手头有些灵石，可以选择交易或参与。"
+fallback_narrative: "散修集会上，筑基丹、残破地图、古墓探险招募——三样东西摆在面前。作为无门无派的散修，每一次选择都可能改变你的修仙之路。"
+default_options:
+  - id: "opt1"
+    text: "购买筑基丹 — 为突破境界做准备"
+    consequences:
+      cultivation_gain: 10
+      spirit_stones_gain: -30
+      age_advance: true
+  - id: "opt2"
+    text: "买下残破地图 — 说不定藏着重宝线索"
+    consequences:
+      cultivation_gain: 5
+      spirit_stones_gain: -15
+      age_advance: true
+  - id: "opt3"
+    text: "加入古墓探险队 — 富贵险中求"
+    consequences:
+      cultivation_gain: 30
+      spirit_stones_gain: 20
+      age_advance: true

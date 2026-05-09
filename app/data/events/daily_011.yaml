@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 9999
   required_faction: null
 weight: 1.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你来到修士坊市，各种法器丹药琳琅满目..."
 fallback_narrative: "你在坊市中逛了一圈，用灵石换了一些修炼所需的物资。"
 default_options:

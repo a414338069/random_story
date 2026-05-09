@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 5000
   required_faction: null
 weight: 1.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你{age}岁，大乘圆满，只待天劫降临..."
 fallback_narrative: "你运转功法，周身灵力如江海奔腾，大乘期的瓶颈微微松动。"
 default_options:

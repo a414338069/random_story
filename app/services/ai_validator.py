@@ -10,6 +10,8 @@ FORBIDDEN_WORDS = [
     "道侣", "善恶值", "法宝", "锻体", "轮回",
 ]
 
+# TODO(Phase 2): Wire _NUMERIC_FIELDS into consequence validation pipeline
+# Currently unused — reserved for numeric field whitelist verification
 _NUMERIC_FIELDS = {
     "cultivation_gain", "spirit_stones_gain", "hp_gain",
     "some_other_numeric", "qi_gain", "exp_gain",
@@ -118,6 +120,8 @@ def check_narrative_option_alignment(narrative: str, options: list[dict]) -> boo
     return True
 
 
+# TODO(Phase 2): Wire validate_ai_output into game_service.get_next_event() 
+# as an additional validation layer before check_narrative_option_alignment
 def validate_ai_output(
     raw: str,
     fallback_narrative: str,

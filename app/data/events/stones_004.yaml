@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 400
   required_faction: null
 weight: 0.5
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你的修炼心得对低阶弟子很有帮助，有人愿意用灵石交换指点..."
 fallback_narrative: "你的修炼心得对低阶弟子很有帮助，有人愿意用灵石交换指点，教学相长。"
 default_options:

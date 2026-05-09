@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 500
   required_faction: "金刚寺"
 weight: 0.8
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "金刚寺的试炼场上，师兄们正在以肉身硬抗灵兽的攻击。住持方丈让你选择今日的修行方式：铁布衫功法修炼、与灵兽实战对练、或是在藏经阁研读佛法以心御体。"
 fallback_narrative: "金刚寺试炼场上，你面临三种修行选择：铁布衫功法、灵兽实战、佛法研读。"
 default_options:

@@ -70,4 +70,4 @@ CREATE TABLE IF NOT EXISTS event_templates (
 
 CREATE INDEX IF NOT EXISTS idx_players_user_slot ON players(user_id, save_slot);
 
-PRAGMA user_version = 2;
+PRAGMA user_version = 3;

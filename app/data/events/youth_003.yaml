@@ -9,6 +9,12 @@ trigger_conditions:
   max_age: 16
   required_faction: null
 weight: 6.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你{age}岁了。一个深夜，你在睡梦中被一股奇异的力量惊醒。你感到丹田位置有一个微小的气团在缓缓旋转，全身经脉像是被温水浸润。这是你第一次清晰地感知到体内的灵力。你面临选择：是趁热打铁尝试引导这股灵力运转，还是先稳住心态默默感受？200字以内，第二人称。"
 fallback_narrative: "你{age}岁了。一个闷热的夏夜，你被一阵突如其来的酥麻感从梦中惊醒。月光透过窗棂洒在你身上，你惊讶地发现——丹田深处，有一个比黄豆还小的气团正在缓缓旋转。每一次旋转都带动一丝温热的气流流过经脉，那种感觉像是干涸的河床终于迎来了第一缕春水。你知道，这就是传说中的灵力。你屏住呼吸，生怕这稍纵即逝的感觉会消失。"
 default_options:

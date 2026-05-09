@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 500
   required_faction: "万剑山庄"
 weight: 0.8
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "万剑山庄的剑阁中藏有三百六十五柄古剑，每柄剑都蕴含着前人的剑意。今日你获准进入剑阁参悟。阁中剑气纵横，你需要选择一种参悟方式。"
 fallback_narrative: "你踏入万剑山庄的剑阁，三百六十五柄古剑悬于空中，剑气如虹。你需要选择参悟方式。"
 default_options:

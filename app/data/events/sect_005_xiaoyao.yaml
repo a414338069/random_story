@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 500
   required_faction: "逍遥派"
 weight: 0.8
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "逍遥派的至高心法'逍遥游'讲究顺应天地。师尊让你在三种修炼方式中选择：入世历练、山林隐修、或是观水悟道。每种方式都有不同的感悟。"
 fallback_narrative: "逍遥派师尊传授你'逍遥游'心法的修炼之要。三种方式摆在面前：入世历练、山林隐修、观水悟道。"
 default_options:

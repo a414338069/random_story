@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { NButton, NCard, NSpace, NText, NSpin, useMessage, useDialog } from 'naive-ui'
 import { useSaveLoad } from '@/composables/useSaveLoad'
-import { getOrCreateUserId } from '@/composables/useSaveLoad'
 
 const router = useRouter()
 const message = useMessage()

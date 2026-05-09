@@ -8,6 +8,12 @@ trigger_conditions:
   max_age: 9999
   required_faction: null
 weight: 1.0
+scenarios: []
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
 prompt_template: "你是一位{realm}境界的修士，今年{age}岁，正在山间修炼..."
 fallback_narrative: "你在山间静心修炼，修为有所增长。"
 default_options:
