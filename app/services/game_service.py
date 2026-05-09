@@ -10,7 +10,7 @@ import logging
 import random
 import uuid
 
-from app.services.talent_service import load_talents, validate_selection
+from app.services.talent_service import load_talents, validate_selection, get_active_modifiers, _apply_talent_attr_bonuses
 from app.services.realm_service import get_realm_config, get_next_realm
 from app.services.event_engine import (
     load_templates,
@@ -93,6 +93,9 @@ def start_game(
     user_id: str | None = None,
     save_slot: int | None = None,
 ) -> dict:
+    if not name or not name.strip():
+        raise ValueError("姓名不能为空")
+
     if gender not in ("男", "女"):
         raise ValueError("性别必须是 '男' 或 '女'")
 
@@ -107,6 +110,21 @@ def start_game(
     total = sum(attributes.values())
     if total != 10:
         raise ValueError(f"四维属性总和必须为10，当前为{total}")
+
+    # Apply talent attribute bonuses (snake_case key mapping)
+    snake_attrs = {
+        "root_bone": attributes.get("rootBone", 0),
+        "comprehension": attributes.get("comprehension", 0),
+        "mindset": attributes.get("mindset", 0),
+        "luck": attributes.get("luck", 0),
+    }
+    enhanced_snake = _apply_talent_attr_bonuses(talent_card_ids, snake_attrs)
+    enhanced_attrs = {
+        "rootBone": enhanced_snake["root_bone"],
+        "comprehension": enhanced_snake["comprehension"],
+        "mindset": enhanced_snake["mindset"],
+        "luck": enhanced_snake["luck"],
+    }
 
     conn = get_db()
     init_db(conn)
@@ -130,7 +148,7 @@ def start_game(
             "session_id": session_id,
             "name": name,
             "gender": gender,
-            "attributes": {**attributes},
+            "attributes": {**enhanced_attrs},
             "realm": "凡人",
             "realm_progress": 0.0,
             "cultivation": 0.0,
@@ -253,6 +271,15 @@ def _get_ai_service():
     return _ai_service_instance
 
 
+def _format_talent_names(talent_ids: list[str]) -> str:
+    if not talent_ids:
+        return "无"
+    all_talents = load_talents()
+    talent_map = {t["id"]: t["name"] for t in all_talents}
+    names = [talent_map.get(tid, tid) for tid in talent_ids]
+    return "、".join(names)
+
+
 def _build_ai_prompt(
     event_ctx: dict,
     state: dict,
@@ -273,6 +300,7 @@ def _build_ai_prompt(
         f"【属性面板】根骨={attrs.get('rootBone', 0)}, 悟性={attrs.get('comprehension', 0)}, "
         f"心性={attrs.get('mindset', 0)}, 气运={attrs.get('luck', 0)}",
         f"【所属势力】{state.get('faction', '无')}",
+        f"【天赋】{_format_talent_names(state.get('talent_ids', []))}",
     ]
 
     tags = state.get("tags")
@@ -733,7 +761,7 @@ def _build_consequence_narrative(
     ) + stones_part + (f"，{time_desc}过去了。" if time_desc else "")
 
 
-def _calc_cultivation_gain(event_type: str, comprehension: int, technique_grades: list[str], age: int) -> float:
+def _calc_cultivation_gain(event_type: str, comprehension: int, technique_grades: list[str], age: int, talent_ids: list[str] | None = None) -> float:
     GRADE_MODIFIER = {"凡品": 1.0, "灵品": 1.5, "玄品": 2.0, "仙品": 3.0}
     BASE_GAIN = {"daily": 10, "adventure": 30, "bottleneck": 5}
 
@@ -744,7 +772,12 @@ def _calc_cultivation_gain(event_type: str, comprehension: int, technique_grades
         mods = [GRADE_MODIFIER.get(g, 0.5) for g in technique_grades]
         tech_mod = sum(mods) / len(mods)
 
-    return base * comp_bonus * tech_mod * get_cultivation_multiplier(age)
+    talent_mod = 1.0
+    if talent_ids:
+        modifiers = get_active_modifiers(talent_ids)
+        talent_mod = 1 + modifiers.get("cultivation_speed", 0.0) + modifiers.get("learning_speed", 0.0)
+
+    return base * comp_bonus * tech_mod * get_cultivation_multiplier(age) * talent_mod
 
 
 def _check_breakthrough_warning(state: dict) -> dict | None:
@@ -821,7 +854,7 @@ def process_choice(session_id: str, option_id: str | None = None) -> dict:
     if option_id is None:
         if not current_event.get("narrative_only"):
             raise ValueError("narrative_only 事件才允许 auto-advance，请提供 option_id")
-        cultivation_gain = _calc_cultivation_gain("daily", state["attributes"]["comprehension"], state["technique_grades"], state["age"])
+        cultivation_gain = _calc_cultivation_gain("daily", state["attributes"]["comprehension"], state["technique_grades"], state["age"], state.get("talent_ids", []))
         consequences = {"cultivation_gain": cultivation_gain, "age_advance": True}
     else:
         for opt in current_event["options"]:
@@ -841,7 +874,7 @@ def process_choice(session_id: str, option_id: str | None = None) -> dict:
     if explicit_gain is not None:
         cultivation_gain = explicit_gain * (1 + comprehension * 0.03)
     else:
-        cultivation_gain = _calc_cultivation_gain(event_type, comprehension, technique_grades, state["age"])
+        cultivation_gain = _calc_cultivation_gain(event_type, comprehension, technique_grades, state["age"], state.get("talent_ids", []))
 
     next_realm = get_next_realm(state["realm"])
     if next_realm:

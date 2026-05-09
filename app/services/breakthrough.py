@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 from app.models.tags import Tag, TagCategory, TagSet
 from app.services.realm_service import get_realm_config, get_next_realm, load_realms
-from app.services.talent_service import load_talents
+from app.services.talent_service import get_active_modifiers, load_talents
 from app.services.life_stage import get_breakthrough_penalty
 
 REALM_PENALTY = {
@@ -41,6 +41,7 @@ def calculate_success_rate(
     player_state: dict,
     use_pill: bool = False,
     tags: TagSet | None = None,
+    talent_ids: list[str] | None = None,
 ) -> float:
     root_bone = player_state.get("rootBone", 0)
     comprehension = player_state.get("comprehension", 0)
@@ -75,7 +76,12 @@ def calculate_success_rate(
     age_penalty = get_breakthrough_penalty(age)
     rate *= (1 - age_penalty)
 
-    return max(0.05, min(0.95, rate))
+    # 天赋突破率加成
+    if talent_ids:
+        modifiers = get_active_modifiers(talent_ids)
+        rate += modifiers.get("breakthrough_rate_bonus", 0.0)
+
+    return max(0.05, min(1.0, rate))
 
 
 def _get_prev_realm(current: str) -> str | None:
@@ -119,7 +125,8 @@ def attempt_breakthrough(
             ascended=True,
         )
 
-    rate = calculate_success_rate(player_state, use_pill, tags)
+    talent_ids = player_state.get("talent_ids", [])
+    rate = calculate_success_rate(player_state, use_pill, tags=tags, talent_ids=talent_ids)
     success = random.random() < rate
 
     if success:

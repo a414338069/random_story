@@ -1,10 +1,13 @@
 """Talent card service — load, draw, validate."""
 
+import logging
 import os
 import random
 from collections import defaultdict
 
 import yaml
+
+logger = logging.getLogger(__name__)
 
 _TALENTS_PATH = os.path.join(
     os.path.dirname(os.path.dirname(__file__)), "data", "talents.yaml"
@@ -90,3 +93,90 @@ def validate_selection(talent_ids: list[str]) -> tuple[bool, str]:
             return False, f"无效的天赋卡ID: {tid}"
 
     return True, ""
+
+
+def get_active_modifiers(talent_ids: list[str]) -> dict[str, float]:
+    """Aggregate modifiers from all selected talents (additive).
+
+    Sums modifiers of the same key across talents. Ignores talents
+    with missing or empty effects, and skips non-numeric values.
+    """
+    talents = load_talents()
+    talent_map = {t["id"]: t for t in talents}
+    result: dict[str, float] = {}
+    for tid in talent_ids:
+        talent = talent_map.get(tid)
+        if not talent:
+            continue
+        effects = talent.get("effects", {})
+        if not isinstance(effects, dict):
+            continue
+        modifiers = effects.get("modifiers", {})
+        if not isinstance(modifiers, dict):
+            continue
+        for key, val in modifiers.items():
+            if isinstance(val, (int, float)):
+                result[key] = result.get(key, 0.0) + float(val)
+            else:
+                logger.warning(
+                    "非数值修饰符 talent=%s key=%s value=%s", tid, key, val
+                )
+    return result
+
+
+def has_talent_effect(talent_ids: list[str], effect_key: str) -> bool:
+    """Check if any talent has a specific effect key.
+
+    Searches effects.modifiers, positive_effects.modifiers,
+    and negative_effects.modifiers of all given talents.
+    P2 reserved interface for dual-sided card logic.
+    """
+    talents = load_talents()
+    talent_map = {t["id"]: t for t in talents}
+    effect_sources = ("effects", "positive_effects", "negative_effects")
+    for tid in talent_ids:
+        talent = talent_map.get(tid)
+        if not talent:
+            continue
+        for source in effect_sources:
+            src_data = talent.get(source)
+            if not isinstance(src_data, dict):
+                continue
+            modifiers = src_data.get("modifiers", {})
+            if isinstance(modifiers, dict) and effect_key in modifiers:
+                return True
+    return False
+
+
+def _apply_talent_attr_bonuses(talent_ids: list[str], base_attributes: dict) -> dict:
+    """Apply attr_bonuses from talents to base attributes, clamped to [0, 10].
+
+    Sums attr_bonuses from effects.attr_bonuses of each talent and adds
+    them to base_attributes. Results are clamped to the valid [0, 10] range.
+    Non-numeric bonus values are skipped with a warning.
+    """
+    talents = load_talents()
+    talent_map = {t["id"]: t for t in talents}
+    attr_keys = ("root_bone", "comprehension", "mindset", "luck")
+    result = {k: int(base_attributes.get(k, 0)) for k in attr_keys}
+    for tid in talent_ids:
+        talent = talent_map.get(tid)
+        if not talent:
+            continue
+        effects = talent.get("effects", {})
+        if not isinstance(effects, dict):
+            continue
+        bonuses = effects.get("attr_bonuses", {})
+        if not isinstance(bonuses, dict):
+            continue
+        for key in attr_keys:
+            val = bonuses.get(key, 0)
+            if isinstance(val, (int, float)):
+                result[key] = result.get(key, 0) + int(val)
+            else:
+                logger.warning(
+                    "非数值属性加成 talent=%s key=%s value=%s", tid, key, val
+                )
+    for key in attr_keys:
+        result[key] = max(0, min(10, result[key]))
+    return result

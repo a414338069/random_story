@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { NButton, NInput, NRadio, NRadioGroup, NSpace, useMessage } from 'naive-ui'
+import { NButton, NForm, NFormItem, NInput, NRadio, NRadioGroup, NSpace, useMessage } from 'naive-ui'
+import type { FormInst, FormRules } from 'naive-ui'
 import TalentCardComp from '@/components/TalentCard.vue'
 import AttributeAllocator from '@/components/AttributeAllocator.vue'
 import { drawCards, canReDraw } from '@/core/talents'
@@ -23,6 +24,16 @@ const redrawCount = ref(0)
 const attributes = ref({ rootBone: 3, comprehension: 3, mindset: 2, luck: 2 })
 const loading = ref(false)
 
+// form validation
+const formRef = ref<FormInst | null>(null)
+const formModel = ref({ name: '' })
+const rules: FormRules = {
+  name: [
+    { required: true, message: '请输入道号', trigger: ['blur', 'input'] },
+    { min: 1, max: 10, message: '道号长度 1-10 字', trigger: ['blur'] },
+  ],
+}
+
 const attrSum = computed(() => {
   const a = attributes.value
   return a.rootBone + a.comprehension + a.mindset + a.luck
@@ -32,7 +43,13 @@ const canConfirm = computed(() => {
   return attrSum.value === 10 && !loading.value
 })
 
-function startDraw() {
+async function startDraw() {
+  try {
+    await formRef.value?.validate()
+  } catch {
+    return
+  }
+  name.value = formModel.value.name
   currentCards.value = drawCards(3)
   step.value = 2
 }
@@ -82,10 +99,11 @@ async function handleConfirm() {
       <h2 class="ts-title">创建角色</h2>
 
       <div v-if="step === 1" class="ts-step">
-        <div class="ts-field">
-          <label>角色名</label>
-          <NInput v-model:value="name" placeholder="输入你的道号" maxlength="10" />
-        </div>
+        <NForm ref="formRef" :model="formModel" :rules="rules">
+          <NFormItem path="name" label="角色名">
+            <NInput v-model:value="formModel.name" placeholder="输入你的道号" maxlength="10" />
+          </NFormItem>
+        </NForm>
         <div class="ts-field">
           <label>性别</label>
           <NRadioGroup v-model:value="gender">
@@ -173,11 +191,6 @@ async function handleConfirm() {
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
-
-.ts-field label {
-  font-size: 0.9rem;
-  color: var(--text-muted, #8a857d);
 }
 
 .ts-next-btn,

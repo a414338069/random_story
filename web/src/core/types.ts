@@ -94,6 +94,7 @@ export interface NormalizedGameState {
   faction: string
   spiritStones: number
   techniques: string[]
+  techniqueGrades: string[]
   inventory: string[]
   eventCount: number
   isAlive: boolean
@@ -104,6 +105,18 @@ export interface NormalizedGameState {
   story_memory?: StoryMemory[]
 }
 
+export interface TalentEffectSub {
+  attr_bonuses: Record<string, number>
+  modifiers: Record<string, number | boolean>
+}
+
+export interface TalentEffect {
+  attr_bonuses: Record<string, number>
+  modifiers: Record<string, number | boolean>
+  positive_effects?: TalentEffectSub
+  negative_effects?: TalentEffectSub
+}
+
 export interface TalentCard {
   id: string
   name: string
@@ -111,6 +124,7 @@ export interface TalentCard {
   rarity: number
   category: string
   description: string
+  effects: TalentEffect
 }
 
 export interface EventOption {

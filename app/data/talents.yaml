@@ -22,6 +22,7 @@ talents:
       attr_bonuses:
         comprehension: 1
       modifiers:
+        breakthrough_rate_bonus: 0.08
         learning_speed: 0.05
 
   - id: f03
@@ -68,6 +69,7 @@ talents:
     effects:
       attr_bonuses: {}
       modifiers:
+        breakthrough_rate_bonus: 0.10
         health_recovery: 0.1
         resilience: 0.05
 

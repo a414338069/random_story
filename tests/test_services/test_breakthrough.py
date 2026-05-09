@@ -69,9 +69,9 @@ def test_zero_attributes_rate():
 
 
 def test_max_rootbone_capped():
-    """rootBone=10 → 0.50+0.50=1.00 → capped at 0.95"""
+    """rootBone=10 → 0.50+0.50=1.00 → capped at 1.0"""
     player = {"rootBone": 10, "comprehension": 0, "mindset": 0, "realm": "凡人"}
-    assert calculate_success_rate(player) == 0.95
+    assert calculate_success_rate(player) == 1.0
 
 
 def test_comprehension_contribution():
@@ -112,10 +112,10 @@ def test_rate_lower_bound():
 
 
 def test_rate_upper_bound():
-    """Rate never exceeds 0.95"""
+    """Rate never exceeds 1.0"""
     player = {"rootBone": 10, "comprehension": 10, "mindset": 10, "realm": "凡人"}
-    # 0.50 + 0.50 + 0.30 + 0.20 = 1.50 → cap at 0.95
-    assert calculate_success_rate(player) == 0.95
+    # 0.50 + 0.50 + 0.30 + 0.20 = 1.50 → cap at 1.0
+    assert calculate_success_rate(player) == 1.0
 
 
 def test_default_realm_is_fanren():
@@ -426,3 +426,78 @@ def test_success_rate_default_age_no_break():
     player = {"rootBone": 0, "comprehension": 0, "mindset": 0, "realm": "凡人"}
     rate = calculate_success_rate(player)
     assert rate == 0.50  # 与 T9 行为一致
+
+
+# ============================================================================
+# T7: calculate_success_rate() with talent breakthrough_rate_bonus modifier
+# ============================================================================
+
+
+def test_breakthrough_rate_with_talent_f06():
+    """百折不挠(f06): breakthrough_rate_bonus=+0.10 → rate 增加 0.10"""
+    player = {"rootBone": 0, "comprehension": 0, "mindset": 0, "realm": "凡人", "age": 20}
+    rate = calculate_success_rate(player, talent_ids=["f06"])
+    # 0.50 + 0.10 (f06 bonus) = 0.60
+    assert rate == 0.60
+
+
+def test_breakthrough_rate_with_talent_f02():
+    """耳聪目明(f02): breakthrough_rate_bonus=+0.08 → rate 增加 0.08"""
+    player = {"rootBone": 0, "comprehension": 0, "mindset": 0, "realm": "凡人", "age": 20}
+    rate = calculate_success_rate(player, talent_ids=["f02"])
+    # 0.50 + 0.08 (f02 bonus) = 0.58
+    assert rate == 0.58
+
+
+def test_breakthrough_rate_with_multiple_talents():
+    """f06(+0.10) + f02(+0.08) = +0.18 叠加"""
+    player = {"rootBone": 0, "comprehension": 0, "mindset": 0, "realm": "凡人", "age": 20}
+    rate = calculate_success_rate(player, talent_ids=["f06", "f02"])
+    # 0.50 + 0.10 + 0.08 = 0.68
+    assert rate == pytest.approx(0.68)
+
+
+def test_breakthrough_rate_talent_capped_at_1():
+    """talent bonus pushes rate past 100% → clamped to 1.0"""
+    # rootBone=10 gives +0.50, so rate=1.00. With f06(+0.10) → 1.10 → capped at 1.0
+    player = {"rootBone": 10, "comprehension": 0, "mindset": 0, "realm": "凡人", "age": 20}
+    rate = calculate_success_rate(player, talent_ids=["f06"])
+    assert rate == 1.0
+
+
+def test_breakthrough_rate_empty_talents_no_change():
+    """空 talent_ids 列表 → 行为不变 (回归)"""
+    player = {"rootBone": 0, "comprehension": 0, "mindset": 0, "realm": "凡人", "age": 20}
+    rate = calculate_success_rate(player, talent_ids=[])
+    assert rate == 0.50
+
+
+def test_breakthrough_rate_none_talents_no_change():
+    """talent_ids=None (默认) → 行为不变 (回归)"""
+    player = {"rootBone": 0, "comprehension": 0, "mindset": 0, "realm": "凡人", "age": 20}
+    rate = calculate_success_rate(player)
+    assert rate == 0.50
+
+
+def test_breakthrough_rate_talent_with_pill():
+    """talent bonus + pill bonus 叠加"""
+    player = {"rootBone": 0, "comprehension": 0, "mindset": 0, "realm": "凡人", "age": 20}
+    rate = calculate_success_rate(player, use_pill=True, talent_ids=["f06"])
+    # 0.50 + 0.15 (pill) + 0.10 (f06) = 0.75
+    assert rate == 0.75
+
+
+def test_breakthrough_rate_talent_with_age_penalty():
+    """talent bonus 在年龄惩罚后施加 (不受年龄惩罚缩放)"""
+    player = {"rootBone": 0, "comprehension": 0, "mindset": 0, "realm": "凡人", "age": 10}
+    rate = calculate_success_rate(player, talent_ids=["f06"])
+    # age=10 → penalty=0.5, (0.50) * 0.5 = 0.25, + 0.10 (f06) = 0.35
+    assert rate == pytest.approx(0.35)
+
+
+def test_breakthrough_rate_talent_with_realm_penalty():
+    """talent bonus + realm penalty 叠加"""
+    player = {"rootBone": 0, "comprehension": 0, "mindset": 0, "realm": "炼气", "age": 20}
+    rate = calculate_success_rate(player, talent_ids=["f06"])
+    # 0.50 - 0.05 (炼气) + 0.10 (f06) = 0.55
+    assert rate == 0.55
