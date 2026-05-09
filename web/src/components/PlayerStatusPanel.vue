@@ -11,6 +11,7 @@ import {
 } from 'naive-ui'
 import type { NormalizedGameState, TalentCard } from '@/core/types'
 import { talents } from '@/data/talents'
+import { formatModifierValue, getModifierLabel } from '@/core/talents'
 
 const props = defineProps<{
   visible: boolean
@@ -78,6 +79,7 @@ const attrNameMap: Record<string, string> = {
 
 function getTalentEffectsSummary(talent: TalentCard): string {
   const bonuses = talent.effects.attr_bonuses
+  const modifiers = talent.effects.modifiers
   const parts: string[] = []
   for (const [key, val] of Object.entries(bonuses)) {
     if (val === 0) continue
@@ -85,7 +87,15 @@ function getTalentEffectsSummary(talent: TalentCard): string {
     const sign = val > 0 ? '+' : ''
     parts.push(`${name}${sign}${val}`)
   }
-  return parts.length > 0 ? parts.join(' ') : '特殊效果'
+  for (const [key, val] of Object.entries(modifiers)) {
+    if (val === 0 || val === false) continue
+    const label = getModifierLabel(key)
+    const formatted = formatModifierValue(val)
+    const positive = typeof val === 'boolean' ? true : val > 0
+    const sign = positive ? '+' : ''
+    parts.push(`${label}${sign}${formatted}`)
+  }
+  return parts.length > 0 ? parts.join(' · ') : '特殊效果'
 }
 
 function getTalentGradeType(grade: string): 'default' | 'info' | 'warning' | 'success' | 'error' {

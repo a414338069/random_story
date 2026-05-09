@@ -1,5 +1,5 @@
 id: "childhood_008"
-type: "narrative"
+type: "childhood"
 narrative_only: true
 title: "发现古籍残页"
 trigger_conditions:
@@ -9,7 +9,8 @@ trigger_conditions:
   max_age: 11
   required_faction: null
 weight: 6.0
-scenarios: []
+scenarios:
+  - childhood
 trigger_tags:
   require_all: []
   require_any: []

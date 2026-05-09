@@ -1,8 +1,54 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { TalentCard } from '@/core/types'
-import { getGradeColor, getGradeBgColor, getGradeClass } from '@/core/talents'
+import {
+  getGradeColor,
+  getGradeBgColor,
+  getGradeClass,
+  formatModifierValue,
+  getModifierLabel,
+} from '@/core/talents'
 
 const props = defineProps<{ card: TalentCard }>()
+
+const attrNameMap: Record<string, string> = {
+  root_bone: '根骨',
+  comprehension: '悟性',
+  mindset: '心境',
+  luck: '气运',
+}
+
+interface EffectItem {
+  label: string
+  value: string
+  positive: boolean
+}
+
+const displayEffects = computed<EffectItem[]>(() => {
+  const items: EffectItem[] = []
+  const { effects } = props.card
+
+  // attr_bonuses
+  for (const [key, val] of Object.entries(effects.attr_bonuses)) {
+    if (val === 0) continue
+    const name = attrNameMap[key] ?? key
+    const sign = val > 0 ? '+' : ''
+    items.push({ label: name, value: `${sign}${val}`, positive: val > 0 })
+  }
+
+  // positive modifiers
+  for (const [key, val] of Object.entries(effects.modifiers)) {
+    if (val === 0 || val === false) continue
+    const label = getModifierLabel(key)
+    const formatted = formatModifierValue(val)
+    const positive = typeof val === 'boolean' ? true : val > 0
+    items.push({ label, value: formatted, positive })
+  }
+
+  return items
+})
+
+const hasEffects = computed(() => displayEffects.value.length > 0)
 </script>
 
 <template>
@@ -20,6 +66,14 @@ const props = defineProps<{ card: TalentCard }>()
     <h4 class="tc-name">{{ card.name }}</h4>
     <span class="tc-category">{{ card.category }}</span>
     <p class="tc-desc">{{ card.description }}</p>
+    <div v-if="hasEffects" class="tc-effects">
+      <span
+        v-for="(item, i) in displayEffects"
+        :key="i"
+        class="effect-tag"
+        :class="item.positive ? 'effect-pos' : 'effect-neg'"
+      >{{ item.label }}{{ item.value }}</span>
+    </div>
   </div>
 </template>
 
@@ -30,15 +84,19 @@ const props = defineProps<{ card: TalentCard }>()
   border-radius: 8px;
   padding: 16px;
   width: 140px;
+  min-width: 140px;
+  max-width: 140px;
+  height: 200px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   text-align: center;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   box-shadow: 0 1px 3px rgba(26,24,20,0.05);
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .talent-card:hover {
@@ -79,11 +137,16 @@ const props = defineProps<{ card: TalentCard }>()
   font-size: 1rem;
   font-weight: 600;
   color: #1a1814;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 }
 
 .tc-category {
   font-size: 0.75rem;
   color: var(--text-muted, #8a857d);
+  flex-shrink: 0;
 }
 
 .tc-desc {
@@ -91,5 +154,38 @@ const props = defineProps<{ card: TalentCard }>()
   font-size: 0.78rem;
   color: #8a857d;
   line-height: 1.4;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.tc-effects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  justify-content: center;
+  flex-shrink: 0;
+  max-height: 36px;
+  overflow: hidden;
+}
+
+.effect-tag {
+  font-size: 0.68rem;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.effect-pos {
+  color: #52c41a;
+  background: rgba(82, 196, 26, 0.1);
+}
+
+.effect-neg {
+  color: #ff4d4f;
+  background: rgba(255, 77, 79, 0.1);
 }
 </style>

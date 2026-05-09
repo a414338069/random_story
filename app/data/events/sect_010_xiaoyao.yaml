@@ -1,5 +1,5 @@
 id: "sect_010_xiaoyao"
-type: "daily"
+type: "sect"
 title: "琴音悟道"
 trigger_conditions:
   min_realm: "凡人"

@@ -13,6 +13,8 @@ import type {
   EventOption,
 } from '@/core/types'
 
+const BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000'
+
 export async function startGame(
   req: GameStartRequest,
 ): Promise<{ sessionId: string; state: NormalizedGameState }> {
@@ -67,16 +69,60 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
   return await apiRequest('/api/v1/game/leaderboard')
 }
 
-/**
- * SSE streaming stub for Phase 4.
- * Consumes the event endpoint as a Server-Sent Events stream.
- * Falls back to getEvent() when not implemented.
- */
 export async function getEventStream(
-  _sessionId: string,
-  _onChunk: (text: string) => void,
-  _onOptions: (options: EventOption[]) => void,
-  _signal?: AbortSignal
+  sessionId: string,
+  onChunk: (text: string) => void,
+  onOptions: (options: EventOption[]) => void,
+  signal?: AbortSignal
 ): Promise<void> {
-  throw new Error('SSE streaming not yet implemented (Phase 4)')
+  const response = await fetch(`${BASE}/api/v1/game/event/stream`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ player_id: sessionId }),
+    signal,
+  })
+
+  if (!response.ok) {
+    throw new Error(`SSE request failed: ${response.status}`)
+  }
+
+  const reader = response.body?.getReader()
+  if (!reader) throw new Error('No response body')
+
+  const decoder = new TextDecoder()
+  let buffer = ''
+
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+
+    buffer += decoder.decode(value, { stream: true })
+    const lines = buffer.split('\n')
+    buffer = lines.pop() ?? ''
+
+    let eventType = ''
+    for (const line of lines) {
+      if (line.startsWith('event: ')) {
+        eventType = line.slice(7).trim()
+      } else if (line.startsWith('data: ')) {
+        const payload = line.slice(6)
+        try {
+          const data = JSON.parse(payload)
+          if (eventType === 'narrative_chunk') {
+            onChunk(data.text ?? '')
+          } else if (eventType === 'options') {
+            onOptions(data.options ?? [])
+          } else if (eventType === 'error') {
+            throw new Error(data.error ?? 'SSE stream error')
+          }
+        } catch (e) {
+          if (e instanceof SyntaxError) continue
+          throw e
+        }
+        eventType = ''
+      } else if (line.trim() === '') {
+        eventType = ''
+      }
+    }
+  }
 }

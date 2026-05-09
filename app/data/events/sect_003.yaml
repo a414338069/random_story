@@ -9,7 +9,8 @@ trigger_conditions:
   required_faction: null
   requires_any_faction: true
 weight: 0.3
-scenarios: []
+scenarios:
+  - faction_life
 trigger_tags:
   require_all: []
   require_any: []

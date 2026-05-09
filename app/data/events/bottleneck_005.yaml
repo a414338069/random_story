@@ -5,10 +5,12 @@ trigger_conditions:
   min_realm: "凡人"
   max_realm: "凡人"
   min_age: 10
-  max_age: 12
+  max_age: 30
   required_faction: null
-weight: 10.0
-scenarios: []
+weight: 30.0
+scenarios:
+  - generic_daily
+  - has_technique
 trigger_tags:
   require_all: []
   require_any: []
@@ -20,6 +22,7 @@ default_options:
   - id: "opt1"
     text: "加入宗门"
     consequences:
+      faction_assign: "随机分配"
       cultivation_gain: 30
       age_advance: true
   - id: "opt2"
@@ -27,3 +30,4 @@ default_options:
     consequences:
       cultivation_gain: 5
       age_advance: true
+      tag_add: ["identity:decided_rogue"]

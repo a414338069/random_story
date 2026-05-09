@@ -25,7 +25,12 @@ def determine_scenario_pool(tags: TagSet | None, player_state: dict | None) -> l
     """
     scenarios: list[str] = ["generic_daily"]
 
-    if tags is None or not tags.tags:
+    # Handle dict deserialized from DB (tags may be dict or TagSet)
+    if isinstance(tags, dict):
+        if not tags.get("tags"):
+            return scenarios
+        tags = TagSet.model_validate(tags)
+    elif tags is None or not tags.tags:
         return scenarios
 
     if player_state is None:
@@ -68,6 +73,11 @@ def determine_scenario_pool(tags: TagSet | None, player_state: dict | None) -> l
     # ── Memory-based scenarios ──
     if bonds and any("childhood_memory" in m.key for m in bonds):
         scenarios.append("childhood_special")
+
+    # ── Life-stage scenarios ──
+    player_age = player_state.get("age", 0)
+    if player_age < 12:
+        scenarios.append("childhood")
 
     return scenarios
 

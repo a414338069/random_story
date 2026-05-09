@@ -1,5 +1,5 @@
 id: "sect_007_wanjian"
-type: "daily"
+type: "sect"
 title: "铸剑入道"
 trigger_conditions:
   min_realm: "凡人"

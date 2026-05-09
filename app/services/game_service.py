@@ -28,6 +28,7 @@ from app.services.cache_service import get_cached, set_cached
 from app.services.context_engine import determine_scenario_pool, match_scenarios
 from app.services.event_factory import should_use_ai, generate_event as factory_generate_event
 from app.services.life_stage import get_life_stage, get_cultivation_multiplier, can_attempt_breakthrough
+from app.services import sect_service
 from app.models.memory import StoryMemory, StoryMemorySet
 from app.models.player import PlayerState
 from app.models.tags import Tag, TagSet, TagCategory
@@ -83,6 +84,29 @@ def _ensure_tags_and_memory(state: dict) -> None:
             state["story_memory"] = StoryMemorySet()
     except Exception:
         _logger.warning("标签引导失败，使用空标签")
+
+
+def _random_sect_for_player(attributes: dict) -> str:
+    """Pick a random sect that the player meets the join conditions for.
+
+    If no sect conditions are met, returns ``"散修"``.
+
+    Args:
+        attributes: Dict with camelCase keys (rootBone, comprehension, mindset, luck).
+
+    Returns:
+        The name of a randomly selected eligible sect, or ``"散修"``.
+    """
+    eligible_sects = []
+    for sect in sect_service.load_sects():
+        name = sect.get("name", "")
+        if not name or name == "散修":
+            continue
+        if sect_service.check_join_conditions(attributes, name):
+            eligible_sects.append(name)
+    if eligible_sects:
+        return random.choice(eligible_sects)
+    return "散修"
 
 
 def start_game(
@@ -247,6 +271,7 @@ def _to_engine_context(state: dict) -> dict:
         "comprehension": state["attributes"]["comprehension"],
         "life_stage": get_life_stage(state["age"]).value,
         "consecutive_events": state.get("_consecutive_events", 0),
+        "tags": state.get("tags"),
     }
 
 
@@ -467,6 +492,11 @@ def get_next_event(session_id: str) -> dict:
         time_span = 1
     state["age"] += time_span
 
+    # 衰减 STATE 标签的 TTL（中毒、顿悟等临时状态自然过期）
+    tags = state.get("tags")
+    if tags and hasattr(tags, "age_tags"):
+        tags.age_tags(time_span)
+
     # 更新 ctx 中的 age 以匹配已推进的年龄
     ctx["age"] = state["age"]
 
@@ -548,8 +578,10 @@ def get_next_event(session_id: str) -> dict:
                             set_cached(cache_template_id, cache_realm, used_tier,
                                        {"narrative": narrative, "options": options})
                         else:
+                            # Alignment check failed — still use AI options but don't cache
+                            options = cleaned
                             logging.getLogger(__name__).warning(
-                                "options-narrative alignment check failed, falling back to default options"
+                                "options-narrative alignment check failed, using AI options uncached"
                             )
                 elif event_ctx.get("narrative_only"):
                     options = []
@@ -896,7 +928,24 @@ def process_choice(session_id: str, option_id: str | None = None) -> dict:
 
     faction_assign = consequences.get("faction_assign")
     if faction_assign and isinstance(faction_assign, str):
+        _logger = logging.getLogger(__name__)
+        if faction_assign == "随机分配":
+            faction_assign = _random_sect_for_player(state["attributes"])
         state["faction"] = faction_assign
+        if faction_assign != "散修":
+            if not sect_service.check_join_conditions(state["attributes"], faction_assign):
+                _logger.warning(
+                    "门派加入条件不满足: faction=%s, attributes=%s, 降级为散修",
+                    faction_assign, state["attributes"],
+                )
+                state["faction"] = "散修"
+        if state["faction"] != "散修":
+            techs = sect_service.get_sect_techniques(state["faction"])
+            for tech in techs:
+                if tech.get("name") and tech.get("name") not in state.get("techniques", []):
+                    state.setdefault("techniques", []).append(tech["name"])
+                if tech.get("grade") and tech.get("grade") not in state.get("technique_grades", []):
+                    state.setdefault("technique_grades", []).append(tech["grade"])
 
     # ── Tag updates from option consequences ──
     tag_add = consequences.get("tag_add", [])

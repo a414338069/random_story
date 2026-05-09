@@ -1,5 +1,5 @@
 id: "sect_005_xiaoyao"
-type: "daily"
+type: "sect"
 title: "逍遥游心法"
 trigger_conditions:
   min_realm: "炼气"
@@ -8,7 +8,9 @@ trigger_conditions:
   max_age: 500
   required_faction: "逍遥派"
 weight: 0.8
-scenarios: []
+scenarios:
+  - faction_逍遥派
+  - faction_life
 trigger_tags:
   require_all: []
   require_any: []

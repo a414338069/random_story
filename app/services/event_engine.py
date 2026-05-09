@@ -164,6 +164,11 @@ def filter_templates(templates: list[dict], player_state: dict) -> list[dict]:
         # requires_any_faction: 玩家必须已经加入某个门派（通用宗门模板如 sect_001/002/003）
         if cond.get("requires_any_faction", False) and not player_faction:
             continue
+        # 玩家选择了散修之路（identity:decided_rogue tag），跳过需要门派的模板
+        if cond.get("requires_any_faction", False):
+            player_tags = player_state.get("tags")
+            if player_tags and hasattr(player_tags, 'get_by_key') and player_tags.get_by_key("decided_rogue"):
+                continue
 
         # Life-stage filtering: children (<12) get childhood/birth events or narrative-only events
         if player_age < 12:

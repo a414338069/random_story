@@ -167,12 +167,13 @@ describe('PlayerStatusPanel', () => {
       expect(text).toContain('悟性+3')
     })
 
-    it('handles talents with no attr bonuses', async () => {
+    it('handles talents with only modifiers', async () => {
       mountPanel(true, { talentIds: ['f05'] })
       await new Promise(r => setTimeout(r, 10))
       const text = bodyText()
       expect(text).toContain('灵根初显')
-      expect(text).toContain('特殊效果')
+      expect(text).toContain('灵气恢复')
+      expect(text).toContain('灵气上限')
     })
   })
 

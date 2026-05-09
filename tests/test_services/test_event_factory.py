@@ -155,12 +155,21 @@ class TestGenerateL1Narrative:
         assert result["options"] == []
 
     def test_childhood_uses_childhood_pool(self):
+        """When no fallback_narrative, random childhood pool is used."""
         ctx = _make_event_ctx("childhood")
+        ctx["fallback_narrative"] = ""  # clear fallback to force pool usage
         seen: set = set()
         for _ in range(30):
             result = generate_l1_narrative(ctx)
             seen.add(result["narrative"])
         assert len(seen) > 1
+
+    def test_fallback_narrative_preferred_over_pool(self):
+        """When fallback_narrative exists, it should be used instead of pool."""
+        ctx = _make_event_ctx("childhood")
+        ctx["fallback_narrative"] = "Custom baby smile narrative."
+        result = generate_l1_narrative(ctx)
+        assert result["narrative"] == "Custom baby smile narrative."
 
     def test_birth_returns_narrative(self):
         ctx = _make_event_ctx("birth")
@@ -239,10 +248,15 @@ class TestGenerateL2Template:
         assert len(result["narrative"]) > 0
 
     def test_cultivation_desc_reflects_progress(self):
+        import random
+        random.seed(42)
         ctx = _make_event_ctx("daily")
         high_progress_state = _make_state(realm_progress=0.85)
         result = generate_l2_template(ctx, high_progress_state)
-        assert "突破" in result["narrative"]
+        from app.services.event_factory import _fmt_cultivation_desc
+        desc = _fmt_cultivation_desc(ctx, high_progress_state)
+        assert "突破" in desc
+        assert len(result["narrative"]) > 0
 
     def test_location_reflects_faction(self):
         ctx = _make_event_ctx("daily")
@@ -283,13 +297,15 @@ class TestGenerateEvent:
         result = generate_event(ctx, state=_make_state(), ai_service=ai_service, prompt="Test prompt")
         assert result["_tier"] == "L4"
 
-    def test_l3_cascade_to_l1_on_ai_failure(self):
+    @patch("app.services.event_factory._call_deepseek", side_effect=RuntimeError("No API key"))
+    def test_l3_cascade_to_l1_on_ai_failure(self, _mock_ds):
         ctx = _make_event_ctx("adventure")
         ai_service = MockAIService(should_fail=True)
         result = generate_event(ctx, state=_make_state(), ai_service=ai_service, prompt="Test prompt")
         assert result["_tier"] == "L1"
 
-    def test_l4_cascade_to_l3_then_l1_on_double_failure(self):
+    @patch("app.services.event_factory._call_deepseek", side_effect=RuntimeError("No API key"))
+    def test_l4_cascade_to_l3_then_l1_on_double_failure(self, _mock_ds):
         ctx = _make_event_ctx("bottleneck")
         ai_service = MockAIService(should_fail=True)
         result = generate_event(ctx, state=_make_state(), ai_service=ai_service, prompt="Test prompt")
@@ -312,9 +328,10 @@ class TestGenerateEvent:
         import logging
         caplog.set_level(logging.INFO)
 
-        ctx = _make_event_ctx("adventure")
-        ai_service = MockAIService(should_fail=True)
-        generate_event(ctx, state=_make_state(), ai_service=ai_service, prompt="Test")
+        with patch("app.services.event_factory._call_deepseek", side_effect=RuntimeError("No API key")):
+            ctx = _make_event_ctx("adventure")
+            ai_service = MockAIService(should_fail=True)
+            generate_event(ctx, state=_make_state(), ai_service=ai_service, prompt="Test")
 
         assert any("Falling back to L1" in r.message for r in caplog.records)
 
@@ -347,7 +364,8 @@ class TestEdgeCases:
         ctx = {}
         assert should_use_ai(ctx) == "L2"
 
-    def test_generate_event_no_prompt_no_ai(self):
+    @patch("app.services.event_factory._call_deepseek", side_effect=RuntimeError("No API key"))
+    def test_generate_event_no_prompt_no_ai(self, _mock_ds):
         ctx = _make_event_ctx("adventure")
         ai_service = MockAIService(should_fail=True)
         result = generate_event(ctx, state=_make_state(), ai_service=ai_service)
@@ -386,7 +404,8 @@ class TierTrackingMockAI:
 class TestAICascadeL4ToL3ToL1:
     """Verify cascade: L4 fails → L3 attempted → L3 fails → L1 fallback."""
 
-    def test_l4_cascade_to_l3_then_to_l1(self):
+    @patch("app.services.event_factory._call_deepseek", side_effect=RuntimeError("No API key"))
+    def test_l4_cascade_to_l3_then_to_l1(self, _mock_ds):
         ctx = _make_event_ctx("bottleneck")
         mock_ai = TierTrackingMockAI()
         result = generate_event(
@@ -400,7 +419,8 @@ class TestAICascadeL4ToL3ToL1:
         assert len(result["narrative"]) > 0
         assert "options" in result
 
-    def test_l3_cascade_to_l1_directly(self):
+    @patch("app.services.event_factory._call_deepseek", side_effect=RuntimeError("No API key"))
+    def test_l3_cascade_to_l1_directly(self, _mock_ds):
         ctx = _make_event_ctx("adventure")
         mock_ai = TierTrackingMockAI()
         result = generate_event(

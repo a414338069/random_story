@@ -10,7 +10,7 @@ export class FetchError extends Error {
   }
 }
 
-const TIMEOUT_MS = 10000
+const TIMEOUT_MS = 30000
 
 export async function apiRequest<T>(url: string, options: RequestInit = {}): Promise<T> {
   const controller = new AbortController()

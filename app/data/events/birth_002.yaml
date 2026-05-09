@@ -1,5 +1,5 @@
 id: "birth_002"
-type: "narrative"
+type: "birth"
 narrative_only: true
 title: "周岁"
 trigger_conditions:
@@ -9,7 +9,8 @@ trigger_conditions:
   max_age: 1
   required_faction: null
 weight: 10.0
-scenarios: []
+scenarios:
+  - childhood
 trigger_tags:
   require_all: []
   require_any: []

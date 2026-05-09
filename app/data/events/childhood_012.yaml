@@ -14,7 +14,8 @@ age_max: 8
 realm_min: "凡人"
 realm_max: "凡人"
 weight: 1.0
-scenarios: []
+scenarios:
+  - childhood
 trigger_tags:
   require_all: []
   require_any: []

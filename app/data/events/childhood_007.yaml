@@ -1,5 +1,5 @@
 id: "childhood_007"
-type: "narrative"
+type: "childhood"
 narrative_only: true
 title: "村里的老道士"
 trigger_conditions:
@@ -9,7 +9,8 @@ trigger_conditions:
   max_age: 10
   required_faction: null
 weight: 7.0
-scenarios: []
+scenarios:
+  - childhood
 trigger_tags:
   require_all: []
   require_any: []

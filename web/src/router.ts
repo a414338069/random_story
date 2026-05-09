@@ -31,7 +31,12 @@ const router = createRouter({
 router.beforeEach(async (to, _from) => {
   if (to.meta.requiresSession) {
     const hasSession = sessionStorage.getItem('gameSessionId')
-    if (hasSession) return true
+    if (hasSession) {
+      const { useGameState } = await import('@/composables/useGameState')
+      const { setSession } = useGameState()
+      setSession(hasSession)
+      return true
+    }
 
     const { getActiveSlot, getOrCreateUserId } = await import('@/composables/useSaveLoad')
     const activeSlot = getActiveSlot()

@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { NButton, NIcon } from 'naive-ui'
+import { PersonOutline } from '@vicons/ionicons5'
 import { useGameState } from '@/composables/useGameState'
 import { useAnimatedNumber } from '@/composables/useAnimatedNumber'
+
+const emit = defineEmits<{
+  togglePanel: []
+}>()
 
 const { gameState } = useGameState()
 
@@ -14,66 +20,81 @@ const spiritStones = useAnimatedNumber(spiritStonesSource, 600)
 
 <template>
   <div v-if="gameState" class="status-bar">
-    <span class="sb-item">
-      <span class="sb-label">境界</span>
-      <span class="sb-value">{{ gameState.realm || '无' }}</span>
-    </span>
-    <span class="sb-item">
-      <span class="sb-label">年龄</span>
-      <span class="sb-value">{{ gameState.age }}/{{ gameState.lifespan }}</span>
-    </span>
-    <span class="sb-item">
-      <span class="sb-label">修为</span>
-      <span
-        class="sb-value"
-        :class="{
-          'sb-value--up': cultivation.direction.value === 'up',
-          'sb-value--down': cultivation.direction.value === 'down',
-        }"
-      >{{ cultivation.formatted() }}</span>
-    </span>
-    <span class="sb-item">
-      <span class="sb-label">灵石</span>
-      <span
-        class="sb-value"
-        :class="{
-          'sb-value--up': spiritStones.direction.value === 'up',
-          'sb-value--down': spiritStones.direction.value === 'down',
-        }"
-      >{{ spiritStones.formatted() }}</span>
-    </span>
-    <span class="sb-item">
-      <span class="sb-label">修为进度</span>
-      <span class="sb-value">{{ gameState.realmProgress != null ? (gameState.realmProgress * 100).toFixed(0) + '%' : '—' }}</span>
-    </span>
+    <div class="sb-group">
+      <span class="sb-item">
+        <span class="sb-label">境界</span>
+        <span class="sb-value">{{ gameState.realm || '无' }}</span>
+      </span>
+      <span class="sb-divider">·</span>
+      <span class="sb-item">
+        <span class="sb-label">年龄</span>
+        <span class="sb-value">{{ gameState.age }}/{{ gameState.lifespan }}</span>
+      </span>
+      <span class="sb-divider">·</span>
+      <span class="sb-item">
+        <span class="sb-label">修为</span>
+        <span
+          class="sb-value"
+          :class="{
+            'sb-value--up': cultivation.direction.value === 'up',
+            'sb-value--down': cultivation.direction.value === 'down',
+          }"
+        >{{ cultivation.formatted() }}</span>
+      </span>
+      <span class="sb-divider">·</span>
+      <span class="sb-item">
+        <span class="sb-label">灵石</span>
+        <span
+          class="sb-value"
+          :class="{
+            'sb-value--up': spiritStones.direction.value === 'up',
+            'sb-value--down': spiritStones.direction.value === 'down',
+          }"
+        >{{ spiritStones.formatted() }}</span>
+      </span>
+    </div>
+    <NButton quaternary size="small" class="sb-character-btn" @click="emit('togglePanel')">
+      <template #icon>
+        <NIcon><PersonOutline /></NIcon>
+      </template>
+      人物
+    </NButton>
   </div>
 </template>
 
 <style scoped>
 .status-bar {
   display: flex;
-  justify-content: space-around;
-  padding: 10px 12px;
-  background: #ffffff;
-  border-bottom: 1px solid #e8e2d9;
-  font-size: 0.85rem;
-  gap: 4px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: var(--paper-white, #f6f3ed);
+  border-bottom: 1px solid var(--border-color, #e8e2d9);
   position: sticky;
   top: 0;
   z-index: 10;
+  gap: 16px;
+}
+
+.sb-group {
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
 .sb-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 6px;
+  min-width: 48px;
 }
 
 .sb-label {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--text-muted, #8a857d);
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
+  font-weight: 400;
 }
 
 .sb-value {
@@ -81,6 +102,7 @@ const spiritStones = useAnimatedNumber(spiritStonesSource, 600)
   font-weight: 600;
   color: var(--ink-black, #1a1814);
   transition: color 0.3s ease;
+  font-family: var(--font-display, 'Noto Serif SC', Georgia, serif);
 }
 
 .sb-value--up {
@@ -89,5 +111,45 @@ const spiritStones = useAnimatedNumber(spiritStonesSource, 600)
 
 .sb-value--down {
   color: #c06050;
+}
+
+.sb-divider {
+  color: var(--accent, #b8b3a8);
+  font-size: 1rem;
+  line-height: 1;
+  margin-top: 12px;
+  align-self: flex-start;
+}
+
+.sb-character-btn {
+  flex-shrink: 0;
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+  .status-bar {
+    padding: 10px 12px;
+    gap: 12px;
+  }
+
+  .sb-group {
+    gap: 12px;
+  }
+
+  .sb-item {
+    min-width: 40px;
+  }
+
+  .sb-label {
+    font-size: 0.7rem;
+  }
+
+  .sb-value {
+    font-size: 0.85rem;
+  }
+
+  .sb-divider {
+    font-size: 0.85rem;
+  }
 }
 </style>

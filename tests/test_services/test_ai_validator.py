@@ -278,7 +278,7 @@ class TestValidateAiOutput:
 def test_alignment_match_basic():
     """Options that reference narrative keywords should pass."""
     assert check_narrative_option_alignment(
-        "老者看中你的灵草", [{"text": "出售灵草"}]
+        "老者看中你的灵草", [{"text": "你的灵草很珍贵"}]
     ) is True
 
 
@@ -296,20 +296,18 @@ def test_alignment_empty_input():
 
 
 def test_alignment_all_match():
-    """All options matching keywords from narrative should pass."""
-    # 妖兽 → "迎战妖兽", 袭击 → "迅速逃跑避开袭击"
+    """All options matching 3+ char keywords from narrative should pass."""
     assert check_narrative_option_alignment(
-        "深山遇到妖兽袭击",
-        [{"text": "迎战妖兽"}, {"text": "迅速逃跑避开袭击"}],
+        "你在后山修炼功法",
+        [{"text": "在后山修炼"}, {"text": "修炼功法入门"}],
     ) is True
 
 
 def test_alignment_one_option_mismatch():
-    """Any single option not matching should cause failure."""
-    # "迎战妖兽" contains "妖兽" (match), "去集市购物" doesn't (fail)
+    """Any single option not matching 3+ char keyword should cause failure."""
     assert check_narrative_option_alignment(
-        "深山遇到妖兽袭击",
-        [{"text": "迎战妖兽"}, {"text": "去集市购物"}],
+        "你在后山修炼功法",
+        [{"text": "在后山修炼"}, {"text": "去集市购物"}],
     ) is False
 
 
@@ -321,11 +319,11 @@ def test_alignment_no_chinese():
 
 
 def test_alignment_longer_narrative():
-    """Longer narrative with richer keyword set — all options match."""
-    narrative = "白发老者手持断剑坐在山道旁，血迹斑斑的衣袍说明他刚经历一场恶战"
+    """Longer narrative with richer 3+ char keyword set — all options match."""
+    narrative = "白发老者手持断剑坐在山道旁休息"
     options = [
-        {"text": "上前询问老者伤势"},
-        {"text": "接过断剑查看"},
-        {"text": "警觉后退远离山道"},
+        {"text": "上前询问白发老者"},
+        {"text": "手持断剑查看"},
+        {"text": "坐在山道旁修炼"},
     ]
     assert check_narrative_option_alignment(narrative, options) is True

@@ -101,7 +101,7 @@ def check_narrative_option_alignment(narrative: str, options: list[dict]) -> boo
     # Build keyword set: sliding window of 2-4 char Chinese substrings
     keywords: set[str] = set()
     for i in range(len(narrative)):
-        for length in (2, 3, 4):
+        for length in (3, 4):
             if i + length <= len(narrative):
                 chunk = narrative[i:i + length]
                 if re.fullmatch(r'[\u4e00-\u9fff]+', chunk):

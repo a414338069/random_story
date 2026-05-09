@@ -8,7 +8,9 @@ trigger_conditions:
   max_age: 500
   required_faction: null
 weight: 0.5
-scenarios: []
+scenarios:
+  - generic_daily
+  - has_technique
 trigger_tags:
   require_all: []
   require_any: []

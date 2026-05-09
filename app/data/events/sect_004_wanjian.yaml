@@ -1,5 +1,5 @@
 id: "sect_004_wanjian"
-type: "daily"
+type: "sect"
 title: "剑阁修炼"
 trigger_conditions:
   min_realm: "炼气"
@@ -8,7 +8,9 @@ trigger_conditions:
   max_age: 500
   required_faction: "万剑山庄"
 weight: 0.8
-scenarios: []
+scenarios:
+  - faction_万剑山庄
+  - faction_life
 trigger_tags:
   require_all: []
   require_any: []

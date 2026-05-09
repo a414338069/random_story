@@ -1,5 +1,5 @@
 id: "sect_014_jingang"
-type: "daily"
+type: "sect"
 title: "金刚锻体"
 trigger_conditions:
   min_realm: "炼气"

@@ -9,7 +9,8 @@ trigger_conditions:
   max_age: 16
   required_faction: null
 weight: 6.0
-scenarios: []
+scenarios:
+  - childhood
 trigger_tags:
   require_all: []
   require_any: []

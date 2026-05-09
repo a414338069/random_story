@@ -1,5 +1,5 @@
 id: "childhood_005"
-type: "narrative"
+type: "childhood"
 narrative_only: true
 title: "喃喃自语"
 trigger_conditions:
@@ -9,7 +9,8 @@ trigger_conditions:
   max_age: 3
   required_faction: null
 weight: 8.0
-scenarios: []
+scenarios:
+  - childhood
 trigger_tags:
   require_all: []
   require_any: []

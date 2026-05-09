@@ -28,6 +28,17 @@ _EMPTY_RESULT: dict = {"narrative": "", "options": []}
 _MODEL_FLASH = "deepseek-v4-flash"
 _MODEL_PRO = "deepseek-v4-pro"
 
+_AI_CALL_BUDGET_PER_SESSION = 100
+_ai_call_counts: dict[str, int] = {}
+
+
+def get_ai_call_count(session_id: str) -> int:
+    return _ai_call_counts.get(session_id, 0)
+
+
+def reset_ai_call_count(session_id: str) -> None:
+    _ai_call_counts.pop(session_id, None)
+
 _L1_NARRATIVES_DAILY = [
     "日子如水般流过，你每日在山中砍柴挑水，日出而作，日落而息。虽然辛苦，却也磨砺了心志。",
     "这一年平平淡淡地过去了。你在田埂间劳作，偶尔抬头看天边云卷云舒，心中偶尔闪过一丝对远方的向往。",
@@ -161,7 +172,7 @@ def should_use_ai(event_ctx: dict, state: dict | None = None) -> str:
 
     if narrative_only:
         return "L1"
-    if event_type in ("childhood", "birth", "youth"):
+    if event_type in ("childhood", "birth", "youth", "narrative"):
         return "L1"
     if event_tier == "L1":
         return "L1"
@@ -171,6 +182,11 @@ def should_use_ai(event_ctx: dict, state: dict | None = None) -> str:
 
     if event_type == "bottleneck":
         return "L4"
+
+    # Honor explicit event_tier when template has prompt_template (e.g. sect templates
+    # with type="sect"/"daily" + event_tier="L3" should use AI, not L2 fallback)
+    if event_tier in ("L3", "L4") and template.get("prompt_template"):
+        return event_tier
 
     if event_type in ("adventure", "combat", "social", "explore", "heavenly", "fortune"):
         return "L3"
@@ -196,12 +212,12 @@ def generate_l1_narrative(event_ctx: dict) -> dict:
         pool = _L1_NARRATIVES_BIRTH
     elif event_type in ("childhood",):
         pool = _L1_NARRATIVES_CHILDHOOD
-    elif narrative_only:
+    elif event_type in ("narrative",) or narrative_only:
         pool = _L1_NARRATIVES_QUIET
     else:
         pool = _L1_NARRATIVES_DAILY
 
-    narrative = random.choice(pool) if pool else fallback
+    narrative = fallback if fallback else (random.choice(pool) if pool else "")
 
     result: dict = {"narrative": narrative}
 
@@ -334,6 +350,7 @@ def _call_deepseek(model: str, prompt: str, max_retries: int = 2) -> dict:
         {"role": "user", "content": prompt},
     ]
 
+    t0 = time.monotonic()
     for attempt in range(max_retries + 1):
         try:
             response = client.chat.completions.create(
@@ -349,6 +366,11 @@ def _call_deepseek(model: str, prompt: str, max_retries: int = 2) -> dict:
                     time.sleep(1)
                     continue
                 return dict(_EMPTY_RESULT)
+            elapsed = time.monotonic() - t0
+            _logger.info(
+                "AI call ok model=%s attempt=%d latency=%.1fs",
+                model, attempt + 1, elapsed,
+            )
             return json.loads(content)
         except json.JSONDecodeError as e:
             _logger.error("AI returned invalid JSON (model=%s): %s", model, e)
@@ -441,9 +463,20 @@ def generate_event(
     if prompt is None:
         prompt = event_ctx.get("prompt", "")
 
+    session_id = (state or {}).get("session_id", "")
+    count = _ai_call_counts.get(session_id, 0)
+    if count >= _AI_CALL_BUDGET_PER_SESSION:
+        _logger.info(
+            "AI budget exhausted sid=%s count=%d budget=%d → L1 fallback",
+            session_id[:8], count, _AI_CALL_BUDGET_PER_SESSION,
+        )
+        return generate_l1_narrative(event_ctx)
+
     result = _call_ai_with_fallback(ai_service, prompt, state or {}, tier)
     if result and isinstance(result, dict) and result.get("narrative"):
         result["_tier"] = tier
+        if session_id:
+            _ai_call_counts[session_id] = count + 1
         return result
 
     if tier == "L4":
@@ -451,6 +484,8 @@ def generate_event(
         result = _call_ai_with_fallback(ai_service, prompt, state or {}, "L3")
         if result and isinstance(result, dict) and result.get("narrative"):
             result["_tier"] = "L3"
+            if session_id:
+                _ai_call_counts[session_id] = _ai_call_counts.get(session_id, 0) + 1
             return result
 
     _logger.info("Falling back to L1 (rule-based) for event type=%s", event_type)

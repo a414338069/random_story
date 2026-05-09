@@ -38,8 +38,8 @@ def validate_all_templates() -> bool:
             if len(opts) != 0:
                 errors.append(f"{f.name}: narrative_only event should have empty options")
         else:
-            if not (2 <= len(opts) <= 3):
-                errors.append(f"{f.name}: options count {len(opts)} not in 2-3")
+            if not (2 <= len(opts) <= 4):
+                errors.append(f"{f.name}: options count {len(opts)} not in 2-4")
 
         realm_narratives = data.get("realm_narratives", {})
         if realm_narratives:
