@@ -101,7 +101,7 @@ def check_narrative_option_alignment(narrative: str, options: list[dict]) -> boo
     # Build keyword set: sliding window of 2-4 char Chinese substrings
     keywords: set[str] = set()
     for i in range(len(narrative)):
-        for length in (3, 4):
+        for length in (2, 3, 4):
             if i + length <= len(narrative):
                 chunk = narrative[i:i + length]
                 if re.fullmatch(r'[\u4e00-\u9fff]+', chunk):
@@ -110,14 +110,19 @@ def check_narrative_option_alignment(narrative: str, options: list[dict]) -> boo
     if not keywords:
         return True
 
+    # Allow alignment to pass if at least half of the options match
+    # (was: require ALL options to match, which produced excessive false negatives)
+    matched = 0
+    total = 0
     for opt in options:
         opt_text = opt.get("text", "")
         if not opt_text:
             continue
-        if not any(kw in opt_text for kw in keywords):
-            return False
+        total += 1
+        if any(kw in opt_text for kw in keywords):
+            matched += 1
 
-    return True
+    return total == 0 or matched >= max(1, total // 2)
 
 
 # TODO(Phase 2): Wire validate_ai_output into game_service.get_next_event() 

@@ -408,7 +408,7 @@ def _call_ai_with_fallback(
         except Exception as e:
             _logger.warning("ai_service.generate_event failed: %s", e)
 
-    model = _MODEL_PRO if tier == "L4" else _MODEL_FLASH
+    model = _MODEL_FLASH
     try:
         result = _call_deepseek(model, prompt)
         if result and isinstance(result, dict) and result.get("narrative"):

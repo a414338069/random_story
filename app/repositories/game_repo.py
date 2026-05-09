@@ -45,6 +45,24 @@ def _deserialize_json_value(val: str | None) -> dict | list | str | None:
     return val
 
 
+def _deserialize_pydantic_or_default(raw, model_cls, default_factory):
+    """Convert a plain dict back to a Pydantic model instance, or return a default on failure.
+
+    This is needed because ``_deserialize_json_value`` always returns a plain ``dict``
+    after ``json.loads`` — it never reconstructs Pydantic model objects. Calling this
+    ensures that ``TagSet``, ``StoryMemorySet`` etc. are proper typed objects when the
+    game state is loaded from the database.
+    """
+    if isinstance(raw, model_cls):
+        return raw
+    if isinstance(raw, dict):
+        try:
+            return model_cls.model_validate(raw)
+        except Exception:
+            return default_factory()
+    return default_factory()
+
+
 def _state_to_db_row(state: dict) -> dict:
     """Flatten a game_service state dict into a row for the ``players`` table."""
     attrs = state.get("attributes", {})
@@ -139,8 +157,12 @@ def _db_row_to_state(row: sqlite3.Row) -> dict:
         "save_slot": d.get("save_slot", 0),
         "_pending_breakthrough": bool(d.get("_pending_breakthrough", 0)),
         "_breakthrough_next_req": d.get("_breakthrough_next_req", 0.0),
-        "tags": _deserialize_json_value(d.get("tags")),
-        "story_memory": _deserialize_json_value(d.get("story_memory")),
+        "tags": _deserialize_pydantic_or_default(
+            _deserialize_json_value(d.get("tags")), TagSet, lambda: TagSet()
+        ),
+        "story_memory": _deserialize_pydantic_or_default(
+            _deserialize_json_value(d.get("story_memory")), StoryMemorySet, lambda: StoryMemorySet()
+        ),
     }
 
 
