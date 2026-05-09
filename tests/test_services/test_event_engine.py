@@ -421,6 +421,51 @@ def test_weights_youth_factor():
     assert weighted[1][1] == pytest.approx(0.385)     # adventure: 0.55 * 0.7
 
 
+# ---------------------------------------------------------------------------
+# calculate_weights() — talent event_luck_bonus (T8)
+# ---------------------------------------------------------------------------
+
+
+def test_event_weights_with_talent_luck_bonus():
+    """event_luck_bonus from talents gets added to adventure event weight."""
+    templates = _make_templates(
+        ("adventure", False),
+        ("daily", False),
+    )
+    player = {"realm": "金丹", "luck": 0, "cultivation": 0, "age": 20, "faction": ""}
+
+    # 1) Without talents: base formula 0.3 + 0*0.05 = 0.3
+    weighted_no_talent = calculate_weights(templates, player)
+    assert weighted_no_talent[0][1] == pytest.approx(0.3)
+    assert weighted_no_talent[1][1] == pytest.approx(1.0)
+
+    # 2) With l03 (锦鲤命, event_luck_bonus=0.15)
+    weighted_l03 = calculate_weights(templates, player, {"talent_ids": ["l03"]})
+    assert weighted_l03[0][1] == pytest.approx(0.45)  # 0.3 + 0 + 0.15
+    assert weighted_l03[1][1] == pytest.approx(1.0)
+
+    # 3) ctx=None — backward compatible, behaves like no talents
+    player2 = {"realm": "金丹", "luck": 5, "cultivation": 0, "age": 20, "faction": ""}
+    weighted_none = calculate_weights(templates, player2, None)
+    assert weighted_none[0][1] == pytest.approx(0.55)  # 0.3 + 5*0.05
+
+    # 4) ctx with empty talent_ids — no bonus
+    weighted_empty = calculate_weights(templates, player2, {"talent_ids": []})
+    assert weighted_empty[0][1] == pytest.approx(0.55)
+
+    # 5) ctx without talent_ids key — no bonus (graceful)
+    weighted_no_key = calculate_weights(templates, player2, {"other": "value"})
+    assert weighted_no_key[0][1] == pytest.approx(0.55)
+
+    # 6) Talent without event_luck_bonus (f03 modifiers={}) — no bonus
+    weighted_f03 = calculate_weights(templates, player, {"talent_ids": ["f03"]})
+    assert weighted_f03[0][1] == pytest.approx(0.3)
+
+    # 7) Mixed: f03 (no bonus) + l03 (bonus=0.15) = 0.15
+    weighted_mixed = calculate_weights(templates, player, {"talent_ids": ["f03", "l03"]})
+    assert weighted_mixed[0][1] == pytest.approx(0.45)  # 0.3 + 0 + 0.15
+
+
 def test_weights_adult_no_youth_factor():
     """age=20 → 无 youth factor, 权重不变."""
     templates = _make_templates(

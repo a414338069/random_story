@@ -116,6 +116,36 @@ class TestStartGame:
         with pytest.raises(ValueError, match="性别必须是"):
             start_game("test", "其他", VALID_TALENT_IDS, _make_player_attrs_dict())
 
+    def test_start_game_applies_talent_attr_bonuses(self):
+        """天赋属性加成应应用到初始属性上。
+        f01: root_bone+1, l02: comprehension+3, x03: root_bone+2 comprehension+2 mindset+2 luck+2
+        base: rootBone=3 comprehension=3 mindset=2 luck=2
+        → rootBone=6 comprehension=8 mindset=4 luck=4
+        """
+        random.seed(42)
+        result = start_game("测试", "男", VALID_TALENT_IDS, _make_player_attrs_dict(root_bone=3, comprehension=3, mindset=2, luck=2))
+        attrs = result["attributes"]
+        assert attrs["rootBone"] == 6
+        assert attrs["comprehension"] == 8
+        assert attrs["mindset"] == 4
+        assert attrs["luck"] == 4
+
+    def test_start_game_rejects_empty_name_in_service(self):
+        """空姓名/纯空白姓名 → ValueError (defense-in-depth)."""
+        with pytest.raises(ValueError, match="姓名不能为空"):
+            start_game("", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
+
+        with pytest.raises(ValueError, match="姓名不能为空"):
+            start_game("   ", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
+
+    def test_start_game_accepts_valid_name(self):
+        """正常姓名不抛异常（正常名字走通，验证防御性检查不会误杀）. """
+        random.seed(42)
+        result = start_game("张三", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
+        assert result["name"] == "张三"
+        result2 = start_game("李 四", "男", VALID_TALENT_IDS, _make_player_attrs_dict())
+        assert result2["name"] == "李 四"
+
 
 # ---------------------------------------------------------------------------
 # get_next_event()
@@ -301,6 +331,38 @@ class TestCultivationFormula:
         # g0 = 10 * 1.0 * 0.5 = 5.0
         assert g10 == 2 * g0
 
+    def test_cultivation_gain_with_talent_modifier(self):
+        """Talent cultivation_speed modifier affects cultivation gain.
+
+        l02 过人悟性: learning_speed=0.15
+        Without talent: 10 * 1.5 * 0.5 * 1.0 = 7.5
+        With l02: 7.5 * (1 + 0.15) = 8.625
+        """
+        gain_talent = _calc_cultivation_gain("daily", 5, [], 20, talent_ids=["l02"])
+        gain_no_talent = _calc_cultivation_gain("daily", 5, [], 20, talent_ids=[])
+        assert gain_talent == pytest.approx(8.625)
+        assert gain_no_talent == 7.5
+        assert gain_talent > gain_no_talent
+
+    def test_cultivation_gain_talents_stack_additively(self):
+        """Multiple talent modifiers stack additively.
+
+        l02 learning_speed=0.15 + x03 cultivation_speed=0.2 = 0.35 total
+        7.5 * (1 + 0.35) = 10.125
+        """
+        gain = _calc_cultivation_gain("daily", 5, [], 20, talent_ids=["l02", "x03"])
+        assert gain == pytest.approx(10.125)
+
+    def test_cultivation_gain_no_talents_unchanged(self):
+        """No talents → behavior unchanged (regression)."""
+        gain = _calc_cultivation_gain("daily", 5, [], 20, talent_ids=[])
+        assert gain == 7.5  # same as test_daily_no_technique_comprehension_5
+
+    def test_cultivation_gain_talent_none_default(self):
+        """talent_ids=None → same as empty list."""
+        gain = _calc_cultivation_gain("daily", 5, [], 20, talent_ids=None)
+        assert gain == 7.5
+
 
 # ---------------------------------------------------------------------------
 # Cultivation overflow (修为溢出 → realm_progress)
@@ -334,9 +396,10 @@ class TestCultivationOverflow:
         _insert_current_event(sid, event_type="daily")
         _games[sid]["cultivation"] = 10
         new_state = process_choice(sid, "opt1")
-        # daily + comprehension=3 + no technique = 10 * 1.3 * 0.5 = 6.5
-        # 10 + 6.5 = 16.5 < 100, no overflow
-        assert new_state["cultivation"] == pytest.approx(16.5)
+        # comprehension=8 (3 base + 5 talent bonus) + no technique + talent_mod=1.35
+        # = 10 * 1.8 * 0.5 * 1.0 * 1.35 = 12.15
+        # 10 + 12.15 = 22.15 < 100, no overflow
+        assert new_state["cultivation"] == pytest.approx(22.15)
         assert new_state["realm_progress"] == 0.0
         assert "_pending_breakthrough" not in new_state
 
@@ -563,6 +626,40 @@ class TestBuildAIPrompt:
         assert "近期经历" not in prompt
         assert "上一轮结果" not in prompt
         assert "当前境界" in prompt
+
+    def test_build_ai_prompt_includes_talent_names(self):
+        """Prompt should contain 【天赋】 with talent names when talent_ids present."""
+        event_ctx = {
+            "player": {"realm": "凡人", "age": 20},
+            "event_type": "daily",
+            "title": "修炼",
+            "prompt": "test prompt",
+        }
+        state = {
+            "attributes": {"rootBone": 5, "comprehension": 5, "mindset": 5, "luck": 5},
+            "faction": "无",
+            "talent_ids": ["f01", "l02", "x03"],
+        }
+        prompt = _build_ai_prompt(event_ctx, state)
+        assert "【天赋】" in prompt
+        assert "粗壮体魄" in prompt
+        assert "过人悟性" in prompt
+        assert "先天道体" in prompt
+
+    def test_build_ai_prompt_no_talents(self):
+        """Prompt should contain 【天赋】无 when no talent_ids in state."""
+        event_ctx = {
+            "player": {"realm": "凡人", "age": 20},
+            "event_type": "daily",
+            "title": "修炼",
+            "prompt": "test prompt",
+        }
+        state = {
+            "attributes": {"rootBone": 5, "comprehension": 5, "mindset": 5, "luck": 5},
+            "faction": "无",
+        }
+        prompt = _build_ai_prompt(event_ctx, state)
+        assert "【天赋】无" in prompt
 
 
 class TestGetNextEventCaching:

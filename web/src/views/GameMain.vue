@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
-import { NButton } from 'naive-ui'
+import { computed, onMounted, ref } from 'vue'
+import { NButton, NIcon } from 'naive-ui'
+import { PersonOutline } from '@vicons/ionicons5'
 import StatusBar from '@/components/StatusBar.vue'
 import NarrativeLog from '@/components/NarrativeLog.vue'
 import OptionCard from '@/components/OptionCard.vue'
 import LoadingOverlay from '@/components/LoadingOverlay.vue'
+import PlayerStatusPanel from '@/components/PlayerStatusPanel.vue'
 import { useGameLoop } from '@/composables/useGameLoop'
 import { useGameState } from '@/composables/useGameState'
 import { useSaveLoad } from '@/composables/useSaveLoad'
@@ -25,7 +27,9 @@ const {
   setEventLog,
 } = useGameLoop()
 
-const { sessionId } = useGameState()
+const { sessionId, gameState } = useGameState()
+
+const showPanel = ref(false)
 
 onMounted(async () => {
   if (eventLog.value.length === 0 && sessionId.value) {
@@ -61,6 +65,21 @@ const displayAftermath = computed(() => currentEntry.value?.aftermath ?? afterma
 <template>
   <div class="game-main" @click="onGlobalClick">
     <StatusBar />
+
+    <div class="header-actions">
+      <NButton quaternary size="small" @click="showPanel = !showPanel">
+        <template #icon>
+          <NIcon><PersonOutline /></NIcon>
+        </template>
+        人物
+      </NButton>
+    </div>
+
+    <PlayerStatusPanel
+      v-if="gameState"
+      v-model:visible="showPanel"
+      :game-state="gameState"
+    />
 
     <div class="gm-content">
       <div v-if="phase === 'fetching' && eventLog.length === 0" class="gm-loading">
@@ -147,6 +166,14 @@ const displayAftermath = computed(() => currentEntry.value?.aftermath ?? afterma
   flex-direction: column;
   min-height: 100vh;
   background: var(--paper-white, #f6f3ed);
+  position: relative;
+}
+
+.header-actions {
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  z-index: 20;
 }
 
 .gm-content {

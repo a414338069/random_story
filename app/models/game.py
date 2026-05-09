@@ -1,7 +1,7 @@
 """Game lifecycle Pydantic v2 schemas."""
 
-from typing import Literal, Optional
-from pydantic import BaseModel, Field
+from typing import Annotated, Literal, Optional
+from pydantic import BaseModel, Field, StringConstraints
 
 from app.models.player import Attributes, PlayerState
 
@@ -9,7 +9,7 @@ from app.models.player import Attributes, PlayerState
 class GameStartRequest(BaseModel):
     """Request body for starting a new game."""
 
-    name: str
+    name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=10)]
     gender: Literal["男", "女"]
     talent_card_ids: list[str] = Field(min_length=3, max_length=3)
     attributes: Attributes

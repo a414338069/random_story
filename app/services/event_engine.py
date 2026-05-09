@@ -8,6 +8,7 @@ import random
 import yaml
 
 from app.services.realm_service import get_realm_config
+from app.services.talent_service import get_active_modifiers
 
 REALM_TIER_MAP = {
     1: "低阶", 2: "低阶", 3: "低阶",
@@ -181,12 +182,16 @@ def filter_templates(templates: list[dict], player_state: dict) -> list[dict]:
 
 
 def calculate_weights(
-    templates: list[dict], player_state: dict
+    templates: list[dict], player_state: dict, ctx: dict | None = None
 ) -> list[tuple[dict, float]]:
     luck = player_state.get("luck", 0)
     cultivation = player_state.get("cultivation", 0)
     realm = player_state.get("realm", "")
     player_age = player_state.get("age", 0)
+
+    talent_ids = (ctx or {}).get("talent_ids", [])
+    modifiers = get_active_modifiers(talent_ids) if talent_ids else {}
+    event_luck_bonus = modifiers.get("event_luck_bonus", 0.0)
 
     youth_weight_factor = 0.7 if 12 <= player_age <= 15 else 1.0
 
@@ -196,7 +201,7 @@ def calculate_weights(
         if event_type == "daily":
             weight = 1.0
         elif event_type == "adventure":
-            weight = 0.3 + luck * 0.05
+            weight = 0.3 + luck * 0.05 + event_luck_bonus
         elif event_type == "bottleneck":
             realm_config = get_realm_config(realm)
             req = realm_config.get("cultivation_req") if realm_config else None

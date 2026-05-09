@@ -65,6 +65,7 @@ describe('normalizeFromPydantic', () => {
     expect(result.score).toBe(0)
     expect(result.isAlive).toBe(true)
     expect(result.ascended).toBe(false)
+    expect(result.techniqueGrades).toEqual([])
   })
 })
 
@@ -82,5 +83,6 @@ describe('normalizeFromDict', () => {
     expect(result.isAlive).toBe(true)
     expect(result.ascended).toBe(false)
     expect(result.eventCount).toBe(5)
+    expect(result.techniqueGrades).toEqual([])
   })
 })
