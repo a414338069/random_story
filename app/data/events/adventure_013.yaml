@@ -1,0 +1,35 @@
+id: "adventure_013"
+type: "adventure"
+title: "云游四方"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "筑基"
+  min_age: 16
+  max_age: 100
+  required_faction: null
+weight: 0.5
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "你背上行囊离开家乡，踏上云游四方的旅途。走过名山大川，拜访各路散修和小宗门，虽然风餐露宿，但见识日益开阔..."
+fallback_narrative: "你整理好简单的行李，告别了熟悉的山村，踏上了通往远方的官道。沿途经过了一座座城池，遇到过江湖侠客，也结交过几位同样痴心向道的散修。每一次驻足和启程，都让你对这片修仙世界的广阔有了更深的感触。"
+default_options:
+  - id: "opt1"
+    text: "拜访当地小宗门的修士"
+    consequences:
+      cultivation_gain: 18
+      age_advance: true
+  - id: "opt2"
+    text: "在山野间采集药材变卖盘缠"
+    consequences:
+      cultivation_gain: 15
+      age_advance: true
+  - id: "opt3"
+    text: "帮助沿途百姓除妖降灾积攒功德"
+    consequences:
+      cultivation_gain: 22
+      age_advance: true

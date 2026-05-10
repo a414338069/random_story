@@ -1,0 +1,41 @@
+id: "sect_018"
+type: "sect"
+title: "内门任务"
+trigger_conditions:
+  min_realm: "炼气"
+  max_realm: "筑基"
+  min_age: 16
+  max_age: 100
+  required_faction: null
+  requires_any_faction: true
+weight: 1.0
+scenarios:
+  - generic_daily
+  - faction_life
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "宗门长老今日发布了一项内门任务。你作为门下弟子，可以选择接下不同难度的任务来磨砺自己。任务内容包括：巡山护法、采集灵药、或是前往附近城镇除妖。每项任务各有风险与收益。"
+fallback_narrative: "宗门长老发布了三项内门任务：巡山护法可积累功德，采集灵药可换取灵石，前往城镇除妖则是对战力的真正考验。你看着任务榜，心中权衡着利弊。"
+default_options:
+  - id: "opt1"
+    text: "接下巡山护法任务，安全稳妥"
+    consequences:
+      cultivation_gain: 15
+      spirit_stones_gain: 10
+      age_advance: true
+  - id: "opt2"
+    text: "接下采集灵药任务，深入山林"
+    consequences:
+      cultivation_gain: 20
+      spirit_stones_gain: 20
+      age_advance: true
+  - id: "opt3"
+    text: "接下除妖任务，以战养战"
+    consequences:
+      cultivation_gain: 35
+      spirit_stones_gain: 5
+      age_advance: true
+      health_change: -10

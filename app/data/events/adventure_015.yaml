@@ -1,0 +1,35 @@
+id: "adventure_015"
+type: "adventure"
+title: "异宝出世"
+trigger_conditions:
+  min_realm: "金丹"
+  max_realm: "大乘"
+  min_age: 100
+  max_age: 5000
+  required_faction: null
+weight: 0.2
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "天降异象！一道七彩光柱从远方的山脉中冲天而起，方圆千里都能感受到强烈的法宝气息。各大势力的修士闻讯而动，一场夺宝之争眼看就要展开..."
+fallback_narrative: "夜空被一道七彩光柱硬生生撕裂，方圆千里的灵气如潮水般向那道光柱汇聚。山中传出震耳欲聋的轰鸣声，隐约可见一件器物在光柱中缓缓旋转。你心神剧震——这是上古异宝出世的征兆！不出片刻，数道遁光已经从四面八方疾驰而来。"
+default_options:
+  - id: "opt1"
+    text: "抢先冲向光柱夺取异宝"
+    consequences:
+      cultivation_gain: 90
+      age_advance: true
+  - id: "opt2"
+    text: "在远处布阵,等各方混战后再出手"
+    consequences:
+      cultivation_gain: 60
+      age_advance: true
+  - id: "opt3"
+    text: "观察异宝认主的规律,伺机而动"
+    consequences:
+      cultivation_gain: 75
+      age_advance: true

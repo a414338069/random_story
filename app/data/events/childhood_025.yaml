@@ -1,0 +1,31 @@
+id: "childhood_025"
+type: "childhood"
+narrative_only: false
+title: "梦里仙人"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 5
+  max_age: 9
+  required_faction: null
+weight: 5.0
+scenarios:
+  - childhood
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: "你{age}岁了。最近你反复做同一个梦——梦里有一位白衣白须的老者站在云雾缭绕的山巅对你微笑，似乎在等你过去，但每当你快要靠近时梦就醒了。描述这个梦的细节。你醒来后的感受是什么？你相信这个梦意味着什么吗？200字以内，第二人称。"
+fallback_narrative: "梦的开头总是漫天大雾，什么都看不清。然后雾气慢慢散开，你发现自己站在一座你从未见过的高山山顶，脚下是翻涌的云海，头顶是伸手可及的星辰。一位白衣道人站在离你约三十步远的地方，白眉垂到胸前，面容慈祥得让你莫名想哭。他一句话不说，只是看着你微微点头，像是认出了你似的。每次你都拼命朝他跑，可距离似乎永远不变——你跑他就退，你不跑他也不走。梦中你能感觉到风吹在脸上的凉意，闻得到松针和云雾的气息，真实得不像梦。醒来时心还在狂跳，枕边似乎还残留着梦里的松脂香。你把这事告诉娘，娘笑着说你听老人讲故事听多了。可你知道那不是——你从来没有听过这种故事。"
+default_options:
+  - id: "opt1"
+    text: "努力记住梦的每一个细节——你觉得这梦很重要"
+    consequences:
+      cultivation_gain: 2
+      age_advance: true
+  - id: "opt2"
+    text: "开始独自往山里跑，寻找梦里那座山峰"
+    consequences:
+      cultivation_gain: 3
+      age_advance: true

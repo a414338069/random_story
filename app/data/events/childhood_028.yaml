@@ -1,0 +1,31 @@
+id: "childhood_028"
+type: "childhood"
+narrative_only: false
+title: "预见危险"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 8
+  max_age: 11
+  required_faction: null
+weight: 5.0
+scenarios:
+  - childhood
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: "你{age}岁了。有一次你和小伙伴在村外山脚玩耍时，你忽然感到一阵强烈的不安——心神不宁、后背发凉，就像是有人在耳边大声喊'快走'。你拉起小伙伴们就跑，刚跑出几十步，身后那块山体就发生了滑坡。描述这次不可思议的'预感'——事发前你有什么感觉？事后其他人怎么看？你如何理解这种突如其来的直觉？200字以内，第二人称。"
+fallback_narrative: "那天太阳正好，你和阿牛几个在山脚下一片碎石地上玩弹石子。玩到第三轮时，你心里冷不丁地窜起一阵说不清道不明的慌——不是肚子疼，也不是害怕，更像是有人在你背脊骨上洒了一把冰渣子，从后脖根一直凉到尾椎。你猛地抬头看向山坡，什么也看不见，可那股慌劲儿越来越猛，逼得你嗓子发干。'快跑！'你喊出这两个字时自己都不知道为什么喊。几个小伙伴愣了一拍，见你拔腿就跑也跟着跑了起来。刚跑出不到三十步，身后轰隆一声——一大片碎石和泥土从山坡上塌了下来，把你们刚才坐的位置埋了个严严实实。阿牛脸都白了，半天说不出话。后来村里人说你是运气好、命大。可你知道不是——在那一瞬间，你真的感觉到了什么，非常清楚，像是有人在背后推了你一把。"
+default_options:
+  - id: "opt1"
+    text: "暗自留意这种直觉——也许这不是第一次，也不会是最后一次"
+    consequences:
+      cultivation_gain: 3
+      age_advance: true
+  - id: "opt2"
+    text: "认为自己只是运气好——不愿再想太多"
+    consequences:
+      cultivation_gain: 1
+      age_advance: true

@@ -1,0 +1,31 @@
+id: "childhood_023"
+type: "childhood"
+narrative_only: false
+title: "邻居的葬礼"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 7
+  max_age: 11
+  required_faction: null
+weight: 5.0
+scenarios:
+  - childhood
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: "你{age}岁了。隔壁住的张爷爷去世了——他是你从小叫到大的邻居，给你吃过糖、编过竹马。这是你人生中第一次真正面对'死亡'。描述葬礼那天的场景。你看到了什么？你想到了什么？死亡对你这个年龄的孩子来说意味着什么？200字以内，第二人称。"
+fallback_narrative: "张爷爷的棺材沿着村路缓缓出殡时，唢呐声凄厉地划破了清晨。你站在自家门槛上，看着白色的人龙慢慢往后山移动，纸钱在风里打着旋。张爷爷是寿终正寝的，八十有六，算喜丧——可你一点也不觉得有什么可喜的。你想起他蹲在门槛上给你编竹蚂蚱的样子，手指粗糙得像老树皮；想起他把冰糖藏在大襟口袋里，每次见你都掏出一颗来。现在他躺在那口黑漆漆的棺材里，再也不会醒了。那天晚上你躺在床上问爹：'人死了之后去哪儿？'爹沉默了很长时间，只说了四个字——'化作黄土'。你不满意这个答案。你隐隐觉得不该只是这样，世间应该有另一种可能——一种不被黄土埋没的可能。这个想法像火星一样在你心里暗暗闪了一下。"
+default_options:
+  - id: "opt1"
+    text: "在张爷爷坟前放一朵野花——你第一次认真思考生死"
+    consequences:
+      cultivation_gain: 2
+      age_advance: true
+  - id: "opt2"
+    text: "暗暗下决心——将来我要找到超越寿命有限的秘密"
+    consequences:
+      cultivation_gain: 3
+      age_advance: true

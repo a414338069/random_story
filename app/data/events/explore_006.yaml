@@ -1,0 +1,35 @@
+id: "explore_006"
+type: "explore"
+title: "古阵破解"
+trigger_conditions:
+  min_realm: "筑基"
+  max_realm: "元婴"
+  min_age: 30
+  max_age: 500
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "你在探索一座荒废洞府时，被一道古老的守护阵法挡住了去路。阵法由七七四十九个符文节点组成，每隔一炷香时间就会自动变换排列顺序..."
+fallback_narrative: "洞府深处的石门上刻满了密密麻麻的阵法纹路，每一条纹路都以特殊的频率闪烁着灵光。你放出神识探查，发现这竟是一座循环变化的上古阵式。四十九个符文节点如星斗般排列流转，若解法有误恐怕会触发阵法的反击禁制。破阵本身就是一场修炼。"
+default_options:
+  - id: "opt1"
+    text: "推演符文规律逐一破解"
+    consequences:
+      cultivation_gain: 40
+      age_advance: true
+  - id: "opt2"
+    text: "以自身灵力强行冲击阵眼"
+    consequences:
+      cultivation_gain: 28
+      age_advance: true
+  - id: "opt3"
+    text: "从阵法边缘入手，逐步瓦解"
+    consequences:
+      cultivation_gain: 33
+      age_advance: true

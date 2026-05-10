@@ -1,0 +1,35 @@
+id: "combat_009"
+type: "combat"
+title: "魔修来袭"
+trigger_conditions:
+  min_realm: "金丹"
+  max_realm: "化神"
+  min_age: 80
+  max_age: 2000
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "数道漆黑的遁光划破天际，几名魔道修士闯入你的领地。为首之人周身环绕着浓重的血煞之气，桀桀怪笑道：「借阁下金丹一用，助我祭炼魔宝！」"
+fallback_narrative: "原本晴朗的天空忽然暗了下来，阴风阵阵，连空气都变得黏稠压抑。三道漆黑的遁光如陨星般坠落在你前方百丈处，三个黑袍人缓缓站直了身。为首那人摘下兜帽，一双猩红的眸子死死盯着你，周身散发的血煞之气让方圆十里的草木迅速枯萎。这是货真价实的魔修，绝非善类。"
+default_options:
+  - id: "opt1"
+    text: "正面迎战魔修，以正道修为压制魔气"
+    consequences:
+      cultivation_gain: 50
+      age_advance: true
+  - id: "opt2"
+    text: "祭出法宝，先废其魔器"
+    consequences:
+      cultivation_gain: 40
+      age_advance: true
+  - id: "opt3"
+    text: "以阵法困敌，占据地利"
+    consequences:
+      cultivation_gain: 45
+      age_advance: true

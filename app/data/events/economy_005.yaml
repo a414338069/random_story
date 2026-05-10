@@ -1,0 +1,36 @@
+id: "economy_005"
+type: "economy"
+title: "灵药交易"
+trigger_conditions:
+  min_realm: "炼气"
+  max_realm: "金丹"
+  min_age: 16
+  max_age: 300
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "坊市中出现了一批罕见的灵药，不少修士趋之若鹜，价格一路水涨船高..."
+fallback_narrative: "坊市中出现了一批罕见的灵药，不少修士趋之若鹜，价格一路水涨船高，正是考验眼光和财力的时候。"
+default_options:
+  - id: "opt1"
+    text: "高价购入"
+    consequences:
+      cultivation_gain: 30
+      age_advance: true
+      spirit_stones_gain: -20
+  - id: "opt2"
+    text: "以物易药"
+    consequences:
+      cultivation_gain: 20
+      age_advance: true
+  - id: "opt3"
+    text: "自行培植"
+    consequences:
+      cultivation_gain: 10
+      age_advance: true

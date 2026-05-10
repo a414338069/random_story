@@ -1,0 +1,36 @@
+id: "youth_006"
+type: "youth"
+narrative_only: false
+title: "游方僧人"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 12
+  max_age: 15
+  required_faction: null
+weight: 1.0
+scenarios:
+  - childhood
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: "你{age}岁了。一位云游四方的老僧人在你家门前的水井旁歇脚。他面容慈悲，眼神深邃如古井。他见你好奇地打量他，便招手让你过去，从怀中取出一卷泛黄的经书，说这是他在西域佛国所得，与你有缘。你不确定这是佛门功法还是普通的经文。"
+fallback_narrative: "你{age}岁了。一位云游老僧在你家门前歇脚，他从怀中取出一卷泛黄经书，说这是西域佛国所得，与你有缘。你接过经书，虽然还看不懂上面的文字，但感到一丝奇异的暖流从书中传来。"
+default_options:
+  - id: "opt_a"
+    text: "恭敬收下经书，认真研读"
+    consequences:
+      cultivation_gain: 8
+      age_advance: true
+  - id: "opt_b"
+    text: "向老僧人请教佛法真谛"
+    consequences:
+      cultivation_gain: 6
+      age_advance: true
+  - id: "opt_c"
+    text: "婉拒好意，觉得和尚不靠谱"
+    consequences:
+      cultivation_gain: 2
+      age_advance: true

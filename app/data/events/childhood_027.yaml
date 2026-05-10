@@ -1,0 +1,31 @@
+id: "childhood_027"
+type: "childhood"
+narrative_only: false
+title: "触摸灵石"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 7
+  max_age: 11
+  required_faction: null
+weight: 5.0
+scenarios:
+  - childhood
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: "你{age}岁了。村口的货郎摊上摆着一块不起眼的暗绿色石头——别人摸上去都说就是块普通石头，可你指尖刚一碰，就感到一阵微弱的电流从指尖蹿上手臂。描述这个奇异的瞬间。货郎注意到了吗？你之后对这块石头做了什么？这第一次接触'灵力'的体验为你带来了什么感受？200字以内，第二人称。"
+fallback_narrative: "货郎的摊子在村口大槐树下，花花绿绿摆了半条毡子。你在针头线脑、麦芽糖和陶泥哨子之间一眼就看到了那颗石头——暗绿色、拳头大小、表面粗糙，扔进河里绝对没人会多看一眼。可你鬼使神差地把它捡了起来。就在指尖碰到石面的瞬间，你感到一丝极细微的麻意从指尖窜上手腕，然后沿着手臂一路蔓延到肩膀——不像被火烧，也不像被针刺，而是像有一道温热的水流在你骨头缝里游走了一圈。你吓了一跳，手一松，石头掉回毡子上。货郎大叔正在给旁边的婶子称盐，压根没注意你。你站在那里愣了半晌，趁人少时又偷偷把那块石头买了下来——花了你两文钱。从那以后你每天晚上睡前都要把这石头握在手心，虽然大多数时候它安安静静什么反应都没有，但偶尔——只是偶尔——那种温流又会来一次，每次都让你觉得离某个秘密更近了一步。"
+default_options:
+  - id: "opt1"
+    text: "每天把玩这块石头——你想搞清楚那股温热到底是什么"
+    consequences:
+      cultivation_gain: 3
+      age_advance: true
+  - id: "opt2"
+    text: "请教路过游方道人——也许他知道这块石头的来历"
+    consequences:
+      cultivation_gain: 2
+      age_advance: true

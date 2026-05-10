@@ -1,0 +1,21 @@
+id: "narrative_005"
+type: "narrative"
+title: "云游四方"
+trigger_conditions:
+  min_realm: "金丹"
+  max_realm: "化神"
+  min_age: 80
+  max_age: 3000
+  required_faction: null
+weight: 0.5
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+narrative_only: true
+default_options: []
+prompt_template: "你御剑而行，云游四方。脚下是万里山河，头顶是无尽苍穹。你路过凡人的城池，也拜访修仙的宗门；你在雪山之巅打坐，也在沙漠深处悟道。每一次云游都是一次对天地大道的叩问，每一次驻足都是一次心境的升华。"
+fallback_narrative: "你御剑而行，云游四方。脚下是万里山河，头顶是无尽苍穹。路过凡人的城池，拜访修仙的宗门；在雪山之巅打坐，在沙漠深处悟道。每一次云游都是一次对大道的叩问，每一次驻足都是一次心境的升华。"

@@ -1,0 +1,35 @@
+id: "daily_021"
+type: "daily"
+title: "天劫余波"
+trigger_conditions:
+  min_realm: "化神"
+  max_realm: "合体"
+  min_age: 500
+  max_age: 5000
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "千里之外的某位大能正在渡劫，天威浩荡，连你所在的洞府都感受到了强烈的灵力波动。劫雷撕裂虚空，天地法则在这一刻变得异常活跃..."
+fallback_narrative: "天空突然变得昏暗，远方天际线上出现了大片赤红色的劫云。沉闷的雷声滚滚而来，震得洞府四壁簌簌落下灰尘。尽管不是你在渡劫，但天劫余波中蕴含的天地之力仍让你体内的真元不受控制地沸腾起来。这正是参悟天劫法则的绝佳时机。"
+default_options:
+  - id: "opt1"
+    text: "全力感知天劫中的法则之力"
+    consequences:
+      cultivation_gain: 50
+      age_advance: true
+  - id: "opt2"
+    text: "运功抵抗余波,借压力淬炼真元"
+    consequences:
+      cultivation_gain: 40
+      age_advance: true
+  - id: "opt3"
+    text: "远远观望,记录天劫的规律"
+    consequences:
+      cultivation_gain: 35
+      age_advance: true

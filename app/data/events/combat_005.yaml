@@ -1,0 +1,35 @@
+id: "combat_005"
+type: "combat"
+title: "山贼劫道"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "炼气"
+  min_age: 12
+  max_age: 60
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "你赶路时路过一处险要的山隘，突然从石壁后跳出十来个手持刀棍的山贼。为首的光头大汉将刀横在路中间，恶狠狠地道：「此路是我开！」"
+fallback_narrative: "山路越走越窄，两侧的山壁陡峭得像刀削的一样。你正暗自警惕，忽听一声唿哨，十几条人影从乱石堆后蹿了出来，转眼就将前后道路封堵得严严实实。为首的山贼满脸横肉，手中的钢刀在阳光下闪着寒光。"
+default_options:
+  - id: "opt1"
+    text: "正面迎战，打退山贼"
+    consequences:
+      cultivation_gain: 20
+      age_advance: true
+  - id: "opt2"
+    text: "施展身法绕过山贼突围"
+    consequences:
+      cultivation_gain: 15
+      age_advance: true
+  - id: "opt3"
+    text: "放出气势震慑山贼，逼其退让"
+    consequences:
+      cultivation_gain: 18
+      age_advance: true

@@ -1,0 +1,35 @@
+id: "fortune_004"
+type: "fortune"
+title: "天降机缘"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "筑基"
+  min_age: 10
+  max_age: 100
+  required_faction: null
+weight: 0.2
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "夜观星象，一颗流星划破长空坠入附近山林，隐隐有灵光闪烁..."
+fallback_narrative: "夜观星象，一颗流星划破长空坠入附近山林，隐隐有灵光闪烁，似乎是天降机缘不可错过。"
+default_options:
+  - id: "opt1"
+    text: "孤身追寻"
+    consequences:
+      cultivation_gain: 70
+      age_advance: true
+  - id: "opt2"
+    text: "谨慎观察"
+    consequences:
+      cultivation_gain: 35
+      age_advance: true
+  - id: "opt3"
+    text: "呼唤同伴"
+    consequences:
+      cultivation_gain: 50
+      age_advance: true

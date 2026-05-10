@@ -1,0 +1,31 @@
+id: "childhood_017"
+type: "childhood"
+narrative_only: false
+title: "分离之痛"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 7
+  max_age: 11
+  required_faction: null
+weight: 5.0
+scenarios:
+  - childhood
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: "你{age}岁了。你最要好的朋友要跟着家人搬去远方了——也许是因为战乱、瘟疫，又或者只是日子过不下去了。描述离别的那一刻。你做了什么来纪念这段友谊？你心中第一次尝到了真正的'失去'是什么滋味？这又如何改变了你？200字以内，第二人称。"
+fallback_narrative: "铁蛋走的那天，天灰蒙蒙的。他爹说要去南方投靠亲戚，走水路，不知道什么时候才能回来。你站在村口那棵大槐树下，看着铁蛋一家人的牛车慢慢变成一个小黑点。铁蛋趴在车板上一动不动地望着你，直到拐过那道弯才消失不见。你攥着那只修好的草编蚱蜢——被他留着的那只——手心全是汗。傍晚你一个人坐在山腰的石头上看了很久的落日，第一次明白了什么叫'再也回不去了'。你不再是那个没心没肺的小孩了。有些东西失去了就是失去了，你能带走的只有回忆，但回忆本身就是一份礼物。"
+default_options:
+  - id: "opt1"
+    text: "送铁蛋一件自己最珍爱的礼物——愿他在远方平安"
+    consequences:
+      cultivation_gain: 2
+      age_advance: true
+  - id: "opt2"
+    text: "对着远去的牛车大喊'我会去找你的'——在心里种下一颗种子"
+    consequences:
+      cultivation_gain: 3
+      age_advance: true

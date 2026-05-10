@@ -1,0 +1,21 @@
+id: "narrative_002"
+type: "narrative"
+title: "闭关修炼"
+trigger_conditions:
+  min_realm: "炼气"
+  max_realm: "金丹"
+  min_age: 16
+  max_age: 500
+  required_faction: null
+weight: 0.5
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+narrative_only: true
+default_options: []
+prompt_template: "你决定闭关修炼。石室的门缓缓关闭，外界的一切喧嚣都被隔绝在外。你在昏暗的室内点燃长明灯，盘坐在蒲团上，开始了一段不问世事的苦修。灵力在经脉中如溪水般缓缓流淌，你沉浸在修炼的玄妙境界中，忘却了时间的流逝。"
+fallback_narrative: "石室门缓缓关闭，你点燃长明灯，盘坐在蒲团上开始了不问世事的苦修。灵力在经脉中如溪水般流淌，你沉浸在修炼的玄妙境界中。当长明灯燃尽又点燃时，你已经不知自己闭关了多久，只感到修为在静默中稳步提升。"

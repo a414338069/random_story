@@ -1,0 +1,36 @@
+id: "heavenly_004"
+type: "heavenly"
+title: "心魔来袭"
+trigger_conditions:
+  min_realm: "筑基"
+  max_realm: "元婴"
+  min_age: 30
+  max_age: 800
+  required_faction: null
+weight: 0.4
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "夜深人静之时，你突然感到一阵莫名的心悸。识海中浮现出模糊的身影——那是你深埋心底的恐惧与悔恨。心魔悄然而至，它以你最脆弱的一面为食。你知道，如果不能及时抵御心魔的侵蚀，轻则修为倒退，重则走火入魔。"
+fallback_narrative: "深夜，心魔悄然而至，以你心底最脆弱的记忆和恐惧为食。识海被搅得天翻地覆，你感到修为境界都在摇摇欲坠。这是每个修士都必须面对的考验。"
+default_options:
+  - id: "opt1"
+    text: "以道心坚定意志，直面心魔"
+    consequences:
+      cultivation_gain: 45
+      age_advance: true
+  - id: "opt2"
+    text: "念诵清心咒，驱散杂念"
+    consequences:
+      cultivation_gain: 30
+      age_advance: true
+  - id: "opt3"
+    text: "服用定神丹，强行压制心魔"
+    consequences:
+      cultivation_gain: 25
+      spirit_stones_gain: -40
+      age_advance: true

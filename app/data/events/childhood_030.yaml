@@ -1,0 +1,31 @@
+id: "childhood_030"
+type: "childhood"
+narrative_only: false
+title: "溪边灵鱼"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 5
+  max_age: 9
+  required_faction: null
+weight: 5.0
+scenarios:
+  - childhood
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: "你{age}岁了。你在溪边摸鱼时，看见溪底有一条全身泛着淡淡蓝光的鱼——鳞片在日光下闪烁得像宝石。你伸手去捞，它却在你指尖前一寸消失了，水面连涟漪都没留下。描述这个奇妙的经历——那条鱼长什么样？你是不是看花了眼？这次偶遇在你心中留下了什么？200字以内，第二人称。"
+fallback_narrative: "那条山溪就藏在村子西面的竹林后，水清得能数清水底的鹅卵石。每年夏天你最喜欢卷起裤腿踩进去摸螃蟹和小鱼。那天阳光正好照在水面，你忽然看见溪底一条白得透明般的鱼——不，不是白，是泛着浅浅的蓝光，像有人在水下点了一盏小灯。那鱼不大，顶多你巴掌长，鳞片细密，游动时身后拖着一小串细碎的光点。你屏住呼吸慢慢弯下腰，眼看手指尖快碰到鱼背了——它就那么忽然没了。不是游走了，是没了，像水泡一样无声无息地消散在你眼前。你把手在水里来回捞了好几遍，什么也没摸着。回家后你跟娘说溪里有会发光的鱼，娘说水影晃了眼而已。但你知道不是——那天起你每隔几天就往那条溪边跑，盼着再看见那条蓝色的光，可它没有再出现过。"
+default_options:
+  - id: "opt1"
+    text: "经常去溪边守候——你相信那条灵鱼是真实存在的"
+    consequences:
+      cultivation_gain: 3
+      age_advance: true
+  - id: "opt2"
+    text: "把这件事当做一个美丽的秘密藏在心底"
+    consequences:
+      cultivation_gain: 2
+      age_advance: true

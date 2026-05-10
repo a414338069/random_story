@@ -1,0 +1,31 @@
+id: "childhood_020"
+type: "childhood"
+narrative_only: false
+title: "丰收节"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 4
+  max_age: 8
+  required_faction: null
+weight: 5.0
+scenarios:
+  - childhood
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: "你{age}岁了。今年秋天村子迎来了多年不遇的丰收，全村人决定办一场热闹的丰收节。描述你眼中的丰收节——篝火、歌舞、美食、庙会。在这个欢乐的夜晚，你是否遇到了什么特别的人或事？200字以内，第二人称。"
+fallback_narrative: "丰收节那天，打谷场上竖起了三根高高的竹竿，上面挂满了红灯笼，把半个村子照得暖融融的。你举着一串糖葫芦在人缝里钻来钻去，鼻子里全是烤红薯和新米粥的香味。篝火烧到最旺时，村里请来的说书先生敲响了三弦，讲了一段古时剑仙大战妖魔的传奇。你挤在最前排，听得入了迷，糖葫芦化了滴在衣襟上都浑然不觉。散场后你一个人往回走，抬头看见一轮又大又圆的月亮挂在老槐树梢，心里忽然冒出一个念头——这世上除了种地吃饭、娶妻生子，是不是还有另一种活法？你回头望了一眼篝火的余烬，觉得自己好像忽然长大了那么一点点。"
+default_options:
+  - id: "opt1"
+    text: "围着篝火听老人讲故事——在这个夜晚心里种下了一颗种子"
+    consequences:
+      cultivation_gain: 2
+      age_advance: true
+  - id: "opt2"
+    text: "在庙会上默默许愿——希望有朝一日能去看看更大的世界"
+    consequences:
+      cultivation_gain: 3
+      age_advance: true

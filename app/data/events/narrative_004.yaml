@@ -1,0 +1,21 @@
+id: "narrative_004"
+type: "narrative"
+title: "旧地重游"
+trigger_conditions:
+  min_realm: "筑基"
+  max_realm: "元婴"
+  min_age: 30
+  max_age: 1000
+  required_faction: null
+weight: 0.5
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+narrative_only: true
+default_options: []
+prompt_template: "你回到了多年前修行过的地方。曾经熟悉的山门已经斑驳，当年种下的小树已经参天。旧地重游，物是人非——那些与你一同入门的师兄弟有的早已陨落，有的远走他乡。你站在曾经修炼的石台上，感受着岁月在景物上留下的痕迹，心中涌起无限感慨。"
+fallback_narrative: "你回到了多年前修行过的地方。熟悉的石门已经斑驳，当年种下的小树已长成参天大树。旧地重游，物是人非——那些曾与你一同入门的师兄弟有的早已陨落，有的远走他乡。你站在曾经修炼的石台上，心中涌起无限感慨。"

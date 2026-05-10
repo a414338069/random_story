@@ -1,0 +1,37 @@
+id: "economy_008"
+type: "economy"
+title: "拍卖奇珍"
+trigger_conditions:
+  min_realm: "金丹"
+  max_realm: "化神"
+  min_age: 80
+  max_age: 2000
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "一场高阶拍卖盛会即将举行，压轴之宝据说是上古大能遗留下的至宝，各方势力摩拳擦掌..."
+fallback_narrative: "一场高阶拍卖盛会即将举行，压轴之宝据说是上古大能遗留下的至宝，引得各路高手不远万里前来竞逐。"
+default_options:
+  - id: "opt1"
+    text: "竞拍宝物"
+    consequences:
+      cultivation_gain: 45
+      age_advance: true
+      spirit_stones_gain: -40
+  - id: "opt2"
+    text: "旁观学习"
+    consequences:
+      cultivation_gain: 20
+      age_advance: true
+  - id: "opt3"
+    text: "出售藏品"
+    consequences:
+      cultivation_gain: 10
+      age_advance: true
+      spirit_stones_gain: 35

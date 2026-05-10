@@ -1,0 +1,35 @@
+id: "social_005"
+type: "social"
+title: "论道会友"
+trigger_conditions:
+  min_realm: "筑基"
+  max_realm: "金丹"
+  min_age: 30
+  max_age: 300
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "你受邀参加一场小型论道会，几位同境界的道友围坐论玄，各抒己见，气氛热络..."
+fallback_narrative: "你受邀参加一场小型论道会，几位同境界的道友围坐论玄，各抒己见，从清晨论至日暮方才尽兴而散，令你获益良多。"
+default_options:
+  - id: "opt1"
+    text: "切磋道法"
+    consequences:
+      cultivation_gain: 35
+      age_advance: true
+  - id: "opt2"
+    text: "分享心得"
+    consequences:
+      cultivation_gain: 25
+      age_advance: true
+  - id: "opt3"
+    text: "辩论玄理"
+    consequences:
+      cultivation_gain: 40
+      age_advance: true

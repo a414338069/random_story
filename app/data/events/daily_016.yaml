@@ -1,0 +1,35 @@
+id: "daily_016"
+type: "daily"
+title: "市集采买"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 10
+  max_age: 50
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "你在乡里集市采买日需，偶遇一个游方郎中正在兜售所谓的「灵丹妙药」..."
+fallback_narrative: "你在集市上逛了一圈，买了些干粮和布匹。无意间瞥见角落里一个游方郎中正唾沫横飞地向村民们吹嘘他的仙家丹药，引来一群人半信半疑地围观。"
+default_options:
+  - id: "opt1"
+    text: "买一颗试试运气"
+    consequences:
+      cultivation_gain: 10
+      age_advance: true
+  - id: "opt2"
+    text: "旁观热闹，不买药"
+    consequences:
+      cultivation_gain: 5
+      age_advance: true
+  - id: "opt3"
+    text: "当众揭穿骗术"
+    consequences:
+      cultivation_gain: 8
+      age_advance: true

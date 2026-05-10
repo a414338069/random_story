@@ -1,0 +1,37 @@
+id: "bottleneck_008"
+type: "bottleneck"
+title: "大乘瓶颈"
+trigger_conditions:
+  min_realm: "合体"
+  max_realm: "大乘"
+  min_age: 1000
+  max_age: 20000
+  required_faction: null
+weight: 2.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "合体境界让你已能调动部分天地之力，但大乘才是真正的半步飞升——需要将自身道果与天道完全印证。你感觉到瓶颈并非来自灵力的不足，而是你对「道」的理解还存在最后的盲点。大乘瓶颈是飞升前最后一道天堑，无数天骄在此止步。"
+fallback_narrative: "合体境界让你已能调动部分天地之力，但大乘需要将自身道果与天道完全印证。你感觉到瓶颈并非来自灵力的不足，而是你对「道」的理解还存在盲点。大乘瓶颈是飞升前最后一道天堑，无数天骄在此止步。"
+default_options:
+  - id: "opt1"
+    text: "强行印证道果，冲击大乘"
+    consequences:
+      cultivation_gain: 180
+      age_advance: true
+      health_change: -50
+  - id: "opt2"
+    text: "寻访上古道统，补全道之感悟"
+    consequences:
+      cultivation_gain: 130
+      spirit_stones_gain: -100
+      age_advance: true
+  - id: "opt3"
+    text: "以万年修为温养道果，等待机缘"
+    consequences:
+      cultivation_gain: 80
+      age_advance: true

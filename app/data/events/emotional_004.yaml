@@ -1,0 +1,35 @@
+id: "emotional_004"
+type: "emotional"
+title: "清修孤寂"
+trigger_conditions:
+  min_realm: "炼气"
+  max_realm: "金丹"
+  min_age: 16
+  max_age: 300
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "深山闭关数月，无人言语。月光洒落石室，你忽然感到一阵难以名状的孤独..."
+fallback_narrative: "深山闭关数月，无人言语。月光洒落石室，你忽然感到一阵难以名状的孤独涌上心头挥之不去。"
+default_options:
+  - id: "opt1"
+    text: "潜心修炼"
+    consequences:
+      cultivation_gain: 35
+      age_advance: true
+  - id: "opt2"
+    text: "出山散心"
+    consequences:
+      cultivation_gain: 20
+      age_advance: true
+  - id: "opt3"
+    text: "养灵宠为伴"
+    consequences:
+      cultivation_gain: 25
+      age_advance: true

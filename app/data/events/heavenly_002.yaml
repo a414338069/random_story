@@ -1,5 +1,5 @@
 id: "heavenly_002"
-type: "bottleneck"
+type: "heavenly"
 title: "天道感悟"
 trigger_conditions:
   min_realm: "金丹"

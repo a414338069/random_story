@@ -1,0 +1,35 @@
+id: "social_008"
+type: "social"
+title: "散修联盟"
+trigger_conditions:
+  min_realm: "金丹"
+  max_realm: "元婴"
+  min_age: 80
+  max_age: 500
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "一群无门无派的散修欲组建联盟，共御外敌、共享修炼资源，力邀你加入议事..."
+fallback_narrative: "一群无门无派的散修欲组建联盟，共御外敌、共享修炼资源，力邀你加入议事，许诺给你长老之位共商大计。"
+default_options:
+  - id: "opt1"
+    text: "加入联盟"
+    consequences:
+      cultivation_gain: 35
+      age_advance: true
+  - id: "opt2"
+    text: "保持独立"
+    consequences:
+      cultivation_gain: 20
+      age_advance: true
+  - id: "opt3"
+    text: "守望相助"
+    consequences:
+      cultivation_gain: 30
+      age_advance: true

@@ -1,0 +1,38 @@
+id: "heavenly_008"
+type: "heavenly"
+title: "飞升劫"
+trigger_conditions:
+  min_realm: "大乘"
+  max_realm: "大乘"
+  min_age: 5000
+  max_age: 20000
+  required_faction: null
+weight: 0.1
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "天地变色，万籁俱寂。你站在九天之上，体内大乘圆满的灵力与天道产生了最后的共鸣。飞升劫——这是修仙之路的终极考验，九重天雷将依次降临。每渡过一重，肉身与元神便升华一分；若失败，则万劫不复。整个修真界的目光都汇聚于此。"
+fallback_narrative: "天地变色，万籁俱寂。你体内大乘圆满的灵力与天道产生了最后的共鸣。飞升劫降临——九重天雷依次轰下，每一重都携带着毁天灭地之威。整个修真界的目光都汇聚于此，成败在此一举。"
+default_options:
+  - id: "opt1"
+    text: "以圆满道心硬渡飞升劫"
+    consequences:
+      cultivation_gain: 200
+      age_advance: true
+      health_change: -80
+  - id: "opt2"
+    text: "祭出所有法宝为护盾"
+    consequences:
+      cultivation_gain: 150
+      spirit_stones_gain: -200
+      age_advance: true
+  - id: "opt3"
+    text: "引天地灵气入体，与天劫合一"
+    consequences:
+      cultivation_gain: 250
+      age_advance: true
+      health_change: -120

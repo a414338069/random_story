@@ -1,0 +1,35 @@
+id: "combat_007"
+type: "combat"
+title: "同道切磋"
+trigger_conditions:
+  min_realm: "筑基"
+  max_realm: "金丹"
+  min_age: 30
+  max_age: 300
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "一位同境界的修士主动找上门来，拱手道：「久闻道友修为精深，今日特来讨教一二，还望不吝赐教。」他眼中战意盎然，显然是个修炼狂人..."
+fallback_narrative: "来者一身青衫，背负长剑，周身灵力内敛却自有一股锐气。他毫不拖泥带水，直接在你洞府外的空地上摆开了架势。周围的灵植被无形的剑意压得低伏在地，几只灵鸟惊飞而起。这一战，不论输赢，都将是一场难得的修炼契机。"
+default_options:
+  - id: "opt1"
+    text: "全力以赴，以战悟道"
+    consequences:
+      cultivation_gain: 35
+      age_advance: true
+  - id: "opt2"
+    text: "点到为止，切磋后交流心得"
+    consequences:
+      cultivation_gain: 25
+      age_advance: true
+  - id: "opt3"
+    text: "以限制条件应战，磨砺薄弱环节"
+    consequences:
+      cultivation_gain: 30
+      age_advance: true

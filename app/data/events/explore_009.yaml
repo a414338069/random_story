@@ -1,0 +1,35 @@
+id: "explore_009"
+type: "explore"
+title: "荒域探险"
+trigger_conditions:
+  min_realm: "化神"
+  max_realm: "大乘"
+  min_age: 500
+  max_age: 10000
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "你独自踏入位于修仙界边缘的荒芜之域——这里天地法则破碎，时空乱流肆虐，甚至连灵气都在此变得狂暴异常。但越是这种绝境，越可能藏着连上古修士都未曾触及的秘密..."
+fallback_narrative: "荒域的入口是一道被时空裂缝包围的峡谷。你深吸一口气，运起护体灵光，一头扎了进去。里面的一切都与外界截然不同：天空呈现诡异的紫色，大地被不知名的力量撕裂成无数漂浮的碎片，时空乱流如刀刃般在身侧呼啸。在荒域的最深处，你感应到了一股超越此界法则的力量波动。"
+default_options:
+  - id: "opt1"
+    text: "深入荒域核心探寻法则破碎的源头"
+    consequences:
+      cultivation_gain: 100
+      age_advance: true
+  - id: "opt2"
+    text: "在时空乱流中淬炼肉身与神识"
+    consequences:
+      cultivation_gain: 75
+      age_advance: true
+  - id: "opt3"
+    text: "采集荒域独有的混沌物质"
+    consequences:
+      cultivation_gain: 55
+      age_advance: true

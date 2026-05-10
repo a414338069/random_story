@@ -1,0 +1,36 @@
+id: "youth_007"
+type: "youth"
+narrative_only: false
+title: "天赋觉醒"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 12
+  max_age: 15
+  required_faction: null
+weight: 1.0
+scenarios:
+  - childhood
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: "你{age}岁了。一个雷雨交加的夜晚，你做了一个奇怪的梦——梦中你站在九天之上，周围是无尽的星河与仙宫。醒来后你发现自己的手掌竟然微微发光，能感受到空气中流动着的某种温暖的气息。村里的老人说这是「开天眼」的征兆，说明你有修仙的天赋。"
+fallback_narrative: "你{age}岁了。雷雨之夜做了一个奇怪的梦——梦中你站在九天之上，周围是无尽的星河与仙宫。醒来后你的手掌微微发光，竟能感受到空气中流动的温暖气息。村里的老人说这是「开天眼」的征兆，你有修仙的天赋。"
+default_options:
+  - id: "opt_a"
+    text: "兴奋地向父母宣告自己的天赋"
+    consequences:
+      cultivation_gain: 3
+      age_advance: true
+  - id: "opt_b"
+    text: "悄悄摸索这股灵力的用法"
+    consequences:
+      cultivation_gain: 10
+      age_advance: true
+  - id: "opt_c"
+    text: "冷静对待，先尝试控制灵力"
+    consequences:
+      cultivation_gain: 7
+      age_advance: true

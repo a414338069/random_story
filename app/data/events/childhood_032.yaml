@@ -1,0 +1,31 @@
+id: "childhood_032"
+type: "childhood"
+narrative_only: false
+title: "神鸟降临"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 7
+  max_age: 11
+  required_faction: null
+weight: 5.0
+scenarios:
+  - childhood
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: "你{age}岁了。一个雷雨过后的清晨，你家院子里的老枣树上忽然停着一只你从未见过的大鸟——羽翼青碧如翡翠，尾羽拖曳如流霞，鸣叫声清亮得仿佛能把空气割开。描述这次奇异的相遇。这只鸟在你家院子停了多久？它是否留下了什么东西？村中老人是怎么说的？200字以内，第二人称。"
+fallback_narrative: "电闪雷鸣了一整夜，天刚放亮你推门出去，就被枣树上那团翠光晃了眼睛。那是一只极其美丽的大鸟，立在枣树最高的枝头，浑身翠绿得像是用最好的翡翠雕出来的，尾部长长的翎羽在晨光里轻轻摆动，上面星星点点的金斑一闪一闪。它的眼睛是琥珀色的，正不偏不倚地看着你。你站在原地不敢动，连呼吸都忘了。它就那样静静地看了你约莫一盏茶的时间，然后忽然展翅——那翅膀展开时足有半个院墙那么宽，扫起一阵带着草木清香的微风。它飞走了，可它待过的那根枝头上，留下了一根翠绿的羽毛。你爬上去取下来时，指尖碰到羽毛的瞬间，听到了一个极轻极远的声音——分不清是鸟鸣还是人语，像是从很远很远的地方飘来的。村里的老寿星过来看过，说这种鸟叫青鸾，百年才现一次，落到谁家院子谁家就有大造化。你把这根羽毛藏在了自己枕头下。"
+default_options:
+  - id: "opt1"
+    text: "把那根羽毛好好珍藏——你相信这不是普通的鸟"
+    consequences:
+      cultivation_gain: 3
+      age_advance: true
+  - id: "opt2"
+    text: "回到院中仰望天空久久——那只鸟是从哪里来的？"
+    consequences:
+      cultivation_gain: 2
+      age_advance: true

@@ -1,0 +1,35 @@
+id: "combat_006"
+type: "combat"
+title: "妖兽围村"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "炼气"
+  min_age: 10
+  max_age: 80
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "你所在的村子遭到了一群低阶妖兽的袭击。村民惊慌失措地四处奔逃，几个胆子大的猎户拿着弓箭试图抵抗，但妖兽的数量实在太多了..."
+fallback_narrative: "天色刚刚擦黑，村口的猎犬就狂吠起来。紧接着，十几双碧绿的兽瞳在黑暗中亮起。村民们抄起锄头和柴刀涌向村口，但看到那比牛犊还大的妖兽时，不少人腿都软了。村里的老猎户急得直跺脚：「快，把火把都点起来！」"
+default_options:
+  - id: "opt1"
+    text: "一马当先带领村民反击"
+    consequences:
+      cultivation_gain: 25
+      age_advance: true
+  - id: "opt2"
+    text: "护送村民撤退到安全地带"
+    consequences:
+      cultivation_gain: 15
+      age_advance: true
+  - id: "opt3"
+    text: "设下陷阱诱杀妖兽"
+    consequences:
+      cultivation_gain: 20
+      age_advance: true

@@ -1,0 +1,35 @@
+id: "social_007"
+type: "social"
+title: "结交同道"
+trigger_conditions:
+  min_realm: "炼气"
+  max_realm: "筑基"
+  min_age: 16
+  max_age: 100
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "在一次历练中，你遇到几位修为相近的散修，彼此志趣相投，相谈甚欢..."
+fallback_narrative: "在一次历练中，你遇到几位修为相近的散修，彼此志趣相投，相谈甚欢，约定日后守望相助、共闯仙途。"
+default_options:
+  - id: "opt1"
+    text: "结伴同行"
+    consequences:
+      cultivation_gain: 30
+      age_advance: true
+  - id: "opt2"
+    text: "交换修炼心得"
+    consequences:
+      cultivation_gain: 25
+      age_advance: true
+  - id: "opt3"
+    text: "相互切磋"
+    consequences:
+      cultivation_gain: 35
+      age_advance: true

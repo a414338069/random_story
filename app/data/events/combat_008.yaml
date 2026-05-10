@@ -1,0 +1,35 @@
+id: "combat_008"
+type: "combat"
+title: "宗门比武"
+trigger_conditions:
+  min_realm: "炼气"
+  max_realm: "金丹"
+  min_age: 16
+  max_age: 300
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "宗门一年一度的论道比武大会拉开帷幕。擂台上灵光四射，台下座无虚席。掌门端坐高台，长老们分列两侧。轮到你上场了，对手是上一届的前八强..."
+fallback_narrative: "巨大的青石擂台被防御阵法笼罩着，半透明的灵力护罩上隐隐有符文流转。你的对手已经站在擂台中央，见你登台，微微点头致意。台下的师兄弟们发出了阵阵助威声。裁判长老轻咳一声，扬起手中令旗：「比武开始！」"
+default_options:
+  - id: "opt1"
+    text: "先发制人，抢占攻势"
+    consequences:
+      cultivation_gain: 35
+      age_advance: true
+  - id: "opt2"
+    text: "稳守反击，寻找破绽"
+    consequences:
+      cultivation_gain: 25
+      age_advance: true
+  - id: "opt3"
+    text: "以巧妙身法周旋，消耗对手灵力"
+    consequences:
+      cultivation_gain: 30
+      age_advance: true

@@ -1,0 +1,37 @@
+id: "stones_007"
+type: "stones"
+title: "寻灵探脉"
+trigger_conditions:
+  min_realm: "筑基"
+  max_realm: "元婴"
+  min_age: 30
+  max_age: 500
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "你听闻某处深山之中隐藏着一条未经开采的灵脉，若能找到则修炼资源不愁..."
+fallback_narrative: "你听闻某处深山之中隐藏着一条未经开采的灵脉，若能找到则修炼资源不愁，于是踏上了寻灵探脉之路。"
+default_options:
+  - id: "opt1"
+    text: "探查灵脉"
+    consequences:
+      cultivation_gain: 40
+      age_advance: true
+      spirit_stones_gain: 30
+  - id: "opt2"
+    text: "雇佣向导"
+    consequences:
+      cultivation_gain: 25
+      age_advance: true
+      spirit_stones_gain: -10
+  - id: "opt3"
+    text: "寻宝地探索"
+    consequences:
+      cultivation_gain: 30
+      age_advance: true

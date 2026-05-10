@@ -1,0 +1,21 @@
+id: "daily_022"
+type: "daily"
+narrative_only: true
+title: "白日飞升"
+trigger_conditions:
+  min_realm: "大乘"
+  max_realm: "大乘"
+  min_age: 1000
+  max_age: 20000
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: "你{age}岁这年，大乘圆满已臻至境。某一日，你静坐山巅，忽然通体金光大作，九天之上有仙乐隐隐传来。天地间灵气疯狂朝你汇聚，肉身开始变得通明如玉——白日飞升的时刻，终于到了。请描绘飞升前最后一刻的心境与天象异变。"
+fallback_narrative: "你盘膝坐在万丈高峰之巅，周身金光如潮水般涌动。苍穹裂开一道金色的缝隙，仙乐缥缈自九天之上传来，那是仙界对你的召唤。你感到肉身正在一点一点地转化为纯阳仙体，凡尘的一切束缚在这一刻彻底消散。这一生修行的终点，便是此刻的通天之门。"
+default_options: []

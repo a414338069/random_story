@@ -1,0 +1,36 @@
+id: "heavenly_005"
+type: "heavenly"
+title: "天道感应"
+trigger_conditions:
+  min_realm: "化神"
+  max_realm: "合体"
+  min_age: 500
+  max_age: 5000
+  required_faction: null
+weight: 0.2
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "你在静修中忽然进入了一种玄之又玄的境界——周围的天地法则仿佛变得清晰可见，一缕天道意志直接映入了你的识海。你能感受到天地万物运行的脉络，甚至隐约窥见了更高层次的力量。这种感应转瞬即逝，但你可以选择如何去回应它。"
+fallback_narrative: "静修中你忽然进入了一种玄妙的境界，天地法则清晰可见，一缕天道意志直接映入了你的识海。你感受到天地万物运行的脉络，仿佛触碰到了更高层次的力量本源。"
+default_options:
+  - id: "opt1"
+    text: "全力感悟天道法则"
+    consequences:
+      cultivation_gain: 100
+      age_advance: true
+  - id: "opt2"
+    text: "守住心神，只取领悟不贪天道"
+    consequences:
+      cultivation_gain: 60
+      age_advance: true
+  - id: "opt3"
+    text: "以天道感应为引，融合自身功法"
+    consequences:
+      cultivation_gain: 80
+      age_advance: true
+      health_change: -15

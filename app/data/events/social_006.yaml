@@ -1,0 +1,35 @@
+id: "social_006"
+type: "social"
+title: "师徒情深"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "炼气"
+  min_age: 10
+  max_age: 60
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "一位云游散修见你资质不俗，起了收徒之心，愿传你一门独门心法..."
+fallback_narrative: "一位云游散修见你资质不俗，起了收徒之心，愿传你一门独门心法，助你在修行路上走得更远更稳。"
+default_options:
+  - id: "opt1"
+    text: "拜师学艺"
+    consequences:
+      cultivation_gain: 35
+      age_advance: true
+  - id: "opt2"
+    text: "勤修苦练"
+    consequences:
+      cultivation_gain: 25
+      age_advance: true
+  - id: "opt3"
+    text: "侍奉师长"
+    consequences:
+      cultivation_gain: 20
+      age_advance: true

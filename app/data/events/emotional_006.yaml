@@ -1,0 +1,35 @@
+id: "emotional_006"
+type: "emotional"
+title: "故土难离"
+trigger_conditions:
+  min_realm: "筑基"
+  max_realm: "元婴"
+  min_age: 30
+  max_age: 800
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "你路过故乡，物是人非。旧时的街道犹在，故人却已寥寥..."
+fallback_narrative: "你路过故乡，物是人非。旧时的街道犹在，故人却已寥寥无几，一股苍凉之感涌上心头令人唏嘘不已。"
+default_options:
+  - id: "opt1"
+    text: "回乡探望"
+    consequences:
+      cultivation_gain: 20
+      age_advance: true
+  - id: "opt2"
+    text: "了断牵挂"
+    consequences:
+      cultivation_gain: 35
+      age_advance: true
+  - id: "opt3"
+    text: "暗中守护"
+    consequences:
+      cultivation_gain: 25
+      age_advance: true

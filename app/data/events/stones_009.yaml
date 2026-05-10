@@ -1,0 +1,37 @@
+id: "stones_009"
+type: "stones"
+title: "赌石大会"
+trigger_conditions:
+  min_realm: "炼气"
+  max_realm: "金丹"
+  min_age: 16
+  max_age: 300
+  required_faction: null
+weight: 0.5
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "镇上的灵石坊今日举办一年一度的赌石大会。一块块未经打磨的原石摆在案上，外表与顽石无异，但其中可能藏着价值连城的灵晶。周围聚满了修士，有人一夜暴富，有人倾家荡产。你攥着手中不多的灵石，犹豫着要不要试试手气。"
+fallback_narrative: "赌石大会热闹非凡，一块块原石被切开，欢呼与叹息此起彼伏。你看着手中不多的灵石，心想这一刀下去，可能是灵晶，也可能是废石。"
+default_options:
+  - id: "opt1"
+    text: "凭直觉选一块廉价原石"
+    consequences:
+      cultivation_gain: 5
+      spirit_stones_gain: -10
+      age_advance: true
+  - id: "opt2"
+    text: "花大价钱选一块品相好的原石"
+    consequences:
+      cultivation_gain: 10
+      spirit_stones_gain: -50
+      age_advance: true
+  - id: "opt3"
+    text: "冷静旁观，不参与赌石"
+    consequences:
+      cultivation_gain: 3
+      age_advance: true

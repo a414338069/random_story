@@ -1,0 +1,31 @@
+id: "childhood_031"
+type: "childhood"
+narrative_only: false
+title: "驯服野马"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 6
+  max_age: 10
+  required_faction: null
+weight: 5.0
+scenarios:
+  - childhood
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: "你{age}岁了。村外的草甸上来了一匹野马，浑身漆黑、鬃毛如焰，村里没人能靠近它三步之内。可你发现当你心平气和地站着不动时，黑马会好奇地朝你靠近。描述你与这匹野马之间悄然建立的信任——你们是如何一步步从陌生到亲近的？在驯服它的过程中，你学到了什么关于'耐心'和'呼应'的道理？200字以内，第二人称。"
+fallback_narrative: "黑风来的时候是芒种前后。它一蹄子踹翻了试图套它的王屠户，整个村子都在说'这马疯了'。但你每天放羊时都看见它远远站在草甸那头看你——不是猎食者的眼神，而是带着好奇的打量。你学乖了，从不追它，只是坐在草甸中央的石头上一动不动，有时候啃个地瓜，有时候唱几句从娘那里学来的小调。头三天它只是看。第四天它往你这边走了十来步。第七天傍晚它停在离你三步远的地方，黑亮亮的鬃毛被晚风吹得飘起来，你甚至能看见它眼睛里倒映的火烧云。你没有伸手摸它，只是把半颗地瓜放在脚边，后退了三步。它低头嗅了嗅，然后抬头看了你一眼——那一眼你读懂了，它在说：'你是第一个不急的人。'从那以后，黑风只让你靠近。它用湿热的鼻息喷你脖子时，你觉得你跟它之间有一种别人不懂的东西——一种不需要用力、不需要竞争的默契。"
+default_options:
+  - id: "opt1"
+    text: "每天去草甸赴约——耐心和信任比蛮力更有力量"
+    consequences:
+      cultivation_gain: 3
+      age_advance: true
+  - id: "opt2"
+    text: "在黑风耳边轻声说你未来想去的地方——仿佛它听得懂"
+    consequences:
+      cultivation_gain: 2
+      age_advance: true

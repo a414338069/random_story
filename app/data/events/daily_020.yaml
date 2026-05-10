@@ -1,0 +1,38 @@
+id: "daily_020"
+type: "daily"
+title: "灵石矿采"
+trigger_conditions:
+  min_realm: "炼气"
+  max_realm: "筑基"
+  min_age: 16
+  max_age: 80
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "宗门发布了一批灵石矿开采任务，前往矿山深处开采灵石。虽然辛苦，但报酬尚可，而且矿脉附近灵气充沛..."
+fallback_narrative: "你背着矿篓沿着坑道深入山腹，矿壁上偶尔闪烁出星星点点的灵光。你寻到一处灵气汇聚之处，挥舞矿锄小心翼翼地开采。碎石落下，几块拳头大小的下品灵石显露出来，散发着蒙蒙的乳白色光芒。"
+default_options:
+  - id: "opt1"
+    text: "专注挖矿，多采些灵石"
+    consequences:
+      cultivation_gain: 15
+      age_advance: true
+      spirit_stones_gain: 25
+  - id: "opt2"
+    text: "边采矿边吸收逸散的灵气修炼"
+    consequences:
+      cultivation_gain: 25
+      age_advance: true
+      spirit_stones_gain: 10
+  - id: "opt3"
+    text: "深入矿道寻找富矿点"
+    consequences:
+      cultivation_gain: 20
+      age_advance: true
+      spirit_stones_gain: 35

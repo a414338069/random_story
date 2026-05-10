@@ -1,0 +1,31 @@
+id: "childhood_033"
+type: "childhood"
+narrative_only: false
+title: "古树低语"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 8
+  max_age: 11
+  required_faction: null
+weight: 5.0
+scenarios:
+  - childhood
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: "你{age}岁了。村后山坡上有一棵活了不知道多少年的老樟树，树干要七八个大人才能合抱，村里人都叫它'神树'。有一天你独自靠着它坐着时，似乎听到了某种极轻极慢的低语——不是风声，不是虫鸣，像是那棵树在用某种你无法理解的方式跟你说话。描述这个静谧而神秘的午后。你真的听到了什么吗？那低语在你心里留下了什么感觉？200字以内，第二人称。"
+fallback_narrative: "那天的日头很毒，你独自跑到古树下乘凉。老樟树的树冠像一把巨大的绿伞，遮住了炎炎烈日。你把后背贴在粗糙的树皮上闭起了眼睛。就在你快要睡着的时候，你听到了——不是用耳朵，而是用整片后背听到的：一种极深沉、极缓慢的震颤，像是大地深处有谁在叹气。那震颤有节奏，一波一波，先通过树皮传导到你的肩胛骨，然后沿着脊梁缓缓下沉，最后在你的胸口轻轻荡开，散成一片温热的静默。你说不出那算不算'说话'——它没有字词，没有句子，可你就是知道，它在告诉你一些非常古老的事情：关于雨、关于火、关于很久以前在这片土地上走过的人。当你睁开眼睛时，发现脸上竟然挂着两行眼泪，你甚至说不清为什么哭。风吹过樟树叶发出沙沙的响声，你忽然觉得那棵古树像是一位沉默了千年的老人——它见过太多，也懂得太多，只是再也懒得用人的语言来说了。"
+default_options:
+  - id: "opt1"
+    text: "以后常来这棵古树下静坐——你觉得自己能从它身上学到什么"
+    consequences:
+      cultivation_gain: 3
+      age_advance: true
+  - id: "opt2"
+    text: "抚摸树皮轻声说了声'谢谢'——不管它听不听得懂"
+    consequences:
+      cultivation_gain: 2
+      age_advance: true

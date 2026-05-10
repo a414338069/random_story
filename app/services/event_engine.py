@@ -7,7 +7,7 @@ import random
 
 import yaml
 
-from app.services.realm_service import get_realm_config
+from app.services.realm_service import get_realm_config, get_next_realm
 from app.services.talent_service import get_active_modifiers
 
 REALM_TIER_MAP = {
@@ -247,8 +247,9 @@ def calculate_weights(
         elif event_type == "adventure":
             weight = 0.3 + luck * 0.05 + event_luck_bonus
         elif event_type == "bottleneck":
-            realm_config = get_realm_config(realm)
-            req = realm_config.get("cultivation_req") if realm_config else None
+            next_realm_name = get_next_realm(realm)
+            next_config = get_realm_config(next_realm_name) if next_realm_name else None
+            req = next_config.get("cultivation_req") if next_config else None
             if req is None or req == 0:
                 weight = 1.0
             else:

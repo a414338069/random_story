@@ -1,0 +1,35 @@
+id: "adventure_009"
+type: "adventure"
+title: "古墓探险"
+trigger_conditions:
+  min_realm: "炼气"
+  max_realm: "金丹"
+  min_age: 16
+  max_age: 300
+  required_faction: null
+weight: 0.4
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "你在荒山野岭中发现了一座被藤蔓掩盖的古代修士墓穴。洞口散发着幽冷的阴气，石壁上刻满了密密麻麻的禁制符文。进去探险，说不定能找到前辈修士留下的宝物..."
+fallback_narrative: "你拨开层层藤蔓，一座半塌的青石墓门出现在眼前。门楣上镌刻的符文已经模糊不清，但隐隐透出的灵气波动说明墓中仍有禁制运转。你深吸一口气，小心翼翼地跨过门槛，脚步声在幽深的甬道中回荡。"
+default_options:
+  - id: "opt1"
+    text: "深入墓穴寻找宝物"
+    consequences:
+      cultivation_gain: 35
+      age_advance: true
+  - id: "opt2"
+    text: "在墓室外围收集灵气"
+    consequences:
+      cultivation_gain: 20
+      age_advance: true
+  - id: "opt3"
+    text: "研究墓门上的禁制符文"
+    consequences:
+      cultivation_gain: 28
+      age_advance: true

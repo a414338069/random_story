@@ -1,0 +1,35 @@
+id: "daily_019"
+type: "daily"
+title: "弟子授课"
+trigger_conditions:
+  min_realm: "筑基"
+  max_realm: "金丹"
+  min_age: 50
+  max_age: 400
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "宗门安排你为新入门的弟子讲授修炼之道。台下十几双眼睛齐刷刷地望着你，期待能从你的经验中获得启发..."
+fallback_narrative: "你站在讲坛上，看着台下那些充满朝气的面孔，恍若看到了许多年前的自己。你清了清嗓子，开始讲述自己从凡人踏上修仙之路的种种体悟。弟子们听得聚精会神，不时有人举手发问。"
+default_options:
+  - id: "opt1"
+    text: "倾囊相授修炼心得"
+    consequences:
+      cultivation_gain: 25
+      age_advance: true
+  - id: "opt2"
+    text: "寓教于练，带弟子实战教学"
+    consequences:
+      cultivation_gain: 20
+      age_advance: true
+  - id: "opt3"
+    text: "讲述自己突破时的经历"
+    consequences:
+      cultivation_gain: 30
+      age_advance: true

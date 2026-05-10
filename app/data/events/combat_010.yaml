@@ -1,0 +1,35 @@
+id: "combat_010"
+type: "combat"
+title: "天劫妖兽"
+trigger_conditions:
+  min_realm: "化神"
+  max_realm: "合体"
+  min_age: 500
+  max_age: 5000
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "一只被天劫余波淬炼过的上古妖兽从沉睡中苏醒，携带着恐怖的劫雷之力横扫四方。它的体型遮天蔽日，每一次呼吸都引动天地法则震动..."
+fallback_narrative: "大地剧烈抖动，一道绵延千丈的裂缝在山脉中央撕开。裂缝深处亮起两点幽蓝色的光芒——那不是宝石，而是一双妖兽的眼睛。它从地底缓缓爬出，每踏出一步，方圆百里便降下细密的劫雷。这只远古时代的巨兽竟承受过天劫而不死，通体覆盖着劫雷淬炼过的鳞甲。"
+default_options:
+  - id: "opt1"
+    text: "硬撼妖兽，以自身道法对抗劫雷"
+    consequences:
+      cultivation_gain: 80
+      age_advance: true
+  - id: "opt2"
+    text: "引劫雷之力淬炼自身法宝"
+    consequences:
+      cultivation_gain: 60
+      age_advance: true
+  - id: "opt3"
+    text: "与妖兽周旋，参悟其劫雷法则"
+    consequences:
+      cultivation_gain: 70
+      age_advance: true

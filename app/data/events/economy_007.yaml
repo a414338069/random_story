@@ -1,0 +1,36 @@
+id: "economy_007"
+type: "economy"
+title: "灵石兑换"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "炼气"
+  min_age: 12
+  max_age: 80
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "镇上新设了一处灵石兑换所，凡俗金银可在此兑换灵石，汇价每日浮动..."
+fallback_narrative: "镇上新设了一处灵石兑换所，凡俗金银可在此兑换灵石，汇价每日浮动，引来了不少想踏入仙途的凡人围观议论。"
+default_options:
+  - id: "opt1"
+    text: "兑换灵石"
+    consequences:
+      cultivation_gain: 25
+      age_advance: true
+      spirit_stones_gain: 15
+  - id: "opt2"
+    text: "积攒本金"
+    consequences:
+      cultivation_gain: 10
+      age_advance: true
+  - id: "opt3"
+    text: "打听行情"
+    consequences:
+      cultivation_gain: 15
+      age_advance: true

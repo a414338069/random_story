@@ -1,0 +1,35 @@
+id: "daily_017"
+type: "daily"
+title: "炼丹初试"
+trigger_conditions:
+  min_realm: "炼气"
+  max_realm: "筑基"
+  min_age: 16
+  max_age: 100
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "你得到了一份粗浅的丹方，上面记载着聚灵丹的炼制之法。虽然用料简单，但对初学者来说仍是不小的挑战..."
+fallback_narrative: "你从旧货摊上购得一份残破丹方，上面歪歪扭扭地记载着聚灵丹的配方。炉火忽明忽暗间，你小心翼翼地往丹炉里投下第一味药材，丹炉中传来滋滋的声响。"
+default_options:
+  - id: "opt1"
+    text: "按丹方一丝不苟地炼制"
+    consequences:
+      cultivation_gain: 25
+      age_advance: true
+  - id: "opt2"
+    text: "加入自己的理解改良配方"
+    consequences:
+      cultivation_gain: 18
+      age_advance: true
+  - id: "opt3"
+    text: "先反复研读丹方再动手"
+    consequences:
+      cultivation_gain: 20
+      age_advance: true

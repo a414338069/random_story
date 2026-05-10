@@ -1,0 +1,31 @@
+id: "childhood_019"
+type: "childhood"
+narrative_only: false
+title: "母亲的故事"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 3
+  max_age: 7
+  required_faction: null
+weight: 5.0
+scenarios:
+  - childhood
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: "你{age}岁了。每天晚上临睡前，母亲总会在昏暗的油灯下给你讲故事——有时是山精狐仙的传说，有时是先祖年少时的奇遇。描述一个你最难忘的睡前故事。那个故事在你心中种下了什么？你当时相信它是真的吗？200字以内，第二人称。"
+fallback_narrative: "母亲的故事总在灯花炸开的那一刻开始。她一边纳着鞋底一边轻声讲——从前有座无名的青山，山脚住着一个和你差不多大的放牛娃。有一天他在山涧边喝水，看见水底沉着一把生锈的剑，剑柄上隐隐发着青光。放牛娃伸手去捞，指尖一碰到剑柄，整座山忽然抖了三抖。那是仙人留下的，只等有缘人来取。'那放牛娃后来怎么样了？'你睁大眼睛问。母亲微微一笑，把被子替你掖好：'后来啊，他就醒了。原来他只是在大青石上打了个盹，做了个梦。'你总是不信，觉得母亲故意不说结局，但每次听完，你都盯着窗外的山峰看了很久，想象着山里面是不是真的藏着一把剑。"
+default_options:
+  - id: "opt1"
+    text: "缠着母亲再讲一个——那些故事是你的睡前宝藏"
+    consequences:
+      cultivation_gain: 2
+      age_advance: true
+  - id: "opt2"
+    text: "第二天去山涧边看看——故事里的世界会不会是真的？"
+    consequences:
+      cultivation_gain: 3
+      age_advance: true

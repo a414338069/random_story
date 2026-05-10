@@ -1,0 +1,35 @@
+id: "fortune_006"
+type: "fortune"
+title: "传承现世"
+trigger_conditions:
+  min_realm: "金丹"
+  max_realm: "化神"
+  min_age: 80
+  max_age: 2000
+  required_faction: null
+weight: 0.2
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "一座上古遗迹突然现世，据传其中藏有飞升大能的完整传承..."
+fallback_narrative: "一座上古遗迹突然现世，据传其中藏有飞升大能的完整传承，引得天下修士蜂拥而至各显神通。"
+default_options:
+  - id: "opt1"
+    text: "接受传承"
+    consequences:
+      cultivation_gain: 80
+      age_advance: true
+  - id: "opt2"
+    text: "勘验真伪"
+    consequences:
+      cultivation_gain: 50
+      age_advance: true
+  - id: "opt3"
+    text: "留待有缘"
+    consequences:
+      cultivation_gain: 35
+      age_advance: true

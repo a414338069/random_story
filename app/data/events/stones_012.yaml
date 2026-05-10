@@ -1,0 +1,37 @@
+id: "stones_012"
+type: "stones"
+title: "黑市交易"
+trigger_conditions:
+  min_realm: "金丹"
+  max_realm: "元婴"
+  min_age: 80
+  max_age: 800
+  required_faction: null
+weight: 0.4
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "你得知在一座废弃矿山的深处，存在着一个修士间的黑市。那里交易着明面上不允许流通的禁物——从被封印的邪器到来路不明的极品灵晶，应有尽有。价格比外面低很多，但风险也大得多：黑市背后有大能在操控，而且禁物本身也未必安全。"
+fallback_narrative: "你得知一处废弃矿山深处的修士黑市，那里交易着禁物——从被封印的邪器到来路不明的极品灵晶，应有尽有。价格低廉但风险极大，黑市背后有强者坐镇，禁物本身也未必安全。"
+default_options:
+  - id: "opt1"
+    text: "暗中购买极品灵晶"
+    consequences:
+      cultivation_gain: 30
+      spirit_stones_gain: -100
+      age_advance: true
+  - id: "opt2"
+    text: "在黑市出售自己的多余灵物"
+    consequences:
+      cultivation_gain: 10
+      spirit_stones_gain: 80
+      age_advance: true
+  - id: "opt3"
+    text: "不趟浑水，远离黑市"
+    consequences:
+      cultivation_gain: 5
+      age_advance: true

@@ -1,0 +1,37 @@
+id: "sect_017"
+type: "sect"
+title: "宗门日常"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "炼气"
+  min_age: 10
+  max_age: 60
+  required_faction: null
+  requires_any_faction: true
+weight: 1.5
+scenarios:
+  - generic_daily
+  - faction_life
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "又是宗门里平凡的一天。弟子的生活并不像传说中那样充满剑光仙影，更多的是洒扫庭院、挑水劈柴、背诵经文。你发现这些看似枯燥的日常劳作中，似乎也蕴含着修行的道理。今天你在打扫藏经阁时，偶然翻到了一本前辈留下的手札……"
+fallback_narrative: "宗门里日复一日的洒扫、功课与劳作看似枯燥，但你渐渐明白，修道并非一蹴而就的神通，而是在这些平凡日子里日积月累的感悟。今天你在藏经阁打扫时，偶然翻到了一本泛黄的前辈手札。"
+default_options:
+  - id: "opt1"
+    text: "专心做好分内之事，在劳作中体悟"
+    consequences:
+      cultivation_gain: 10
+      age_advance: true
+  - id: "opt2"
+    text: "偷懒去找师兄师姐请教修炼之法"
+    consequences:
+      cultivation_gain: 18
+      age_advance: true
+  - id: "opt3"
+    text: "偷偷研读那本手札"
+    consequences:
+      cultivation_gain: 25
+      age_advance: true

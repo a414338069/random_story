@@ -1,0 +1,38 @@
+id: "heavenly_003"
+type: "heavenly"
+title: "小天劫"
+trigger_conditions:
+  min_realm: "金丹"
+  max_realm: "元婴"
+  min_age: 80
+  max_age: 500
+  required_faction: null
+weight: 0.3
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "天空中乌云翻涌，雷光在云层中隐隐闪现。你感受到一股来自天道的威压正锁定了你的气息——这是小天劫降临的前兆。金丹大成或元婴初成时，天道会降下小天劫考验修士的道心与根基。你必须立即做出应对。"
+fallback_narrative: "天空乌云翻涌，雷光隐现，天道威压锁定了你的气息。小天劫降临，你感受到体内灵力被这股天威引动得翻涌不定。这是天道对修行者的考验，也是突破自我的契机。"
+default_options:
+  - id: "opt1"
+    text: "运功护体，硬抗天劫"
+    consequences:
+      cultivation_gain: 50
+      age_advance: true
+      health_change: -20
+  - id: "opt2"
+    text: "祭出法宝，以器御劫"
+    consequences:
+      cultivation_gain: 40
+      spirit_stones_gain: -30
+      age_advance: true
+  - id: "opt3"
+    text: "借天劫之力淬炼肉身"
+    consequences:
+      cultivation_gain: 60
+      age_advance: true
+      health_change: -30

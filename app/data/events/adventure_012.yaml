@@ -1,0 +1,35 @@
+id: "adventure_012"
+type: "adventure"
+title: "仙人遗迹"
+trigger_conditions:
+  min_realm: "元婴"
+  max_realm: "合体"
+  min_age: 200
+  max_age: 5000
+  required_faction: null
+weight: 0.2
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "你在一处上古战场废墟中发现了一座保存完好的仙人遗迹。白玉铺就的广场中央竖着一块石碑，上面记载着一位上古真仙的修炼心得，文字的每一笔都蕴含着天地至理..."
+fallback_narrative: "穿过层层禁制，你终于踏入了这座沉默了万年的仙人遗迹。废墟中央的白玉广场纤尘不染，一块通体漆黑的石碑矗立其中。你走近细看，碑上的文字竟是用仙元之力刻下的，每看一个字识海都微微震荡。这是上古真仙留下的修炼感悟。"
+default_options:
+  - id: "opt1"
+    text: "全神贯注参悟碑文"
+    consequences:
+      cultivation_gain: 80
+      age_advance: true
+  - id: "opt2"
+    text: "以神识拓印全部内容"
+    consequences:
+      cultivation_gain: 60
+      age_advance: true
+  - id: "opt3"
+    text: "在遗迹中打坐吸收残存仙力"
+    consequences:
+      cultivation_gain: 70
+      age_advance: true

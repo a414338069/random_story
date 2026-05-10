@@ -1,0 +1,39 @@
+id: "adventure_016"
+type: "adventure"
+title: "妖界缝隙"
+trigger_conditions:
+  min_realm: "化神"
+  max_realm: "大乘"
+  min_age: 500
+  max_age: 10000
+  required_faction: null
+weight: 0.2
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "你在一处荒古山脉中发现了一道空间缝隙，透过缝隙可以窥见另一个世界的景象——那里妖气冲天，妖兽横行，正是传说中的妖界。缝隙似乎正在扩大，如果不及时处理，妖界的气息将会侵入此界。但这也是一次天大的机缘：妖界中可能藏着此界早已绝迹的天材地宝。"
+fallback_narrative: "你在一处荒古山脉中发现了一道连接妖界的空间缝隙。缝隙正在扩大，妖界的气息即将侵入此界。但这既是危机也是天大的机缘——妖界中可能藏着此界早已绝迹的天材地宝。"
+default_options:
+  - id: "opt1"
+    text: "封印缝隙，阻止妖界入侵"
+    consequences:
+      cultivation_gain: 100
+      spirit_stones_gain: 30
+      age_advance: true
+  - id: "opt2"
+    text: "深入缝隙，探寻妖界宝物"
+    consequences:
+      cultivation_gain: 150
+      spirit_stones_gain: 200
+      age_advance: true
+      health_change: -40
+  - id: "opt3"
+    text: "在缝隙附近布阵修炼，吸收异界灵气"
+    consequences:
+      cultivation_gain: 130
+      age_advance: true
+      health_change: -15

@@ -1,0 +1,35 @@
+id: "explore_005"
+type: "explore"
+title: "深山寻药"
+trigger_conditions:
+  min_realm: "炼气"
+  max_realm: "金丹"
+  min_age: 16
+  max_age: 300
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "你受一位丹师所托，前往深山中寻找一味稀有灵药——七叶灵芝。据说此药只生长在灵气充沛的悬崖峭壁上，且有妖兽守护..."
+fallback_narrative: "你踏着晨露钻进深山，在林间穿行了整整三个时辰。终于在一条瀑布后面的峭壁上发现了目标——一株通体晶莹的七叶灵芝，七片叶子在瀑布的水雾中泛着幽幽绿光。不过岩缝中隐约可见一条盘踞的青色大蛇，显然已在此守护多年。"
+default_options:
+  - id: "opt1"
+    text: "引开守护妖兽再采药"
+    consequences:
+      cultivation_gain: 25
+      age_advance: true
+  - id: "opt2"
+    text: "悄悄靠近，以最快速度摘取"
+    consequences:
+      cultivation_gain: 20
+      age_advance: true
+  - id: "opt3"
+    text: "尝试与守护妖兽沟通协商"
+    consequences:
+      cultivation_gain: 30
+      age_advance: true

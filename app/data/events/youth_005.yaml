@@ -1,0 +1,36 @@
+id: "youth_005"
+type: "youth"
+narrative_only: false
+title: "初识仙道"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 12
+  max_age: 15
+  required_faction: null
+weight: 1.0
+scenarios:
+  - childhood
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: "你{age}岁了。镇上来了一位游方道士，他在集市上演示了几个小法术，引得围观百姓啧啧称奇。你挤在人群中，第一次真切地看到了超越凡人的力量——那是仙术的光芒。道士注意到了你眼中闪烁的好奇，对你微微一笑。"
+fallback_narrative: "你{age}岁了。镇上游方道士演示的几个小法术让你第一次真切地看到了仙术的光芒。道士注意到了你眼中的好奇，对你微微一笑。你感到心中有什么东西被点燃了。"
+default_options:
+  - id: "opt_a"
+    text: "上前请问道士修仙之法"
+    consequences:
+      cultivation_gain: 8
+      age_advance: true
+  - id: "opt_b"
+    text: "远远观望，默默记下法术手势"
+    consequences:
+      cultivation_gain: 5
+      age_advance: true
+  - id: "opt_c"
+    text: "回家后自己偷偷模仿练习"
+    consequences:
+      cultivation_gain: 6
+      age_advance: true

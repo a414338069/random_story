@@ -1,0 +1,35 @@
+id: "economy_009"
+type: "economy"
+title: "以物易物"
+trigger_conditions:
+  min_realm: "炼气"
+  max_realm: "筑基"
+  min_age: 16
+  max_age: 200
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "你在交易市场遇到一位愿以功法换丹药的修士，各取所需倒也公平..."
+fallback_narrative: "你在交易市场遇到一位愿以功法换丹药的修士，各取所需倒也公平，只是不知谁占了便宜。"
+default_options:
+  - id: "opt1"
+    text: "交换功法"
+    consequences:
+      cultivation_gain: 30
+      age_advance: true
+  - id: "opt2"
+    text: "换取丹药"
+    consequences:
+      cultivation_gain: 25
+      age_advance: true
+  - id: "opt3"
+    text: "保留宝物"
+    consequences:
+      cultivation_gain: 15
+      age_advance: true

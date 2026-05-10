@@ -1,0 +1,37 @@
+id: "bottleneck_006"
+type: "bottleneck"
+title: "化神瓶颈"
+trigger_conditions:
+  min_realm: "元婴"
+  max_realm: "化神"
+  min_age: 200
+  max_age: 3000
+  required_faction: null
+weight: 2.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "元婴已经凝练到极致，你隐约感到一道通往更高境界的门扉就在前方——但那扇门紧闭着，门后是化神境界特有的元神蜕变。你的元婴日渐壮大，但瓶颈也随之而来：化神需要的不再是灵力积累，而是对天地法则的根本性领悟。你感到自己卡在了这最后一关。"
+fallback_narrative: "元婴凝练到了极致，但化神的瓶颈横亘在前。你的元婴日渐壮大，要在最后关头完成元神蜕变，需要的不是更多灵力，而是对天地法则的根本领悟。你感到自己正卡在通往化神的最后一关。"
+default_options:
+  - id: "opt1"
+    text: "以元婴之力强行冲关"
+    consequences:
+      cultivation_gain: 80
+      age_advance: true
+      health_change: -20
+  - id: "opt2"
+    text: "闭关参悟天地法则"
+    consequences:
+      cultivation_gain: 60
+      age_advance: true
+  - id: "opt3"
+    text: "服用化神丹辅助突破"
+    consequences:
+      cultivation_gain: 100
+      spirit_stones_gain: -80
+      age_advance: true

@@ -1,0 +1,35 @@
+id: "explore_007"
+type: "explore"
+title: "洞天福地"
+trigger_conditions:
+  min_realm: "金丹"
+  max_realm: "化神"
+  min_age: 80
+  max_age: 2000
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "你循着古地图的指引，在海天相接之处找到了一座被天然禁制隐藏的洞天福地入口。穿越迷雾之后，眼前的景象令人震撼——这里竟是上古大能开辟的一方小世界，自成天地法则..."
+fallback_narrative: "踏过那道如水幕般的禁制之后，眼前的景象豁然开朗。这里天穹湛蓝，山川灵秀，空气中弥漫着比外界浓郁十倍的灵气。溪水中流淌的竟是液化的灵泉，两岸遍布外界早已绝迹的灵草。你甚至能感受到这个小世界的天地法则与你修炼的功法隐隐共鸣——这是一片真正的洞天福地。"
+default_options:
+  - id: "opt1"
+    text: "在福地核心闭关修炼"
+    consequences:
+      cultivation_gain: 70
+      age_advance: true
+  - id: "opt2"
+    text: "探索洞天的每一寸土地"
+    consequences:
+      cultivation_gain: 50
+      age_advance: true
+  - id: "opt3"
+    text: "参悟洞天的天地法则运转"
+    consequences:
+      cultivation_gain: 60
+      age_advance: true

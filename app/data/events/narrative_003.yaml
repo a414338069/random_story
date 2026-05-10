@@ -1,0 +1,21 @@
+id: "narrative_003"
+type: "narrative"
+title: "长途跋涉"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "筑基"
+  min_age: 10
+  max_age: 200
+  required_faction: null
+weight: 0.5
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+narrative_only: true
+default_options: []
+prompt_template: "你踏上了一段漫长的旅程。路途遥远，山川河流在你脚下不断变换。你走过繁华的城镇，穿越幽深的峡谷，翻过积雪的山隘。每一步都是修行，每一次日出日落都让你对天地有了新的感悟。旅途中你偶尔会遇到其他修士，但更多的时候是独自面对广袤的天地。"
+fallback_narrative: "你踏上了漫长的旅途。走过繁华城镇，穿越幽深峡谷，翻过积雪山隘。每一步都是修行，每一次日出日落都让你对天地有了新的感悟。旅途中偶尔遇到其他修士，但更多的时候是你独自面对广袤的天地。"

@@ -1,0 +1,38 @@
+id: "stones_008"
+type: "stones"
+title: "灵脉枯竭"
+trigger_conditions:
+  min_realm: "金丹"
+  max_realm: "化神"
+  min_age: 80
+  max_age: 2000
+  required_faction: null
+weight: 0.6
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "你发现山中灵脉竟在逐渐枯竭，灵气日渐稀薄。附近的修士们人心惶惶，有的选择迁走，有的试图探查原因。你站在灵脉源头，感受到地底深处传来一阵异样的波动——或许枯竭并非天灾，而是人祸。"
+fallback_narrative: "你发现山中灵脉在逐渐枯竭，灵气日渐稀薄。附近的修士们人心惶惶，有的选择迁走，有的试图探查原因。你决定亲自调查这背后的真相。"
+default_options:
+  - id: "opt1"
+    text: "深入灵脉核心探查原因"
+    consequences:
+      cultivation_gain: 40
+      spirit_stones_gain: -20
+      age_advance: true
+  - id: "opt2"
+    text: "另寻灵脉，果断迁移"
+    consequences:
+      cultivation_gain: 25
+      spirit_stones_gain: 10
+      age_advance: true
+  - id: "opt3"
+    text: "布阵锁住余下灵气"
+    consequences:
+      cultivation_gain: 30
+      spirit_stones_gain: 30
+      age_advance: true

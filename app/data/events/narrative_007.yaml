@@ -1,0 +1,21 @@
+id: "narrative_007"
+type: "narrative"
+title: "虚空漫游"
+trigger_conditions:
+  min_realm: "化神"
+  max_realm: "大乘"
+  min_age: 500
+  max_age: 20000
+  required_faction: null
+weight: 0.5
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+narrative_only: true
+default_options: []
+prompt_template: "你的元神出窍，遨游于虚空之中。星空在你周围流转，你看到了无数世界的生灭。虚空漫游让你对修仙之路有了全新的认知——你所追求的飞升，不过是更高层次修行的开始。在无尽的虚空中，一切世俗的执念都显得渺小而可笑。"
+fallback_narrative: "你的元神出窍，遨游于虚空之中。星空在你周围流转，你看到了无数世界的生灭。虚空漫游让你对修仙之路有了全新的认知——你所追求的飞升，不过是更高层次修行的开始。在无尽的虚空中，一切执念都显得渺小。"

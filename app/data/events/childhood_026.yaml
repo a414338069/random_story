@@ -1,0 +1,31 @@
+id: "childhood_026"
+type: "childhood"
+narrative_only: false
+title: "山间异象"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 6
+  max_age: 10
+  required_faction: null
+weight: 5.0
+scenarios:
+  - childhood
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: "你{age}岁了。有天傍晚你在山上赶羊回家时，忽然看见远处的山坳里冒出淡淡的金色光芒，持续了半盏茶的工夫才消失。你揉了揉眼睛，旁边的小伙伴却说他什么都没看到。描述这个奇异的经历——你看到了什么？你的反应是什么？这件事是否让你开始怀疑自己能看到别人看不到的东西？200字以内，第二人称。"
+fallback_narrative: "那天日头快落山了，你赶着三只羊从东坡上往下走。余光一扫，你瞥见远处松林上空忽然冒出一片淡金色的光——不是夕阳的暖黄，是一种你从没见过的、流动着的浅金光芒，像有人在那片山坳里点亮了一盏巨大的灯笼。你站住了，使劲盯着看。那光一涨一缩地跳动了十来下，然后像被风吹灭的蜡烛一样忽然没了。你推推旁边正专心吃野果的铁蛋：'你看没看到刚才那边在发光？'铁蛋回头瞄了一眼，嚼着果子含糊地说'哪有什么光，你眼花了吧'，然后又低下头在草丛里找他那颗掉了的山楂。那天晚上你翻来覆去睡不着，脑子里全是那片金色的光。你隐隐觉得——有些东西，大概只有你能看见。"
+default_options:
+  - id: "opt1"
+    text: "第二天独自跑回山坳去看——那片金光到底是什么？"
+    consequences:
+      cultivation_gain: 3
+      age_advance: true
+  - id: "opt2"
+    text: "悄悄告诉母亲——也许大人知道些什么"
+    consequences:
+      cultivation_gain: 2
+      age_advance: true

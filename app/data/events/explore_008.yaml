@@ -1,0 +1,35 @@
+id: "explore_008"
+type: "explore"
+title: "海外仙山"
+trigger_conditions:
+  min_realm: "元婴"
+  max_realm: "大乘"
+  min_age: 200
+  max_age: 10000
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "你横渡无尽海，历经海兽侵袭与风暴阻挠，终于抵达了传说中飘忽不定的海外仙山。这座仙山并非固定一处，而是随天象流转而移动，上面生长着仙界才有的灵植，更有上古散仙留下的洞府..."
+fallback_narrative: "大海茫茫，你在海面上飞遁了不知多少日夜，终于看到迷雾尽头浮现出一座若隐若现的山峰。仙山悬于海面之上，山体笼罩在一层淡金色的光晕中。登上山顶，云雾缭绕间可见琼楼玉宇，山顶一株九转仙参在风中摇曳。这里处处透着不属于此界的气息，仿佛一脚已踏入仙界门槛。"
+default_options:
+  - id: "opt1"
+    text: "深入仙山搜寻散仙遗宝"
+    consequences:
+      cultivation_gain: 90
+      age_advance: true
+  - id: "opt2"
+    text: "在仙山之巅感悟天地大道"
+    consequences:
+      cultivation_gain: 75
+      age_advance: true
+  - id: "opt3"
+    text: "采集仙山特有的天材地宝"
+    consequences:
+      cultivation_gain: 60
+      age_advance: true

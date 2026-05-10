@@ -1,0 +1,31 @@
+id: "childhood_024"
+type: "childhood"
+narrative_only: false
+title: "发烫的掌心"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 4
+  max_age: 8
+  required_faction: null
+weight: 5.0
+scenarios:
+  - childhood
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: "你{age}岁了。有一次你捧着母亲刚出锅的热粥，粥碗明明烫得母亲要垫块抹布才端得住，你却一点不觉得烫——反而掌心传来一阵奇异的温热。描述这个瞬间——你当时的反应是什么？周围的人注意到了吗？这微小的异常是否让你第一次模糊地意识到自己有点'不同'？200字以内，第二人称。"
+fallback_narrative: "那天娘刚从灶台上端下一碗刚煮沸的红薯粥，你饿得不行伸手就接。娘喊了一声'烫——'但已经来不及了。可奇怪的是，那碗在你手心并不烫人，反而传来一阵暖洋洋的感觉，像冬天把手放在炭炉旁边，舒服得让你忍不住多端了一会儿。娘见你端着碗面不改色地喝粥，以为粥已经不烫了，自己也尝了一口，立刻被烫得直皱眉。她上下打量了你几眼，最后只当小孩子皮糙肉厚没多想。可你心里偷偷记住了这件事——为什么烫的粥在娘手里是烫的，在你手里却是温的？你把手掌翻过来覆过去看了好几遍，也没看出什么门道，但从此你开始留意自己身上那些解释不了的小事。"
+default_options:
+  - id: "opt1"
+    text: "偷偷告诉母亲这个秘密——在你最信任的人面前说出疑虑"
+    consequences:
+      cultivation_gain: 1
+      age_advance: true
+  - id: "opt2"
+    text: "把这件事藏在心里——你开始悄悄观察自己还有哪些不同"
+    consequences:
+      cultivation_gain: 3
+      age_advance: true

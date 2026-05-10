@@ -1,0 +1,35 @@
+id: "adventure_014"
+type: "adventure"
+title: "险境逃生"
+trigger_conditions:
+  min_realm: "炼气"
+  max_realm: "金丹"
+  min_age: 16
+  max_age: 200
+  required_faction: null
+weight: 0.4
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "你在野外误入了一处天然形成的迷阵，四周雾气弥漫，方向感彻底混乱。更糟糕的是，迷阵深处隐隐传来不知名生物的嘶吼声..."
+fallback_narrative: "一阵突如其来的浓雾将你吞没，四周的山林景色瞬间消失不见。你试图原路返回，却发现走了一个时辰依然在原地打转。雾气深处传来的低沉咆哮声让空气都在微微震颤——这迷阵里绝非只有你一个活物。"
+default_options:
+  - id: "opt1"
+    text: "凭直觉硬闯雾阵"
+    consequences:
+      cultivation_gain: 30
+      age_advance: true
+  - id: "opt2"
+    text: "放出神识定位阵眼"
+    consequences:
+      cultivation_gain: 25
+      age_advance: true
+  - id: "opt3"
+    text: "按兵不动观察雾气变化规律"
+    consequences:
+      cultivation_gain: 22
+      age_advance: true

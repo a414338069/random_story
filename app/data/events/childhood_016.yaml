@@ -1,0 +1,31 @@
+id: "childhood_016"
+type: "childhood"
+narrative_only: false
+title: "初次争执"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 6
+  max_age: 10
+  required_faction: null
+weight: 5.0
+scenarios:
+  - childhood
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: "你{age}岁了。你和最好的玩伴因为一件小事发生了人生第一次真正的争吵——也许是一块糕点、一件玩具，又或者是谁在游戏中耍了赖。描述这场争执的起因和经过。你感到委屈还是愧疚？最后你们如何收场？这次经历教会了你什么？200字以内，第二人称。"
+fallback_narrative: "事情是从一只草编蚱蜢开始的。铁蛋的爷爷手巧，给他编了一只活灵活现的绿蚱蜢，你羡慕得不得了。那天你趁铁蛋不注意偷偷拿来玩，不小心扯断了一条腿。铁蛋发现后眼圈一下就红了，指着你的鼻子大喊'我再也不跟你玩了'，转身就跑，留你一个人攥着那只断了腿的蚱蜢站在打谷场中央。那几天你没有找他说话，他也没有理你。吃饭时娘看出了你的心事，轻声说了一句'娃啊，做错了事要认，朋友比面子重要'。第二天你鼓起勇气把自己攒了好久舍不得吃的糖饼捧到了他家门口。铁蛋开了门，看了看你手里的饼，又看了看你的眼睛，忽然咧嘴笑了。"
+default_options:
+  - id: "opt1"
+    text: "主动道歉——你学会了承认错误"
+    consequences:
+      cultivation_gain: 2
+      age_advance: true
+  - id: "opt2"
+    text: "等铁蛋先开口——你默默反思自己的行为"
+    consequences:
+      cultivation_gain: 1
+      age_advance: true

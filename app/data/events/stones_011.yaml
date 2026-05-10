@@ -1,0 +1,39 @@
+id: "stones_011"
+type: "stones"
+title: "灵石矿难"
+trigger_conditions:
+  min_realm: "炼气"
+  max_realm: "筑基"
+  min_age: 16
+  max_age: 200
+  required_faction: null
+weight: 0.4
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "附近的灵石矿发生了坍塌，大量矿工被困在井下。矿主四处招募修士前往救援，许诺给每位参与救援的修士一笔丰厚的灵石报酬。但这矿难似乎并非天灾——有人在矿难前听到了地底深处传来的咆哮声。"
+fallback_narrative: "附近的灵石矿发生坍塌，大量矿工被困井下。矿主四处招募修士救援，许诺丰厚的灵石报酬。但有人说这矿难并非天灾，有人在矿难前听到了地底深处传来的咆哮声。"
+default_options:
+  - id: "opt1"
+    text: "加入救援队，深入矿洞救人"
+    consequences:
+      cultivation_gain: 25
+      spirit_stones_gain: 30
+      age_advance: true
+  - id: "opt2"
+    text: "在洞口负责接应，求稳"
+    consequences:
+      cultivation_gain: 15
+      spirit_stones_gain: 15
+      age_advance: true
+  - id: "opt3"
+    text: "探查矿难背后的地底异动"
+    consequences:
+      cultivation_gain: 35
+      spirit_stones_gain: 10
+      age_advance: true
+      health_change: -10

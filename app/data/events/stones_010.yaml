@@ -1,0 +1,39 @@
+id: "stones_010"
+type: "stones"
+title: "灵晶矿藏"
+trigger_conditions:
+  min_realm: "元婴"
+  max_realm: "大乘"
+  min_age: 200
+  max_age: 10000
+  required_faction: null
+weight: 0.3
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "你的神识在地下数千丈深处感应到了一处巨大的灵晶矿藏，其蕴含的灵力之充沛足以支撑一个小型宗门的千年运转。但矿藏深处似乎盘踞着一股古老而强大的气息，贸然开采可能会惊动它。"
+fallback_narrative: "你在地下深处发现了一座巨型灵晶矿藏，灵力之充沛令人震惊。但矿藏深处隐约盘踞着一股古老而强大的气息，让你不敢轻举妄动。"
+default_options:
+  - id: "opt1"
+    text: "小心开采外围灵晶，避开深处"
+    consequences:
+      cultivation_gain: 50
+      spirit_stones_gain: 200
+      age_advance: true
+  - id: "opt2"
+    text: "设下大阵，强行开采整个矿藏"
+    consequences:
+      cultivation_gain: 80
+      spirit_stones_gain: 500
+      age_advance: true
+      health_change: -30
+  - id: "opt3"
+    text: "布下禁制保护矿藏，留待日后"
+    consequences:
+      cultivation_gain: 20
+      spirit_stones_gain: 50
+      age_advance: true

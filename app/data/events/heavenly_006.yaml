@@ -1,0 +1,38 @@
+id: "heavenly_006"
+type: "heavenly"
+title: "雷劫降世"
+trigger_conditions:
+  min_realm: "元婴"
+  max_realm: "合体"
+  min_age: 200
+  max_age: 5000
+  required_faction: null
+weight: 0.2
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "九天之上雷云密布，紫金色的电弧在云层中跳跃，散发出毁灭性的气息。雷劫降世——这是天道对逆天修行者的惩戒，也是淬炼肉身与元神的终极试炼。方圆百里内的修士纷纷远遁，只有你站在雷云之下，直面这道天威。"
+fallback_narrative: "九天之上雷云密布，紫金色的电弧在云层中跳跃，散发出毁灭性的气息。雷劫降世，方圆百里内的修士纷纷远遁。你站在雷云之下，天威浩荡，无处可避。"
+default_options:
+  - id: "opt1"
+    text: "以最强防御法术硬抗雷劫"
+    consequences:
+      cultivation_gain: 80
+      age_advance: true
+      health_change: -25
+  - id: "opt2"
+    text: "在雷劫中淬炼元神，以求突破"
+    consequences:
+      cultivation_gain: 120
+      age_advance: true
+      health_change: -50
+  - id: "opt3"
+    text: "布下引雷阵，将雷劫之力导入法宝"
+    consequences:
+      cultivation_gain: 60
+      spirit_stones_gain: 100
+      age_advance: true

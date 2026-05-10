@@ -1,0 +1,35 @@
+id: "emotional_008"
+type: "emotional"
+title: "超脱物外"
+trigger_conditions:
+  min_realm: "大乘"
+  max_realm: "大乘"
+  min_age: 1000
+  max_age: 20000
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "登临大乘之境，世间万物在你眼中已是过眼云烟。飞升在即，最后一次回望人间..."
+fallback_narrative: "登临大乘之境，世间万物在你眼中已是过眼云烟。飞升在即，最后一次回望人间，万千感慨归于平静。"
+default_options:
+  - id: "opt1"
+    text: "静观天地"
+    consequences:
+      cultivation_gain: 60
+      age_advance: true
+  - id: "opt2"
+    text: "传道授业"
+    consequences:
+      cultivation_gain: 40
+      age_advance: true
+  - id: "opt3"
+    text: "不问世事"
+    consequences:
+      cultivation_gain: 50
+      age_advance: true

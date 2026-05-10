@@ -271,6 +271,8 @@ def _to_engine_context(state: dict) -> dict:
         "comprehension": state["attributes"]["comprehension"],
         "life_stage": get_life_stage(state["age"]).value,
         "consecutive_events": state.get("_consecutive_events", 0),
+        "event_count": state.get("event_count", 0),
+        "_breakthrough_event_count": state.get("_breakthrough_event_count", -999),
         "tags": state.get("tags"),
     }
 
@@ -441,8 +443,6 @@ def prepare_stream_event(session_id: str) -> dict:
     )
 
     warning = _check_breakthrough_warning(state)
-    if warning:
-        prompt += f"\n\n【突破预警】{warning['message']}"
 
     tier = should_use_ai(event_ctx, state)
 
@@ -455,6 +455,7 @@ def prepare_stream_event(session_id: str) -> dict:
     return {
         "state": state,
         "event_ctx": event_ctx,
+        "breakthrough_warning": warning,
         "prompt": prompt,
         "tier": tier,
         "chosen": chosen,
@@ -507,6 +508,9 @@ def get_next_event(session_id: str) -> dict:
     options = event_ctx["default_options"]
     is_fallback = True
 
+    # Check breakthrough warning (no longer injected into AI prompt — returned as API field)
+    warning = _check_breakthrough_warning(state)
+
     conn = get_db()
     try:
         recent_summaries = game_repo.get_recent_event_summaries(conn, session_id, limit=5)
@@ -522,11 +526,7 @@ def get_next_event(session_id: str) -> dict:
             last_outcome=state.get("_last_choice_outcome"),
         )
 
-        # Check breakthrough warning and inject into prompt
-        warning = _check_breakthrough_warning(state)
-        if warning:
-            prompt += f"\n\n【突破预警】{warning['message']}"
-
+        # Check breakthrough warning (no longer injected into AI prompt)
         tier = should_use_ai(event_ctx, state)
 
         # Check AI result cache: key = {template_id}:{realm}:{tier}
@@ -623,6 +623,7 @@ def get_next_event(session_id: str) -> dict:
         "narrative": narrative,
         "options": options,
         "is_fallback": is_fallback,
+        "breakthrough_warning": warning,
     }
 
 
@@ -1073,6 +1074,8 @@ def handle_breakthrough_choice(state: dict, use_pill: bool) -> dict:
 
     result = attempt_breakthrough(state, use_pill=use_pill)
     state.pop("_pending_breakthrough", None)
+    # 突破冷却：无论成败，3 个事件内不再触发瓶颈模板
+    state["_breakthrough_event_count"] = state.get("event_count", 0)
 
     if result.success:
         old_realm = state["realm"]

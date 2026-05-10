@@ -1,0 +1,31 @@
+id: "childhood_014"
+type: "childhood"
+narrative_only: false
+title: "村中玩伴"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 4
+  max_age: 8
+  required_faction: null
+weight: 5.0
+scenarios:
+  - childhood
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: "你{age}岁了。村里的孩子们在打谷场上追逐嬉闹，你第一次鼓起勇气加入了他们。描述你如何融入这群玩伴——你们玩了什么游戏？谁成了你最好的朋友？这段友谊给了你什么？200字以内，第二人称。"
+fallback_narrative: "那是一个暖洋洋的秋日午后，你站在打谷场边上看了好久，终于被一个大眼睛的男孩拉了进来。他叫铁蛋，比你大一岁，力气也大些，但从不欺负人。你们一起在草垛上打滚、用树枝当剑比武、追着蜻蜓跑遍了整个村子。铁蛋把藏在老槐树洞里的几颗酸枣分给了你，你吃得直皱眉头，他却笑得前仰后合。从那天起，你不再是那个总在角落发呆的孩子了——你有了朋友，有了可以一起傻笑的人。"
+default_options:
+  - id: "opt1"
+    text: "和伙伴们尽情玩耍——在游戏中学会与人相处"
+    consequences:
+      cultivation_gain: 1
+      age_advance: true
+  - id: "opt2"
+    text: "帮铁蛋干农活——友谊在汗水中加深"
+    consequences:
+      cultivation_gain: 2
+      age_advance: true

@@ -1,0 +1,36 @@
+id: "economy_010"
+type: "economy"
+title: "商会委托"
+trigger_conditions:
+  min_realm: "筑基"
+  max_realm: "元婴"
+  min_age: 30
+  max_age: 800
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "一家大型修行商会张贴了高额悬赏，委托修士护送一批珍贵物资穿越险境..."
+fallback_narrative: "一家大型修行商会张贴了高额悬赏，委托修士护送一批珍贵物资穿越险境，报酬丰厚但路途凶险异常。"
+default_options:
+  - id: "opt1"
+    text: "接取委托"
+    consequences:
+      cultivation_gain: 40
+      age_advance: true
+      spirit_stones_gain: 30
+  - id: "opt2"
+    text: "讨价还价"
+    consequences:
+      cultivation_gain: 20
+      age_advance: true
+  - id: "opt3"
+    text: "拒绝委托"
+    consequences:
+      cultivation_gain: 10
+      age_advance: true

@@ -1,0 +1,35 @@
+id: "adventure_011"
+type: "adventure"
+title: "妖兽伏击"
+trigger_conditions:
+  min_realm: "金丹"
+  max_realm: "化神"
+  min_age: 80
+  max_age: 2000
+  required_faction: null
+weight: 0.3
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "你追踪一只受伤的灵兽进入深山，不料中了埋伏——十几只妖蟒从四面八方的岩洞中钻出，将你团团围住。这些蛇妖似乎已经修炼成精，眼中闪烁着狡猾的光芒..."
+fallback_narrative: "你拨开齐腰的杂草，发现前方石壁上密密麻麻全是蛇洞。还没来得及后退，嘶嘶声从四面八方传来。一条条碗口粗的妖蟒从洞中探出头来，蛇信吞吐间，空气中弥漫着腥甜的气息。这分明是一个精心布置的陷阱。"
+default_options:
+  - id: "opt1"
+    text: "施展神通硬闯出去"
+    consequences:
+      cultivation_gain: 50
+      age_advance: true
+  - id: "opt2"
+    text: "寻找蛇群弱点智取"
+    consequences:
+      cultivation_gain: 35
+      age_advance: true
+  - id: "opt3"
+    text: "放出金丹威压震慑蛇妖"
+    consequences:
+      cultivation_gain: 42
+      age_advance: true

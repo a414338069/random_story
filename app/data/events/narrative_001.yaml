@@ -1,0 +1,21 @@
+id: "narrative_001"
+type: "narrative"
+title: "山中修行"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "炼气"
+  min_age: 10
+  max_age: 80
+  required_faction: null
+weight: 0.5
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+narrative_only: true
+default_options: []
+prompt_template: "你在山中独自修行，晨钟暮鼓，日复一日。清晨的薄雾中你挥剑练习，午后的阳光下你盘坐吐纳，深夜的星空下你仰望苍穹沉思。山中无甲子，岁月在不知不觉中流逝。请用一段文字描写这段山中修行的时光，突出宁静与坚持的氛围。"
+fallback_narrative: "山中修行的日子如流水般逝去。清晨你在薄雾中挥剑，午后的阳光下盘坐吐纳，深夜的星空下仰望苍穹沉思。山中无甲子，你在这宁静中感受着灵气在经脉中缓缓流动，修为在不知不觉中精进。"

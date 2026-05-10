@@ -1,0 +1,31 @@
+id: "childhood_018"
+type: "childhood"
+narrative_only: false
+title: "约定未来"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 8
+  max_age: 11
+  required_faction: null
+weight: 5.0
+scenarios:
+  - childhood
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: "你{age}岁了。你和村中的小伙伴们坐在山腰的巨石上，望着远山白云，开始谈论长大后想做什么。有人想当大侠，有人想做裁缝，有人说要赚大钱让爹娘过好日子。你呢？描述这天真而郑重的约定时刻——你许下了什么愿望？这些童言稚语虽然天真，但它们是否在你心中留下了某种印记？200字以内，第二人称。"
+fallback_narrative: "那是一个能望到天边的好日子，你们几个小伙伴坐在村口老槐树斜伸出去的粗枝上，晃着腿，有一搭没一搭地聊着。阿牛说他要当猎户，像他爹一样打老虎；小翠说要去镇上开个点心铺，每天吃糖糕；你被问到了，想了想说，你想去更远的地方看看——去看看那些游方道人说的修仙世界到底存不存在。几只云雀从头顶掠过，翅膀扑棱棱的声音仿佛在说：这世上天高地阔，什么都有可能。多年以后你会明白，那天在槐树上说的每一个字，都像种子一样埋进了心里，有的发芽了，有的枯了，但没有一粒是白说的。"
+default_options:
+  - id: "opt1"
+    text: "认真许下你的愿望——我要去看看这世界有多大"
+    consequences:
+      cultivation_gain: 2
+      age_advance: true
+  - id: "opt2"
+    text: "和大家一起折纸鹤，把愿望写在上面投入溪流"
+    consequences:
+      cultivation_gain: 3
+      age_advance: true

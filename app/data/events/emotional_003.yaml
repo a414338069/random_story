@@ -1,0 +1,35 @@
+id: "emotional_003"
+type: "emotional"
+title: "凡尘牵挂"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "炼气"
+  min_age: 10
+  max_age: 50
+  required_faction: null
+weight: 1.0
+scenarios:
+  - generic_daily
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+prompt_template: "家中传来消息，母亲卧病在床，希望你回去探望。修行与亲情，如何取舍？"
+fallback_narrative: "家中传来消息，母亲卧病在床，希望你回去探望。修行之路漫漫，凡尘亲情却转瞬即逝，令人心乱如麻。"
+default_options:
+  - id: "opt1"
+    text: "回家探亲"
+    consequences:
+      cultivation_gain: 20
+      age_advance: true
+  - id: "opt2"
+    text: "寄信慰藉"
+    consequences:
+      cultivation_gain: 15
+      age_advance: true
+  - id: "opt3"
+    text: "斩断尘缘"
+    consequences:
+      cultivation_gain: 40
+      age_advance: true
