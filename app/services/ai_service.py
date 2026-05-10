@@ -132,7 +132,7 @@ class DeepSeekService:
             timeout=10.0,
         )
         self._model = settings.DEEPSEEK_MODEL
-        self._max_retries = 2
+        self._max_retries = 1
 
     def generate_event(self, prompt: str, context: dict, skip_ai: bool = False) -> dict:
         if skip_ai:

@@ -396,9 +396,10 @@ def _call_ai_with_fallback(
     state: dict,
     tier: str,
 ) -> dict | None:
-    """Attempt AI generation — first via *ai_service*, then via direct DeepSeek call.
+    """Attempt AI generation via the configured *ai_service*.
 
-    Returns a result dict on success, or ``None`` when both paths fail.
+    Returns a result dict on success, or ``None`` when the call fails.
+    The calling code cascades to L1 (rule-based) fallback on failure.
     """
     if ai_service is not None:
         try:
@@ -407,14 +408,6 @@ def _call_ai_with_fallback(
                 return result
         except Exception as e:
             _logger.warning("ai_service.generate_event failed: %s", e)
-
-    model = _MODEL_FLASH
-    try:
-        result = _call_deepseek(model, prompt)
-        if result and isinstance(result, dict) and result.get("narrative"):
-            return result
-    except Exception as e:
-        _logger.warning("Direct DeepSeek call failed (model=%s): %s", model, e)
 
     return None
 
