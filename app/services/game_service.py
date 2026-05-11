@@ -10,7 +10,7 @@ import logging
 import random
 import uuid
 
-from app.services.talent_service import load_talents, validate_selection, get_active_modifiers, _apply_talent_attr_bonuses
+from app.services.talent_service import load_talents, validate_selection, get_active_modifiers, _apply_talent_attr_bonuses, has_talent_effect, has_talent_effect
 from app.services.realm_service import get_realm_config, get_next_realm
 from app.services.event_engine import (
     load_templates,
@@ -168,6 +168,9 @@ def start_game(
         session_id = _new_session_id()
         realm_config = get_realm_config("凡人")
 
+        modifiers = get_active_modifiers(talent_card_ids)
+        max_health = 100 + modifiers.get("max_health_bonus", 0)
+
         _games[session_id] = {
             "session_id": session_id,
             "name": name,
@@ -189,6 +192,8 @@ def start_game(
             "ascended": False,
             "user_id": user_id,
             "save_slot": save_slot if save_slot is not None else 0,
+            "max_health": max_health,
+            "current_health": max_health,
         }
 
         state = _games[session_id]
@@ -318,6 +323,10 @@ def _build_ai_prompt(
     attrs = state.get("attributes", {})
     realm_tier = _get_realm_tier(player.get('realm', ''))
 
+    talent_ids = state.get("talent_ids", [])
+    has_extra_option = has_talent_effect(talent_ids, "extra_event_option")
+    option_range = "2-5" if has_extra_option else "2-4"
+
     parts = [
         "请为以下修仙世界事件生成叙事：",
         "",
@@ -327,7 +336,7 @@ def _build_ai_prompt(
         f"【属性面板】根骨={attrs.get('rootBone', 0)}, 悟性={attrs.get('comprehension', 0)}, "
         f"心性={attrs.get('mindset', 0)}, 气运={attrs.get('luck', 0)}",
         f"【所属势力】{state.get('faction', '无')}",
-        f"【天赋】{_format_talent_names(state.get('talent_ids', []))}",
+        f"【天赋】{_format_talent_names(talent_ids)}",
     ]
 
     tags = state.get("tags")
@@ -374,6 +383,7 @@ def _build_ai_prompt(
 
     parts.append("")
     parts.append("【选项约束 — 必须遵守】")
+    parts.append(f"0. 选项数量：请生成{option_range}个差异化选项（含id、text、consequences），最少2个，最多{option_range.split('-')[1]}个。")
     parts.append("1. 叙事一致性：叙事中出现的具体人物、物品、地点、事件类型，必须在至少一个选项中体现或回应。")
     parts.append("2. 行为合理性：每个选项必须是叙事上下文中该角色的合理行为选择，不能凭空出现叙事未提及的动作。")
     parts.append("3. 关键词覆盖：选项文本中应包含叙事中的至少一个关键名词（人物名、物品名、地点名或核心事件词）。")
@@ -426,6 +436,13 @@ def prepare_stream_event(session_id: str) -> dict:
         time_span = 1
     state["age"] += time_span
     ctx["age"] = state["age"]
+
+    # 每年生命恢复（天赋 health_regen）
+    modifiers = get_active_modifiers(state.get("talent_ids", []))
+    health_regen = modifiers.get("health_regen", 0.0)
+    if health_regen > 0:
+        max_hp = state.get("max_health", 100)
+        state["current_health"] = min(max_hp, state.get("current_health", max_hp) + health_regen * time_span)
 
     event_ctx = build_event_context(chosen, ctx)
     event_ctx["template"] = chosen
@@ -492,6 +509,13 @@ def get_next_event(session_id: str) -> dict:
     if time_span is None:
         time_span = 1
     state["age"] += time_span
+
+    # 每年生命恢复（天赋 health_regen）
+    modifiers = get_active_modifiers(state.get("talent_ids", []))
+    health_regen = modifiers.get("health_regen", 0.0)
+    if health_regen > 0:
+        max_hp = state.get("max_health", 100)
+        state["current_health"] = min(max_hp, state.get("current_health", max_hp) + health_regen * time_span)
 
     # 衰减 STATE 标签的 TTL（中毒、顿悟等临时状态自然过期）
     tags = state.get("tags")
@@ -927,6 +951,14 @@ def process_choice(session_id: str, option_id: str | None = None) -> dict:
         spirit_stones_gain = -state["spirit_stones"]
     state["spirit_stones"] = max(0, state["spirit_stones"] + spirit_stones_gain)
 
+    # 每次事件后恢复生命（天赋 health_recovery）
+    modifiers = get_active_modifiers(state.get("talent_ids", []))
+    recovery_rate = modifiers.get("health_recovery", 0.0)
+    if recovery_rate > 0 and state.get("max_health", 100) > 0:
+        recovery = recovery_rate * state["max_health"]
+        current = state.get("current_health", state["max_health"])
+        state["current_health"] = min(state["max_health"], current + recovery)
+
     faction_assign = consequences.get("faction_assign")
     if faction_assign and isinstance(faction_assign, str):
         _logger = logging.getLogger(__name__)
@@ -1109,6 +1141,14 @@ def handle_breakthrough_choice(state: dict, use_pill: bool) -> dict:
         else:
             state["_breakthrough_msg"] = f"突破失败！损失{result.cultivation_loss:.0f}点修为！"
 
+        # 突破失败扣血（天赋 breakthrough_health_cost）
+        modifiers = get_active_modifiers(state.get("talent_ids", []))
+        health_cost_ratio = modifiers.get("breakthrough_health_cost", 0.0)
+        if health_cost_ratio > 0:
+            max_hp = state.get("max_health", 100)
+            health_damage = health_cost_ratio * max_hp
+            state["current_health"] = max(0, state.get("current_health", max_hp) - health_damage)
+
     # 突破结果用于响应后立即清除，防止泄漏到后续AI提示词
     msg = state.pop("_breakthrough_msg", "")
 
@@ -1129,6 +1169,15 @@ def check_game_over(player_state: dict) -> bool:
     lifespan = player_state.get("lifespan", 0)
     event_count = player_state.get("event_count", 0)
     if age >= lifespan:
+        talent_ids = player_state.get("talent_ids", [])
+        modifiers = get_active_modifiers(talent_ids)
+        death_resist = modifiers.get("death_resist", 0.0)
+        if death_resist > 0 and random.random() < death_resist:
+            return False
+        if has_talent_effect(talent_ids, "death_resurrection") and not player_state.get("_death_resurrection_used", False):
+            player_state["_death_resurrection_used"] = True
+            player_state["current_health"] = player_state.get("max_health", 100)
+            return False
         return True
     if event_count >= 60:
         return True

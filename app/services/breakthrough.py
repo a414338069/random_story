@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 from app.models.tags import Tag, TagCategory, TagSet
 from app.services.realm_service import get_realm_config, get_next_realm, load_realms
-from app.services.talent_service import get_active_modifiers, load_talents
+from app.services.talent_service import get_active_modifiers, has_talent_effect, load_talents
 from app.services.life_stage import get_breakthrough_penalty
 
 REALM_PENALTY = {
@@ -54,6 +54,10 @@ def calculate_success_rate(
 
     if use_pill:
         rate += PILL_BONUS
+
+    # Talent-enhanced pill effect (e.g., 血祭之契 l06)
+    if use_pill and talent_ids and has_talent_effect(talent_ids, "breakthrough_pill_chance"):
+        rate += 0.25
 
     # Tag-based modifiers
     if tags:
@@ -131,6 +135,12 @@ def attempt_breakthrough(
 
     if success:
         ascended = next_realm == "渡劫飞升"
+
+        # l06 血祭之契 negative effect: 突破成功后以30%气血为代价
+        if success and use_pill and has_talent_effect(talent_ids, "breakthrough_health_cost"):
+            current_hp = player_state.get("current_health", player_state.get("max_health", 100))
+            health_cost = current_hp * 0.3
+            player_state["current_health"] = max(1, int(current_hp - health_cost))
 
         if tags:
             tags.add(Tag(

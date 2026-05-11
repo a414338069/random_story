@@ -128,4 +128,26 @@ def init_db(db=None):
                 )
         db.execute("PRAGMA user_version = 3")
 
+    # Migration v3 → v4: add max_health and current_health columns to players
+    if version < 4:
+        players_exists = (
+            db.execute(
+                "SELECT name FROM sqlite_master "
+                "WHERE type='table' AND name='players'"
+            ).fetchone()
+            is not None
+        )
+        if players_exists:
+            table_info = db.execute("PRAGMA table_info(players)").fetchall()
+            columns = {row[1] for row in table_info}
+            if "max_health" not in columns:
+                db.execute(
+                    "ALTER TABLE players ADD COLUMN max_health REAL NOT NULL DEFAULT 100.0"
+                )
+            if "current_health" not in columns:
+                db.execute(
+                    "ALTER TABLE players ADD COLUMN current_health REAL NOT NULL DEFAULT 100.0"
+                )
+        db.execute("PRAGMA user_version = 4")
+
     return db

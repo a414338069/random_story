@@ -98,29 +98,33 @@ def validate_selection(talent_ids: list[str]) -> tuple[bool, str]:
 def get_active_modifiers(talent_ids: list[str]) -> dict[str, float]:
     """Aggregate modifiers from all selected talents (additive).
 
-    Sums modifiers of the same key across talents. Ignores talents
+    Sums modifiers of the same key across talents from effects,
+    positive_effects, and negative_effects. Ignores talents
     with missing or empty effects, and skips non-numeric values.
     """
     talents = load_talents()
     talent_map = {t["id"]: t for t in talents}
     result: dict[str, float] = {}
+    effect_sources = ("effects", "positive_effects", "negative_effects")
     for tid in talent_ids:
         talent = talent_map.get(tid)
         if not talent:
             continue
-        effects = talent.get("effects", {})
-        if not isinstance(effects, dict):
-            continue
-        modifiers = effects.get("modifiers", {})
-        if not isinstance(modifiers, dict):
-            continue
-        for key, val in modifiers.items():
-            if isinstance(val, (int, float)):
-                result[key] = result.get(key, 0.0) + float(val)
-            else:
-                logger.warning(
-                    "非数值修饰符 talent=%s key=%s value=%s", tid, key, val
-                )
+        for source in effect_sources:
+            section = talent.get(source, {})
+            if not isinstance(section, dict):
+                continue
+            modifiers = section.get("modifiers", {})
+            if not isinstance(modifiers, dict):
+                continue
+            for key, val in modifiers.items():
+                if isinstance(val, (int, float)):
+                    result[key] = result.get(key, 0.0) + float(val)
+                else:
+                    logger.warning(
+                        "非数值修饰符 talent=%s source=%s key=%s value=%s",
+                        tid, source, key, val
+                    )
     return result
 
 

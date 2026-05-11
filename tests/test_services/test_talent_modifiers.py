@@ -17,11 +17,11 @@ from app.services.talent_service import (
 
 def test_get_active_modifiers_aggregates_correctly():
     """Multiple talents' modifiers should sum correctly (additive)."""
-    # f01: max_health_bonus=20
-    # l01: max_health_bonus=50, physical_damage_bonus=0.15
-    result = get_active_modifiers(["f01", "l01"])
-    assert result["max_health_bonus"] == pytest.approx(70.0)
-    assert result["physical_damage_bonus"] == pytest.approx(0.15)
+    # f02: breakthrough_rate_bonus=0.08, learning_speed=0.05
+    # l02: learning_speed=0.15
+    result = get_active_modifiers(["f02", "l02"])
+    assert result["learning_speed"] == pytest.approx(0.20)
+    assert result["breakthrough_rate_bonus"] == pytest.approx(0.08)
 
 
 def test_get_active_modifiers_empty_list():

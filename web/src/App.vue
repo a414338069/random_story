@@ -33,6 +33,8 @@ html, body, #app-root {
   padding: 0;
   height: 100%;
   width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
   font-family: var(--font-family);
   -webkit-font-smoothing: antialiased;
 }

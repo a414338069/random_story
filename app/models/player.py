@@ -63,6 +63,8 @@ class PlayerState(BaseModel):
     age: int = Field(default=0, ge=0)
 
     health: float = Field(default=100.0, ge=0.0)
+    max_health: float = Field(default=100.0, ge=0.0)
+    current_health: float = Field(default=100.0, ge=0.0)
     qi: float = Field(default=0.0, ge=0.0)
     lifespan: int = Field(default=100, ge=0)
 

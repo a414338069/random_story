@@ -107,8 +107,7 @@ def test_doomed_star_specific_effects():
     neg_mod = t["negative_effects"]["modifiers"]
     assert pos_attr.get("luck") == 3
     assert pos_mod.get("extra_event_option") == 1
-    assert neg_mod.get("romance_blocked") is True
-    assert neg_mod.get("npc_relation_penalty") == -0.5
+    assert neg_mod == {}  # P2: romance_blocked, npc_relation_penalty (待社交系统实现后启用)
 
 
 def test_broken_soul_specific_effects():
@@ -118,7 +117,8 @@ def test_broken_soul_specific_effects():
     pos_mod = t["positive_effects"]["modifiers"]
     neg_attr = t["negative_effects"]["attr_bonuses"]
     neg_mod = t["negative_effects"]["modifiers"]
-    assert pos_mod.get("death_resurrection") == 1
+    assert pos_mod.get("death_resurrection") == 1  # Wave 2 生命系统已激活
+    # P2: soul_power_bonus 待神魂系统实现后启用
     assert neg_attr.get("comprehension") == -2
     assert neg_mod.get("learning_speed") == -0.3
 

@@ -24,26 +24,45 @@ interface EffectItem {
   positive: boolean
 }
 
-const displayEffects = computed<EffectItem[]>(() => {
-  const items: EffectItem[] = []
-  const { effects } = props.card
-
-  // attr_bonuses
-  for (const [key, val] of Object.entries(effects.attr_bonuses)) {
+function collectAttrs(
+  source: Record<string, number> | undefined,
+  items: EffectItem[],
+) {
+  if (!source) return
+  for (const [key, val] of Object.entries(source)) {
     if (val === 0) continue
     const name = attrNameMap[key] ?? key
     const sign = val > 0 ? '+' : ''
     items.push({ label: name, value: `${sign}${val}`, positive: val > 0 })
   }
+}
 
-  // positive modifiers
-  for (const [key, val] of Object.entries(effects.modifiers)) {
+function collectMods(
+  source: Record<string, number | boolean> | undefined,
+  items: EffectItem[],
+  defaultPositive: boolean,
+) {
+  if (!source) return
+  for (const [key, val] of Object.entries(source)) {
     if (val === 0 || val === false) continue
     const label = getModifierLabel(key)
     const formatted = formatModifierValue(val)
-    const positive = typeof val === 'boolean' ? true : val > 0
+    const positive = typeof val === 'boolean' ? defaultPositive : val > 0
     items.push({ label, value: formatted, positive })
   }
+}
+
+const displayEffects = computed<EffectItem[]>(() => {
+  const items: EffectItem[] = []
+  const { effects } = props.card
+
+  collectAttrs(effects.attr_bonuses, items)
+  collectAttrs(effects.positive_effects?.attr_bonuses, items)
+  collectAttrs(effects.negative_effects?.attr_bonuses, items)
+
+  collectMods(effects.modifiers, items, true)
+  collectMods(effects.positive_effects?.modifiers, items, true)
+  collectMods(effects.negative_effects?.modifiers, items, false)
 
   return items
 })
@@ -86,7 +105,7 @@ const hasEffects = computed(() => displayEffects.value.length > 0)
   width: 140px;
   min-width: 140px;
   max-width: 140px;
-  height: 200px;
+  min-height: 200px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -168,8 +187,8 @@ const hasEffects = computed(() => displayEffects.value.length > 0)
   gap: 3px;
   justify-content: center;
   flex-shrink: 0;
-  max-height: 36px;
-  overflow: hidden;
+  max-height: 80px;
+  overflow-y: auto;
 }
 
 .effect-tag {

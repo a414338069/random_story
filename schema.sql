@@ -10,6 +10,8 @@ CREATE TABLE IF NOT EXISTS players (
     realm           TEXT NOT NULL DEFAULT '',
     realm_progress  REAL NOT NULL DEFAULT 0.0,
     health          REAL NOT NULL DEFAULT 100.0,
+    max_health      REAL NOT NULL DEFAULT 100.0,
+    current_health  REAL NOT NULL DEFAULT 100.0,
     qi              REAL NOT NULL DEFAULT 0.0,
     lifespan        INTEGER NOT NULL DEFAULT 100,
     faction         TEXT NOT NULL DEFAULT '',
@@ -70,4 +72,4 @@ CREATE TABLE IF NOT EXISTS event_templates (
 
 CREATE INDEX IF NOT EXISTS idx_players_user_slot ON players(user_id, save_slot);
 
-PRAGMA user_version = 3;
+PRAGMA user_version = 4;

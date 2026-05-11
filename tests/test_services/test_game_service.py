@@ -1103,3 +1103,127 @@ class TestOldSaveTagBootstrap:
         skills = tags.get_by_category(TagCategory.SKILL)
         assert len(skills) == 0
 
+
+# ---------------------------------------------------------------------------
+# Health system
+# ---------------------------------------------------------------------------
+
+
+class TestHealthSystem:
+    def test_health_initialized_without_talents(self):
+        """无天赋时 max_health=current_health=100."""
+        random.seed(42)
+        result = start_game("测试", "男", ["f02", "f03", "f04"], _make_player_attrs_dict())
+        assert result["max_health"] == 100
+        assert result["current_health"] == 100
+
+    def test_health_initialized_with_max_health_bonus(self):
+        """f01 粗壮体魄: max_health_bonus=20 → max_health=120, current_health=120."""
+        random.seed(42)
+        result = start_game("测试", "男", ["f01", "f02", "f03"], _make_player_attrs_dict())
+        assert result["max_health"] == 120
+        assert result["current_health"] == 120
+
+    def test_health_initialized_with_multiple_bonuses(self):
+        """f01(20) + l01(50) → max_health=170, current_health=170."""
+        random.seed(42)
+        result = start_game("测试", "男", ["f01", "l01", "f02"], _make_player_attrs_dict())
+        assert result["max_health"] == 170
+        assert result["current_health"] == 170
+
+    def test_health_initialized_with_s02(self):
+        """s02 不死之身: max_health_bonus=200 → max_health=300, current_health=300."""
+        random.seed(42)
+        result = start_game("测试", "男", ["s02", "f02", "f03"], _make_player_attrs_dict())
+        assert result["max_health"] == 300
+        assert result["current_health"] == 300
+
+    def test_health_persisted_after_event(self):
+        """事件处理后 max_health 和 current_health 正确持久化."""
+        random.seed(42)
+        result = start_game("测试", "男", ["f01", "f02", "f03"], _make_player_attrs_dict())
+        sid = result["session_id"]
+        _insert_current_event(sid, event_type="daily")
+        process_choice(sid, "opt1")
+        state = get_state(sid)
+        assert state["max_health"] == 120
+        assert "current_health" in state
+
+    def test_death_resist_survive(self):
+        """s02 death_resist=1 → 100% 存活."""
+        random.seed(42)
+        state = {
+            "age": 81, "lifespan": 80, "event_count": 10, "ascended": False,
+            "talent_ids": ["s02"],
+            "max_health": 300, "current_health": 300,
+        }
+        assert check_game_over(state) is False
+
+    def test_death_resurrection_one_time(self):
+        """s03 death_resurrection=1 → 复活一次."""
+        random.seed(42)
+        state = {
+            "age": 81, "lifespan": 80, "event_count": 10, "ascended": False,
+            "talent_ids": ["s03"],
+            "max_health": 100, "current_health": 50,
+        }
+        # 第一次: 复活
+        assert check_game_over(state) is False
+        assert state["_death_resurrection_used"] is True
+        assert state["current_health"] == 100  # 恢复满血
+        # 第二次: 无法再复活
+        assert check_game_over(state) is True
+
+    def test_no_death_avoidance_without_talents(self):
+        """无天赋 → 正常死亡."""
+        state = {
+            "age": 81, "lifespan": 80, "event_count": 10, "ascended": False,
+            "talent_ids": [],
+            "max_health": 100, "current_health": 100,
+        }
+        assert check_game_over(state) is True
+
+    def test_health_regen_applied_yearly(self):
+        """s02 health_regen=5，1年后 current_health +5 (不超过 max_health)."""
+        random.seed(42)
+        result = start_game("测试", "男", ["s02", "f02", "f03"], _make_player_attrs_dict())
+        sid = result["session_id"]
+        _games[sid]["age"] = 20
+        _games[sid]["current_health"] = 290  # 不满血
+        get_next_event(sid)
+        state = get_state(sid)
+        assert state["current_health"] == 295
+
+    def test_health_regen_capped_at_max(self):
+        """health_regen 不超过 max_health."""
+        random.seed(42)
+        result = start_game("测试", "男", ["s02", "f02", "f03"], _make_player_attrs_dict())
+        sid = result["session_id"]
+        _games[sid]["age"] = 20
+        _games[sid]["current_health"] = 299
+        get_next_event(sid)
+        state = get_state(sid)
+        assert state["current_health"] == 300  # capped at max_health
+
+    def test_health_recovery_after_event(self):
+        """f06 health_recovery=0.1，事件后恢复 10% max_health (12 HP)."""
+        random.seed(42)
+        result = start_game("测试", "男", ["f01", "f06", "f02"], _make_player_attrs_dict())
+        sid = result["session_id"]
+        _games[sid]["current_health"] = 100  # 不满血
+        _insert_current_event(sid, event_type="daily")
+        process_choice(sid, "opt1")
+        state = get_state(sid)
+        assert state["current_health"] == 112  # 100 + 0.1*120 = 112
+
+    def test_health_recovery_capped(self):
+        """health_recovery 不超过 max_health."""
+        random.seed(42)
+        result = start_game("测试", "男", ["f01", "f06", "f02"], _make_player_attrs_dict())
+        sid = result["session_id"]
+        _games[sid]["current_health"] = 119
+        _insert_current_event(sid, event_type="daily")
+        process_choice(sid, "opt1")
+        state = get_state(sid)
+        assert state["current_health"] == 120  # capped at max_health
+

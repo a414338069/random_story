@@ -45,8 +45,8 @@ talents:
     effects:
       attr_bonuses:
         mindset: 1
-      modifiers:
-        mental_resist: 0.1
+      # P2: mental_resist: 0.1  # 待心魔系统实现后启用
+      modifiers: {}
 
   - id: f05
     name: 灵根初显
@@ -56,9 +56,9 @@ talents:
     description: 初步感应天地灵气，踏入修行门槛。
     effects:
       attr_bonuses: {}
-      modifiers:
-        qi_recovery: 0.1
-        max_qi_bonus: 10
+      # P2: qi_recovery: 0.1  # 待灵力系统实现后启用
+      # P2: max_qi_bonus: 10  # 待灵力系统实现后启用
+      modifiers: {}
 
   - id: f06
     name: 百折不挠
@@ -71,7 +71,7 @@ talents:
       modifiers:
         breakthrough_rate_bonus: 0.10
         health_recovery: 0.1
-        resilience: 0.05
+        # P2: resilience: 0.05  # 待韧性系统实现后启用
 
   # ====== 灵品 (6)  rarity=0.3 ======
   - id: l01
@@ -85,7 +85,7 @@ talents:
         root_bone: 3
       modifiers:
         max_health_bonus: 50
-        physical_damage_bonus: 0.15
+        # P2: physical_damage_bonus: 0.15  # 待战斗系统实现后启用
 
   - id: l02
     name: 过人悟性
@@ -120,8 +120,8 @@ talents:
     effects:
       attr_bonuses:
         mindset: 3
-      modifiers:
-        mental_resist: 0.25
+      # P2: mental_resist: 0.25  # 待心魔系统实现后启用
+      modifiers: {}
 
   - id: l05
     name: 灵泉体质
@@ -131,9 +131,9 @@ talents:
     description: 体内灵泉涌动，灵力生生不息。
     effects:
       attr_bonuses: {}
-      modifiers:
-        max_qi_bonus: 50
-        qi_recovery: 0.3
+      # P2: max_qi_bonus: 50  # 待灵力系统实现后启用
+      # P2: qi_recovery: 0.3  # 待灵力系统实现后启用
+      modifiers: {}
 
   - id: l06
     name: 血祭之契
@@ -165,7 +165,7 @@ talents:
         root_bone: 5
         comprehension: 5
       modifiers:
-        max_qi_bonus: 100
+        # P2: max_qi_bonus: 100  # 待灵力系统实现后启用
         cultivation_speed: 0.3
 
   - id: x02
@@ -179,8 +179,8 @@ talents:
         mindset: 5
       modifiers:
         lifespan_bonus: 50
-        mental_resist: 0.5
-        demon_resist: 0.3
+        # P2: mental_resist: 0.5  # 待心魔系统实现后启用
+        # P2: demon_resist: 0.3  # 待心魔系统实现后启用
 
   - id: x03
     name: 先天道体
@@ -195,7 +195,7 @@ talents:
         mindset: 2
         luck: 2
       modifiers:
-        max_qi_bonus: 80
+        # P2: max_qi_bonus: 80  # 待灵力系统实现后启用
         cultivation_speed: 0.2
 
   - id: x04
@@ -211,9 +211,9 @@ talents:
         extra_event_option: 1
     negative_effects:
       attr_bonuses: {}
-      modifiers:
-        romance_blocked: true
-        npc_relation_penalty: -0.5
+      # P2: romance_blocked: true  # 待社交系统实现后启用
+      # P2: npc_relation_penalty: -0.5  # 待社交系统实现后启用
+      modifiers: {}
     effects:
       attr_bonuses: {}
       modifiers: {}
@@ -229,7 +229,7 @@ talents:
       attr_bonuses: {}
       modifiers:
         cultivation_speed: 0.5
-        devour_effect: 0.5
+        # P2: devour_effect: 0.5  # 待吞噬系统实现后启用
 
   - id: s02
     name: 不死之身
@@ -254,7 +254,7 @@ talents:
       attr_bonuses: {}
       modifiers:
         death_resurrection: 1
-        soul_power_bonus: 0.3
+        # P2: soul_power_bonus: 0.3  # 待神魂系统实现后启用
     negative_effects:
       attr_bonuses:
         comprehension: -2
@@ -279,4 +279,4 @@ talents:
         luck: 10
       modifiers:
         lifespan_bonus: 100
-        fate_rewrite: 1
+        # P2: fate_rewrite: 1  # 待命运系统实现后启用

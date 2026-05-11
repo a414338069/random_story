@@ -59,7 +59,10 @@
 
   .talent-card {
     width: 120px !important;
-    padding: 12px !important;
+    min-width: 120px !important;
+    max-width: 120px !important;
+    min-height: auto !important;
+    padding: 10px !important;
   }
 
   .go-title {
