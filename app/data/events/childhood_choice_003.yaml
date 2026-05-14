@@ -1,0 +1,50 @@
+id: "childhood_choice_003"
+type: "childhood"
+narrative_only: false
+title: "拜师抉择"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 7
+  max_age: 11
+  required_faction: null
+weight: 4.0
+scenarios:
+  - childhood
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: |
+  你{age}岁了。这一年有两个选择摆在你面前。村东头的铁匠铺来了一位脾气古怪的老铁匠，据说年轻时是个散修，懂得一些不入流的功法；而镇上新开了一家小武馆，馆主虽然修为不高但为人严厉，收徒极严。两个方向对你都敞开着大门。描述你面临选择的场景——你心里更倾向哪条路？为什么？200字以内，第二人称。
+fallback_narrative: |
+  你{age}岁那年春天，村口来了两个外地人。一个是背着铁锤的独眼老汉，在村东头支了个打铁摊。有人认出他曾是个散修，因为冲击瓶颈失败受了重伤，从此隐姓埋名。另一个是镇上新武馆的教头，一身短打劲装，走起路来虎虎生风。他放出话来：凡是十二岁以下的孩子都可以去试训，合格的便收为弟子。你站在村口的十字路上，看着东边的铁炉烟火和西边隐约可见的武馆旗杆，心里已经隐隐知道，这可能就是改变你命运的岔路口。
+default_options:
+  - id: "opt1"
+    text: "拜入严厉的武馆教头门下——根基扎实，日后少走弯路"
+    consequences:
+      cultivation_gain: 3
+      spirit_stones_gain: 1
+      age_advance: true
+      attribute_changes:
+        root_bone: 0.8
+        fortune: -0.5
+  - id: "opt2"
+    text: "跟着散修老铁匠——自由散漫但或许另有奇遇"
+    consequences:
+      cultivation_gain: 2
+      spirit_stones_gain: 3
+      age_advance: true
+      attribute_changes:
+        fortune: 0.8
+        root_bone: -0.3
+  - id: "opt3"
+    text: "谁的弟子都不做——靠自己摸爬滚打，走自己的路"
+    consequences:
+      cultivation_gain: 1
+      spirit_stones_gain: 0
+      age_advance: true
+      attribute_changes:
+        mental_state: 0.5
+        comprehension: 0.3

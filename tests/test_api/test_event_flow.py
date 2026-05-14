@@ -23,6 +23,7 @@ def _create_test_game():
 
 @pytest.mark.asyncio
 async def test_get_event_success(client):
+    random.seed(42)
     game = _create_test_game()
     response = await client.post(
         "/api/v1/game/event",
@@ -59,6 +60,7 @@ async def test_get_event_not_found(client):
 
 @pytest.mark.asyncio
 async def test_choose_success(client):
+    random.seed(42)
     game = _create_test_game()
     event_resp = await client.post(
         "/api/v1/game/event",

@@ -26,11 +26,12 @@ web/src/
 │   └── __tests__/          # composable 测试
 ├── components/             # UI 组件
 │   ├── StatusBar.vue       # 状态栏 (境界/修炼/年龄/灵石)
-│   ├── NarrativeBox.vue    # 叙事文本框 (打字机效果)
 │   ├── NarrativeLog.vue    # 历史叙事滚动列表
 │   ├── OptionCard.vue      # 选项卡片 (点击选择)
+│   ├── PlayerStatusPanel.vue # 玩家状态面板 (详细属性展示)
 │   ├── TalentCard.vue      # 天赋卡片 (选择/展示)
 │   ├── AttributeAllocator.vue # 属性分配器 (10点四维)
+│   ├── LeaderboardModal.vue # 排行榜弹窗
 │   └── LoadingOverlay.vue  # 加载遮罩
 ├── views/                  # 页面视图
 │   ├── TitleScreen.vue     # 首页 (开始游戏)

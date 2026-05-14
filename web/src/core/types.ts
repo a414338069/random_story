@@ -90,6 +90,10 @@ export interface NormalizedGameState {
   realmProgress: number
   cultivation: number
   age: number
+  health: number
+  maxHealth: number
+  qi: number
+  maxQi: number
   lifespan: number
   faction: string
   spiritStones: number
@@ -231,4 +235,4 @@ export interface EventHistoryEntry {
   aftermath: AftermathData | null
 }
 
-export type LoopPhase = 'idle' | 'fetching' | 'streaming' | 'typing' | 'waiting_click' | 'choosing' | 'breakthrough_choosing' | 'submitting' | 'aftermath' | 'degraded' | 'gameover'
+export type LoopPhase = 'idle' | 'fetching' | 'typing' | 'waiting_click' | 'choosing' | 'breakthrough_choosing' | 'submitting' | 'aftermath' | 'degraded' | 'gameover'

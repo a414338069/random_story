@@ -1,0 +1,49 @@
+id: "childhood_choice_002"
+type: "childhood"
+narrative_only: false
+title: "天赋初显"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 5
+  max_age: 9
+  required_faction: null
+weight: 3.0
+scenarios:
+  - childhood
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: |
+  你{age}岁了。最近一段时间，你发现自己似乎与别的小孩不太一样——有时候你能看到别人看不到的东西，或是感知到一些微妙的波动。村里几个老人私下议论说你"有灵根"。你隐约感觉到自己或许有修仙的天赋，但还不确定要怎么对待这份与众不同。描述你发现天赋时的场景和感受，200字以内，第二人称。
+fallback_narrative: |
+  你{age}岁那年秋天，和村里几个伙伴在山脚玩耍时，你忽然停下脚步，说了一句"那里有人在修炼"。伙伴们顺着你的手指望去，只见一片空荡荡的竹林，什么也没有。他们笑你胡说八道，可你自己却清清楚楚地感觉到那片竹林里有一股热气在流动，像是有人在那里吐纳呼吸。回到家后你忍不住问母亲那是什么感觉，母亲愣了一下，摸着你的额头说："别想太多，你只是比别人敏感些。"但你隐隐觉得，事情没那么简单。
+default_options:
+  - id: "opt1"
+    text: "专注于这份天赋——开始有意识地感应灵气，尝试引气入体"
+    consequences:
+      cultivation_gain: 5
+      spirit_stones_gain: 0
+      age_advance: true
+      attribute_changes:
+        root_bone: 0.5
+        fortune: -0.3
+  - id: "opt2"
+    text: "全面发展——修炼之余也读书识字、帮家里干活"
+    consequences:
+      cultivation_gain: 2
+      spirit_stones_gain: 2
+      age_advance: true
+      attribute_changes:
+        comprehension: 0.3
+        fortune: 0.3
+  - id: "opt3"
+    text: "隐藏天赋——装作普通人，暗中观察和研究自己的特异之处"
+    consequences:
+      cultivation_gain: 3
+      spirit_stones_gain: 0
+      age_advance: true
+      attribute_changes:
+        mental_state: 0.5

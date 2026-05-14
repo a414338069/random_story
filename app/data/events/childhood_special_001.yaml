@@ -1,0 +1,21 @@
+id: "childhood_special_001"
+type: "childhood"
+title: "故地重游"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "渡劫飞升"
+  min_age: 12
+  max_age: 9999
+  required_faction: null
+weight: 5.0
+scenarios:
+  - childhood_special
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+narrative_only: true
+default_options: []
+prompt_template: "你回到了童年时生活过的地方。熟悉的山川草木、屋檐巷道，一切仿佛都在诉说着往昔的故事。你站在村口的老槐树下，那些早已模糊的童年记忆忽然变得清晰起来。"
+fallback_narrative: "你回到了童年时生活过的地方。老屋已有些破败，但门前那棵槐树依然枝繁叶茂。你坐在树下，少年时的记忆如潮水般涌来——那时你总觉得世界很小，却不知修仙之路已在脚下悄然铺开。你微微一笑，心中多了几分感悟。"

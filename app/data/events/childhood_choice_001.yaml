@@ -1,0 +1,47 @@
+id: "childhood_choice_001"
+type: "childhood"
+narrative_only: false
+title: "家族期望"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 6
+  max_age: 10
+  required_faction: null
+weight: 3.0
+scenarios:
+  - childhood
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: |
+  你{age}岁了。这一年家族聚会时，族长在席间提起了你的未来——家族希望出一个修仙者来光耀门楣，但也有人觉得安安稳稳做个凡人没什么不好。你的父母看着你，眼神里既有期待也有担忧。描述这个场景——你是如何回应族人的期望的？200字以内，第二人称。
+fallback_narrative: |
+  你{age}岁那年除夕，族长在年夜饭桌上多喝了几杯酒，忽然指着你说："这孩子眼中有光，将来若有仙缘，咱们家也算出头了。"话音刚落，几位叔叔婶婶便开始议论纷纷：有的说修仙太苦、九死一生；有的说若有天赋就该送去仙门试一试。你的父亲沉默良久，只是摸了摸你的头说："不管走哪条路，爹娘都支持你。"你望着窗外夜空中闪烁的星辰，心里第一次认真思考起自己的未来。
+default_options:
+  - id: "opt1"
+    text: "听从家族安排——若有机缘便去修仙，光耀门楣"
+    consequences:
+      cultivation_gain: 3
+      spirit_stones_gain: 2
+      age_advance: true
+      attribute_changes:
+        comprehension: 0.5
+  - id: "opt2"
+    text: "坚持己见——修仙是自己的事，不必为他人期望所累"
+    consequences:
+      cultivation_gain: 2
+      spirit_stones_gain: 0
+      age_advance: true
+      attribute_changes:
+        mental_state: 0.5
+  - id: "opt3"
+    text: "沉默不语——先埋头修炼，等有了实力再说话"
+    consequences:
+      cultivation_gain: 4
+      spirit_stones_gain: 1
+      age_advance: true
+      attribute_changes:
+        root_bone: 0.3

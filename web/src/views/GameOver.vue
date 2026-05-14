@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { NButton } from 'naive-ui'
+import { NButton, ref } from 'naive-ui'
 import { useGameState } from '@/composables/useGameState'
+import LeaderboardModal from '@/components/LeaderboardModal.vue'
 
 const router = useRouter()
 const { gameState, score, ending, grade } = useGameState()
+const showLeaderboardModal = ref(false)
 
 function getGradeColor(g: string): string {
   switch (g) {
@@ -23,7 +25,7 @@ function playAgain() {
 }
 
 function showLeaderboard() {
-  window.alert('暂无记录')
+  showLeaderboardModal.value = true
 }
 </script>
 
@@ -60,6 +62,8 @@ function showLeaderboard() {
       </div>
     </div>
   </div>
+
+  <LeaderboardModal v-model:show="showLeaderboardModal" />
 </template>
 
 <style scoped>

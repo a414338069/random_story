@@ -125,8 +125,6 @@ def check_narrative_option_alignment(narrative: str, options: list[dict]) -> boo
     return total == 0 or matched >= max(1, total // 2)
 
 
-# TODO(Phase 2): Wire validate_ai_output into game_service.get_next_event() 
-# as an additional validation layer before check_narrative_option_alignment
 def validate_ai_output(
     raw: str,
     fallback_narrative: str,

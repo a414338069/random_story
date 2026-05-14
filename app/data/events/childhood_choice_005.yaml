@@ -1,0 +1,50 @@
+id: "childhood_choice_005"
+type: "childhood"
+narrative_only: false
+title: "道德抉择"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 8
+  max_age: 11
+  required_faction: null
+weight: 4.0
+scenarios:
+  - childhood
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: |
+  你{age}岁了。最近你在山上采药时，无意中发现村里的一个少年在偷附近道观的灵草——那些灵草是道观专门种来给入门弟子的。那个少年看见了你，神色慌张地求你别说出去，说自己家境贫困想换点银子给母亲治病。你知道偷窃是不对的，但也明白他的苦衷。描述你撞破这件事的场景，以及你内心的挣扎，200字以内，第二人称。
+fallback_narrative: |
+  你{age}岁那年深秋，上山采药时远远看见一个熟悉的身影蹲在道观后院的灵草圃里。你悄悄走近，发现是村里张家的二小子。他慌慌张张地把几株灵草往怀里塞，一抬头正对上你的目光。他脸色惨白，扑通一声跪在你面前，声音发颤："求你别告诉道长……我娘病了，药铺的郎中说要人参，咱家买不起……我也是没办法……"你看着他红肿的眼睛和手上被灵草锋刃划破的口子，一时间不知该说什么。
+default_options:
+  - id: "opt1"
+    text: "揭发作弊者——偷窃是不对的，必须让道长知道"
+    consequences:
+      cultivation_gain: 2
+      spirit_stones_gain: 0
+      age_advance: true
+      attribute_changes:
+        mental_state: 0.8
+        fortune: -0.5
+  - id: "opt2"
+    text: "保持沉默——假装没看见，让他拿走灵草"
+    consequences:
+      cultivation_gain: 1
+      spirit_stones_gain: 0
+      age_advance: true
+      attribute_changes:
+        fortune: 0.5
+        mental_state: -0.3
+  - id: "opt3"
+    text: "帮他一把——用自己的零用钱替他买药，劝他把灵草还回去"
+    consequences:
+      cultivation_gain: 1
+      spirit_stones_gain: -3
+      age_advance: true
+      attribute_changes:
+        mental_state: 0.5
+        fortune: 0.5

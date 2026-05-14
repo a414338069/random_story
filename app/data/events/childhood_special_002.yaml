@@ -1,0 +1,37 @@
+id: "childhood_special_002"
+type: "childhood"
+title: "童年故人"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "渡劫飞升"
+  min_age: 12
+  max_age: 9999
+  required_faction: null
+weight: 6.0
+scenarios:
+  - childhood_special
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L3"
+narrative_only: false
+prompt_template: "你意外重逢了童年时的一位故人。岁月改变了他的容颜，但他一眼就认出了你。他讲述了这些年村中的变迁，以及你离开后发生的种种。这次重逢让你想起了童年时的一些往事——那些曾经塑造了你性格的经历。现在面对这位故人，你有什么想说的吗？用200字以内描写这个场景，第二人称。"
+fallback_narrative: "你在集市上偶遇了童年时的玩伴张三。他已是两个孩子的父亲，脸上刻满了岁月的痕迹。他认出了你，激动地拍了拍你的肩膀。从他口中，你得知村里的老王头去年去世了，那个曾经夸你根骨不凡的游方道人再也没有回来过。你心中百感交集，仿佛有一座桥梁连接着你的过去与现在。"
+default_options:
+  - id: "opt1"
+    text: "与故人促膝长谈，了解村中近况"
+    consequences:
+      cultivation_gain: 5
+      age_advance: true
+  - id: "opt2"
+    text: "赠予灵石，帮助故人改善家境"
+    consequences:
+      cultivation_gain: 3
+      spirit_stones_gain: -20
+      age_advance: true
+  - id: "opt3"
+    text: "感慨人生无常，更加坚定修仙之心"
+    consequences:
+      cultivation_gain: 8
+      age_advance: true

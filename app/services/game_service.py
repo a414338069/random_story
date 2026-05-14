@@ -10,6 +10,8 @@ import logging
 import random
 import uuid
 
+from openai import APIConnectionError, APIStatusError, RateLimitError
+
 from app.services.talent_service import load_talents, validate_selection, get_active_modifiers, _apply_talent_attr_bonuses, has_talent_effect, has_talent_effect
 from app.services.realm_service import get_realm_config, get_next_realm
 from app.services.event_engine import (
@@ -23,7 +25,7 @@ from app.services.event_engine import (
 from app.services.scoring import determine_ending, calculate_score, get_grade
 from app.services.breakthrough import attempt_breakthrough, BreakthroughResult, build_breakthrough_event
 from app.services.ai_service import DeepSeekService, MockAIService
-from app.services.ai_validator import check_narrative_option_alignment
+from app.services.ai_validator import check_narrative_option_alignment, validate_schema, check_content_safety
 from app.services.cache_service import get_cached, set_cached
 from app.services.context_engine import determine_scenario_pool, match_scenarios
 from app.services.event_factory import should_use_ai, generate_event as factory_generate_event
@@ -82,8 +84,8 @@ def _ensure_tags_and_memory(state: dict) -> None:
             state["tags"] = _bootstrap_tags(state)
         if state.get("story_memory") is None:
             state["story_memory"] = StoryMemorySet()
-    except Exception:
-        _logger.warning("标签引导失败，使用空标签")
+    except Exception as e:
+        _logger.warning("Tag guidance failed (non-critical): %s", e)
 
 
 def _random_sect_for_player(attributes: dict) -> str:
@@ -575,6 +577,11 @@ def get_next_event(session_id: str) -> dict:
                 narrative = factory_result["narrative"]
                 ai_options = factory_result.get("options", [])
                 if ai_options:
+                    # 3-layer validation: schema check + content safety
+                    is_valid, validated = validate_schema(factory_result)
+                    if is_valid:
+                        _, safe_result = check_content_safety(validated)
+                        ai_options = safe_result.get("options", ai_options)
                     cleaned = []
                     for opt in ai_options:
                         if isinstance(opt, dict):
@@ -617,8 +624,16 @@ def get_next_event(session_id: str) -> dict:
             elif event_ctx.get("narrative_only") and event_ctx.get("fallback_narrative"):
                 # L1/L2 results came back empty but we have fallback
                 pass  # keep narrative from event_ctx["fallback_narrative"]
-    except Exception:
-        logging.getLogger(__name__).warning("AI 叙事生成异常，使用默认叙事和选项")
+    except (APIConnectionError, RateLimitError, APIStatusError) as e:
+        # Network/API errors - critical, cannot continue
+        logging.getLogger(__name__).error("AI API failure: %s: %s", type(e).__name__, e)
+        raise RuntimeError(f"AI 服务调用失败: {e}") from e
+    except json.JSONDecodeError as e:
+        # JSON parse error - fall back to event template
+        logging.getLogger(__name__).warning("AI response parse error, using fallback: %s", e)
+    except Exception as e:
+        # Unknown error - fall back but log at ERROR level
+        logging.getLogger(__name__).error("Unexpected AI generation error: %s: %s", type(e).__name__, e)
 
     narrative_only = bool(event_ctx.get("narrative_only")) and len(options) == 0
 
@@ -698,8 +713,8 @@ def _persist_tags(state: dict, session_id: str) -> None:
             conn.commit()
         finally:
             conn.close()
-    except Exception:
-        logging.getLogger(__name__).warning("标签持久化失败: session_id=%s", session_id)
+    except Exception as e:
+        logging.getLogger(__name__).warning("标签持久化失败: session_id=%s, error=%s", session_id, e)
 
 
 CONSEQUENCE_TEMPLATES = {
@@ -781,8 +796,8 @@ def _build_consequence_narrative(
             if ai_result and isinstance(ai_result, dict) and ai_result.get("narrative"):
                 _logger.info("Using AI-generated aftermath narrative")
                 return ai_result["narrative"]
-        except Exception:
-            _logger.warning("AI aftermath generation failed, falling back to template")
+        except Exception as e:
+            _logger.warning("AI aftermath generation failed, falling back to template: %s", e)
 
     # 选择模板
     if breakthrough_msg:
@@ -1140,6 +1155,19 @@ def handle_breakthrough_choice(state: dict, use_pill: bool) -> dict:
             state["_breakthrough_msg"] = f"突破失败！修为跌落至{result.new_realm}，损失{result.cultivation_loss:.0f}点修为！"
         else:
             state["_breakthrough_msg"] = f"突破失败！损失{result.cultivation_loss:.0f}点修为！"
+
+        # 突破失败时，如果玩家有 bond_master 羁绊，标记为 bond_master_lost
+        tags = state.get("tags")
+        if tags and tags.get_by_key("bond_master"):
+            tags.remove("bond_master")
+            tags.add(Tag(
+                category=TagCategory.BOND,
+                key="bond_master_lost",
+                value="恩师已逝",
+                description="突破失败导致师徒关系破裂",
+                priority=5,
+            ))
+            _persist_tags(state, state["session_id"])
 
         # 突破失败扣血（天赋 breakthrough_health_cost）
         modifiers = get_active_modifiers(state.get("talent_ids", []))

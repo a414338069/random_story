@@ -63,7 +63,7 @@
 ### AI 驱动叙事（核心卖点）
 
 ```
-1. event_engine 从 76 个 YAML 模板中筛选符合条件的模板
+1. event_engine 从 197 个 YAML 模板中筛选符合条件的模板
 2. 命中模板池后，模板的 {prompt_template} + 玩家状态 → AI prompt
 3. DeepSeek API 生成：{narrative, options[{id, text, consequences}], ...}
 4. ai_validator 3 层验证：JSON解析 → Schema校验 → 业务规则
@@ -114,21 +114,24 @@ random_story/
 │   ├── routers/
 │   │   └── game.py             # /api/v1/game/* (6 endpoints)
 │   ├── services/               # → 见 app/services/AGENTS.md
-│   │   ├── game_service.py     # 核心编排 (630行)
+│   │   ├── game_service.py     # 核心编排 (1313行)
 │   │   ├── event_engine.py     # 事件引擎 (模板加载+筛选+权重)
+│   │   ├── event_factory.py    # 事件工厂 (构建AI请求+处理响应)
 │   │   ├── ai_service.py       # DeepSeek + MockAIService
 │   │   ├── ai_validator.py     # 3层AI输出验证
 │   │   ├── breakthrough.py     # 突破系统
 │   │   ├── cache_service.py    # LRU+SQLite双层缓存
+│   │   ├── context_engine.py   # 上下文引擎 (构建对话历史)
 │   │   ├── realm_service.py    # 境界系统
 │   │   ├── scoring.py          # 评分+评级
 │   │   ├── sect_service.py     # 门派系统
-│   │   └── talent_service.py   # 天赋系统
+│   │   ├── talent_service.py   # 天赋系统
+│   │   └── life_stage.py       # 生命阶段
 │   └── data/                   # → 见 app/data/events/AGENTS.md
 │       ├── realms.yaml         # 9级境界配置
 │       ├── sects.yaml          # 门派配置
 │       ├── talents.yaml        # 天赋配置
-│       ├── events/             # 76 YAML 事件模板
+│       ├── events/             # 197 YAML 事件模板
 │       ├── prompts/            # system.yaml + user.yaml
 │       └── validate_data.py    # 数据校验 CLI
 ├── web/                        # 前端 (Vue 3)
@@ -190,7 +193,7 @@ random_story/
 - 9级境界: 凡人→炼气→筑基→金丹→元婴→化神→合体→大乘→渡劫飞升
 - 用字统一: **"炼气"** (非"练气") — AI 输出纠正已在 SYSTEM_PROMPT
 - 灵石: 凡人上限50, 炼气1000, 按境界递增
-- 事件模板 76 YAML: 16大类 (daily/adventure/combat/social/economy/emotional/heavenly/fortune/sect/stones/explore/bottleneck/birth/childhood/youth)
+- 事件模板 197 YAML: 17大类 (daily/adventure/combat/social/economy/emotional/heavenly/fortune/sect/stones/explore/bottleneck/birth/childhood/childhood_choice/youth/narrative)
 - 生命阶段: INFANT(0-3) / CHILD(4-11) / YOUTH(12-15) / CULTIVATOR(16+), 修炼乘数 0.0/0.0/0.5/1.0
 - 安静年机制: 连续2+有选项事件后25%概率触发 narrative_only 无选项事件, 不受生命阶段影响
 - 突破: 独立交互事件 (build_breakthrough_event), 含 use_pill/direct 两选项, 前端 breakthrough_choosing 阶段
@@ -198,7 +201,7 @@ random_story/
 ### 已知技术债
 - `dependencies.py`: `_StubAIService` 死代码 (从未被调用)
 - `as any`: `AttributeAllocator.vue` 3处 + `TalentSelect.vue` 1处
-- `except Exception: pass`: 8处静默吞异常 (无日志)
+- 部分 `except Exception` 使用了 logger 记录但未统一错误处理模式
 - CORS `allow_origins=["*"]`: 开发环境可接受, 生产需锁定
 
 ## 开发命令

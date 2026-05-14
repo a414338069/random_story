@@ -4,23 +4,25 @@
 
 ## 概览
 
-服务层包含 11 个模块，是游戏的核心业务逻辑。`game_service.py` 是唯一编排层，其余 10 个是独立的领域服务。
+服务层包含 13 个模块，是游戏的核心业务逻辑。`game_service.py` 是唯一编排层，其余 12 个是独立的领域服务。
 
 ## 文件清单
 
 | 文件 | 行数 | 职责 | 依赖 |
 |------|------|------|------|
-| `game_service.py` | 629 | **核心编排** — 游戏生命周期、状态推进、修炼公式 | 全部服务 + repo |
-| `life_stage.py` | 37 | **生命阶段** — 4阶段划分(INFANT/CHILD/YOUTH/CULTIVATOR), 修炼乘数, 突破限制 | (无外部依赖) |
-| `event_engine.py` | 195 | **事件引擎** — YAML模板加载、条件筛选、权重计算、安静年 | realm_service |
-| `ai_service.py` | 167 | **AI服务** — DeepSeek API封装、JSON模式、重试逻辑、SYSTEM_PROMPT | openai SDK, config |
-| `ai_validator.py` | ~100 | **AI输出验证** — 3层验证(JSON→Schema→业务) | (无外部依赖) |
-| `breakthrough.py` | 126 | **突破系统** — 概率计算、掉落惩罚、天赋加成 | realm_service, talent_service |
-| `cache_service.py` | 85 | **双层缓存** — LRU内存 + SQLite持久化 | (无外部依赖) |
-| `realm_service.py` | 66 | **境界系统** — YAML加载、境界查询、进阶判断 | realms.yaml |
-| `scoring.py` | 129 | **评分系统** — 结局判定、分数计算、评级映射(纯函数) | realm_service |
+| `game_service.py` | 1313 | **核心编排** — 游戏生命周期、状态推进、修炼公式 | 全部服务 + repo |
+| `event_factory.py` | 485 | **事件工厂** — 构建AI请求payload、解析AI响应为事件、后果计算 | ai_validator, realm_service |
+| `event_engine.py` | 376 | **事件引擎** — YAML模板加载、条件筛选、权重计算、安静年 | realm_service |
+| `ai_service.py` | 353 | **AI服务** — DeepSeek API封装、JSON模式、重试逻辑、SYSTEM_PROMPT | openai SDK, config |
+| `breakthrough.py` | 209 | **突破系统** — 概率计算、掉落惩罚、天赋加成 | realm_service, talent_service |
+| `scoring.py` | 170 | **评分系统** — 结局判定、分数计算、评级映射(纯函数) | realm_service |
+| `ai_validator.py` | 146 | **AI输出验证** — 3层验证(JSON→Schema→业务) | (无外部依赖) |
 | `sect_service.py` | 112 | **门派系统** — YAML加载、门派分配、门派效果 | sects.yaml |
+| `context_engine.py` | 110 | **上下文引擎** — 构建对话历史、管理事件日志摘要、拼接AI prompt上下文 | (无外部依赖) |
 | `talent_service.py` | 92 | **天赋系统** — YAML加载、抽卡、天赋验证、效果应用 | talents.yaml |
+| `cache_service.py` | 88 | **双层缓存** — LRU内存 + SQLite持久化 | (无外部依赖) |
+| `realm_service.py` | 66 | **境界系统** — YAML加载、境界查询、进阶判断 | realms.yaml |
+| `life_stage.py` | 37 | **生命阶段** — 4阶段划分(INFANT/CHILD/YOUTH/CULTIVATOR), 修炼乘数, 突破限制 | (无外部依赖) |
 
 ## 核心编排流 (game_service.py)
 
@@ -119,7 +121,7 @@ load_templates() → filter_templates(player_state) → calculate_weights(templa
 2. **Schema 验证** — 检查 narrative(str), options(list), 每个option含 id+text
 3. **业务验证** — 去重 option id, 限制选项数量(2-4个), 截断过长文本
 
-验证失败静默 `pass` (8处 `except` — 已知技术债)。
+验证失败通过 logger 记录异常（已用日志替代了原始的静默 `pass`）。
 
 ## 生命阶段 (life_stage.py)
 
@@ -193,14 +195,14 @@ class BreakthroughResult:
 
 ## 测试覆盖
 
-`tests/test_services/` 包含 9 个测试文件，每个服务一个：
+`tests/test_services/` 包含 19 个测试文件：
 - Mock 模式: MockAIService 替代真实AI调用
 - 随机种子: `random.seed(42)` 确保确定性
 - 辅助函数: 每个文件内联 `_make_player()`, `_make_settings()` 工厂
 
 ## 注意事项
 
-- `game_service.py` 是**最大的单文件** (629行)，承担了编排+后果叙事+修炼计算等职责
+- `game_service.py` 是**最大的单文件** (1313行)，承担了编排+后果叙事+修炼计算等职责
 - 所有服务都是**模块级函数**，不是类 (除 BreakthroughResult dataclass)
 - 状态在内存 `_games` dict 和 SQLite 间同步，无事务保证
-- `except Exception: pass` 有8处，建议统一改为 `logger.warning()`
+- `except Exception` 已大部分改为 logger 记录，仍有少数未统一错误处理模式

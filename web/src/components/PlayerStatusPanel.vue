@@ -256,6 +256,38 @@ function getTalentGradeType(grade: string): 'default' | 'info' | 'warning' | 'su
                 processing
               />
             </div>
+            <div class="status-progress-row">
+              <div class="attr-header">
+                <span class="attr-label">生命</span>
+                <span class="attr-value" :style="{ color: gameState.health <= 30 ? '#ff4d4f' : '#52c41a' }">
+                  {{ gameState.health }} / {{ gameState.maxHealth }}
+                </span>
+              </div>
+              <n-progress
+                type="line"
+                :percentage="Math.min(100, (gameState.health / gameState.maxHealth) * 100)"
+                :color="gameState.health <= 30 ? '#ff4d4f' : '#52c41a'"
+                :height="8"
+                :border-radius="4"
+                :show-indicator="false"
+              />
+            </div>
+            <div class="status-progress-row">
+              <div class="attr-header">
+                <span class="attr-label">灵力</span>
+                <span class="attr-value" :style="{ color: '#1890ff' }">
+                  {{ gameState.qi }} / {{ gameState.maxQi }}
+                </span>
+              </div>
+              <n-progress
+                type="line"
+                :percentage="gameState.maxQi > 0 ? Math.min(100, (gameState.qi / gameState.maxQi) * 100) : 0"
+                color="#1890ff"
+                :height="8"
+                :border-radius="4"
+                :show-indicator="false"
+              />
+            </div>
           </n-space>
         </div>
       </div>

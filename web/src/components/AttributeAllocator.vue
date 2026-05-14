@@ -7,7 +7,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: typeof props.modelValue]
 }>()
 
-const labels: Record<string, string> = {
+const labels: Record<keyof typeof props.modelValue, string> = {
   rootBone: '根骨',
   comprehension: '悟性',
   mindset: '心境',
@@ -45,16 +45,16 @@ function setValue(key: keyof typeof props.modelValue, val: number) {
       class="attr-row"
     >
       <span class="attr-label">{{ label }}</span>
-      <button class="attr-btn" @click="change(key as any, -1)">−</button>
+      <button class="attr-btn" @click="change(key, -1)">−</button>
       <input
         class="attr-input"
         type="number"
         :value="modelValue[key as keyof typeof modelValue]"
         min="0"
         max="10"
-        @input="setValue(key as any, Number(($event.target as HTMLInputElement).value))"
+        @input="setValue(key, Number(($event.target as HTMLInputElement).value))"
       />
-      <button class="attr-btn" @click="change(key as any, 1)">+</button>
+      <button class="attr-btn" @click="change(key, 1)">+</button>
     </div>
   </div>
 </template>

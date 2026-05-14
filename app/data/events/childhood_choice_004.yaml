@@ -1,0 +1,50 @@
+id: "childhood_choice_004"
+type: "childhood"
+narrative_only: false
+title: "童年友谊"
+trigger_conditions:
+  min_realm: "凡人"
+  max_realm: "凡人"
+  min_age: 4
+  max_age: 8
+  required_faction: null
+weight: 3.0
+scenarios:
+  - childhood
+trigger_tags:
+  require_all: []
+  require_any: []
+  block: []
+event_tier: "L1"
+prompt_template: |
+  你{age}岁了。村里新搬来一户人家，他们家有个和你差不多大的孩子，衣衫褴褛，沉默寡言。其他孩子都嫌弃他，不愿意和他玩。你也注意到这个孩子手里常常攥着一块奇怪的石头——那石头在夜里会微微发光。描述你遇到这个孩子时的场景——你会怎么做？200字以内，第二人称。
+fallback_narrative: |
+  你{age}岁那年夏天，村尾空置了多年的破屋里搬来了一家三口。那家的孩子和你差不多大，但总缩在角落里，不和其他孩子说话。有一天傍晚你路过那间破屋，看见他一个人蹲在屋后，手里捧着一块灰扑扑的石头，嘴里念念有词。那石头在夕阳余晖下泛着淡淡的青光。他注意到你在看他，吓了一跳，死死把石头捂在怀里，眼睛里满是戒备。你想说点什么，但一时间又不知道该说什么。
+default_options:
+  - id: "opt1"
+    text: "主动接近他——分享你的干粮，试着和他交朋友"
+    consequences:
+      cultivation_gain: 2
+      spirit_stones_gain: 1
+      age_advance: true
+      attribute_changes:
+        fortune: 0.5
+        mental_state: 0.3
+  - id: "opt2"
+    text: "专注自身修炼——每日入山感应灵气，不理会他人的事"
+    consequences:
+      cultivation_gain: 4
+      spirit_stones_gain: 0
+      age_advance: true
+      attribute_changes:
+        root_bone: 0.3
+        fortune: -0.3
+  - id: "opt3"
+    text: "暗中观察——不主动靠近，但留意他的一举一动"
+    consequences:
+      cultivation_gain: 3
+      spirit_stones_gain: 0
+      age_advance: true
+      attribute_changes:
+        comprehension: 0.3
+        mental_state: 0.3

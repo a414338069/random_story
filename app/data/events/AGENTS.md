@@ -4,28 +4,30 @@
 
 ## 概览
 
-76 YAML 事件模板，是游戏随机事件的核心数据源。每个模板定义触发条件、叙事提示、默认选项和后果。
+197 YAML 事件模板，是游戏随机事件的核心数据源。每个模板定义触发条件、叙事提示、默认选项和后果。
 
 ## 文件清单
 
-### 事件分类 (16 大类)
+### 事件分类 (17 大类)
 
 | 类别 | 文件数 | 前缀 | 触发场景 |
 |------|--------|------|---------|
-| daily | 15 | `daily_001` ~ `daily_015` | 日常修行生活 |
-| childhood | 10 | `childhood_001` ~ `childhood_010` | 童年事件 (4-11岁) |
-| adventure | 8 | `adventure_001` ~ `adventure_008` | 探险奇遇 |
-| bottleneck | 6 | `bottleneck_000` ~ `bottleneck_005` | 瓶颈/突破契机 |
-| stones | 5 | `stones_001` ~ `stones_005` | 灵石相关 |
-| combat | 4 | `combat_001` ~ `combat_004` | 战斗冲突 |
-| social | 4 | `social_001` ~ `social_004` | 社交互动 |
-| economy | 4 | `economy_001` ~ `economy_004` | 经济/交易 |
-| explore | 4 | `explore_001` ~ `explore_004` | 探索/发现 |
-| youth | 4 | `youth_001` ~ `youth_004` | 少年事件 (12-15岁) |
-| fortune | 3 | `fortune_001` ~ `fortune_003` | 际遇/机缘 |
-| sect | 3 | `sect_001` ~ `sect_003` | 门派相关 |
-| emotional | 2 | `emotional_001` ~ `emotional_002` | 情感/心魔 |
-| heavenly | 2 | `heavenly_001` ~ `heavenly_002` | 天劫/天赐 |
+| childhood | 33 | `childhood_001` ~ `childhood_033` | 童年事件 (4-11岁) |
+| daily | 22 | `daily_001` ~ `daily_022` | 日常修行生活 |
+| sect | 18 | `sect_001` ~ `sect_018` | 门派相关 (含万剑/逍遥/金刚/散修分支) |
+| adventure | 17 | `adventure_001` ~ `adventure_017` | 探险奇遇 |
+| stones | 13 | `stones_001` ~ `stones_013` | 灵石相关 |
+| social | 10 | `social_001` ~ `social_010` | 社交互动 |
+| economy | 10 | `economy_001` ~ `economy_010` | 经济/交易 |
+| combat | 10 | `combat_001` ~ `combat_010` | 战斗冲突 |
+| explore | 9 | `explore_001` ~ `explore_009` | 探索/发现 |
+| bottleneck | 9 | `bottleneck_000` ~ `bottleneck_008` | 瓶颈/突破契机 |
+| narrative | 8 | `narrative_001` ~ `narrative_008` | 叙事事件 (安静年/纯叙事) |
+| heavenly | 8 | `heavenly_001` ~ `heavenly_008` | 天劫/天赐 |
+| fortune | 8 | `fortune_001` ~ `fortune_008` | 际遇/机缘 |
+| emotional | 8 | `emotional_001` ~ `emotional_008` | 情感/心魔 |
+| youth | 7 | `youth_001` ~ `youth_007` | 少年事件 (12-15岁) |
+| childhood_choice | 5 | `childhood_choice_001` ~ `childhood_choice_005` | 童年选择事件 |
 | birth | 2 | `birth_001` ~ `birth_002` | 出生事件 (0-3岁) |
 
 ### 测试文件

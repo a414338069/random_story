@@ -50,7 +50,7 @@ async function startDraw() {
     return
   }
   name.value = formModel.value.name
-  currentCards.value = drawCards(3)
+  currentCards.value = drawCards(5)
   step.value = 2
 }
 
@@ -59,7 +59,7 @@ function handleRedraw() {
     message.warning('已达到最大重抽次数')
     return
   }
-  currentCards.value = drawCards(3)
+  currentCards.value = drawCards(5)
   redrawCount.value++
 }
 
@@ -85,8 +85,8 @@ async function handleConfirm() {
     setSession(result.sessionId)
     update(result.state)
     router.push('/game')
-  } catch (err: any) {
-    message.error(err?.message || '创建角色失败')
+  } catch (err: unknown) {
+    message.error(err instanceof Error ? err.message : '创建角色失败')
   } finally {
     loading.value = false
   }

@@ -32,7 +32,9 @@ export async function apiRequest<T>(url: string, options: RequestInit = {}): Pro
       try {
         const parsed = JSON.parse(body)
         detail = parsed.detail || parsed.message || body
-      } catch { }
+      } catch (e) {
+        console.warn('JSON parse failed for error body:', e)
+      }
       throw new FetchError(res.status, String(detail), `HTTP_${res.status}`)
     }
 

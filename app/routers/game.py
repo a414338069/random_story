@@ -22,6 +22,7 @@ from app.services.game_service import (
     prepare_stream_event,
     _get_ai_service,
 )
+from app.services.ai_validator import check_narrative_option_alignment
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/game", tags=["game"])
@@ -339,3 +340,11 @@ def _done_state_tracking(state: dict, event_ctx: dict, chosen: dict, narrative: 
         "options": options,
         "narrative_only": narrative_only,
     }
+    if not narrative_only and options:
+        if not check_narrative_option_alignment(narrative, options):
+            logger.warning("SSE path: narrative-option alignment check failed")
+        seen = state.get("_seen_event_ids")
+        if seen is not None:
+            evt_id = chosen.get("id", "")
+            if evt_id:
+                seen.add(evt_id)

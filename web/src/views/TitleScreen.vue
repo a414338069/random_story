@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { NButton, NCard, NSpace, NText, NSpin, useMessage, useDialog } from 'naive-ui'
 import { useSaveLoad } from '@/composables/useSaveLoad'
+import LeaderboardModal from '@/components/LeaderboardModal.vue'
 
 const router = useRouter()
 const message = useMessage()
 const dialog = useDialog()
 const { saves, loading, listMySaves, loadMySave, deleteMySave } = useSaveLoad()
+const showLeaderboardModal = ref(false)
 
 const TOTAL_SLOTS = 3
 
@@ -53,7 +55,7 @@ function confirmDelete(slot: number, name: string) {
 }
 
 function showLeaderboard() {
-  window.alert('暂无记录')
+  showLeaderboardModal.value = true
 }
 </script>
 
@@ -143,6 +145,8 @@ function showLeaderboard() {
       </NButton>
     </div>
   </div>
+
+  <LeaderboardModal v-model:show="showLeaderboardModal" />
 </template>
 
 <style scoped>

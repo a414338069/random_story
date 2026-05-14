@@ -53,7 +53,7 @@ const spiritStones = useAnimatedNumber(spiritStonesSource, 600)
         >{{ spiritStones.formatted() }}</span>
       </span>
     </div>
-    <NButton quaternary size="small" class="sb-character-btn" @click="emit('togglePanel')">
+    <NButton quaternary size="small" class="sb-character-btn" @click.stop="emit('togglePanel')">
       <template #icon>
         <NIcon><PersonOutline /></NIcon>
       </template>
