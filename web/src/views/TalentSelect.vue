@@ -20,6 +20,7 @@ const step = ref(1)
 const name = ref('')
 const gender = ref<'男' | '女'>('男')
 const currentCards = ref<TalentCard[]>([])
+const selectedIds = ref<Set<string>>(new Set())
 const redrawCount = ref(0)
 const attributes = ref({ rootBone: 3, comprehension: 3, mindset: 2, luck: 2 })
 const loading = ref(false)
@@ -51,7 +52,18 @@ async function startDraw() {
   }
   name.value = formModel.value.name
   currentCards.value = drawCards(5)
+  selectedIds.value.clear()
   step.value = 2
+}
+
+function toggleCard(id: string) {
+  if (selectedIds.value.has(id)) {
+    selectedIds.value.delete(id)
+  } else if (selectedIds.value.size < 3) {
+    selectedIds.value.add(id)
+  }
+  // trigger reactivity
+  selectedIds.value = new Set(selectedIds.value)
 }
 
 function handleRedraw() {
@@ -60,6 +72,7 @@ function handleRedraw() {
     return
   }
   currentCards.value = drawCards(5)
+  selectedIds.value.clear()
   redrawCount.value++
 }
 
@@ -72,7 +85,7 @@ async function handleConfirm() {
     const result = await startGame({
       name: name.value || '无名散修',
       gender: gender.value,
-      talent_card_ids: currentCards.value.map(c => c.id),
+      talent_card_ids: Array.from(selectedIds.value),
       attributes: {
         root_bone: Math.round(attributes.value.rootBone),
         comprehension: Math.round(attributes.value.comprehension),
@@ -117,12 +130,14 @@ async function handleConfirm() {
       </div>
 
       <div v-if="step === 2" class="ts-step">
-        <h3>选择天赋</h3>
+        <h3>选择天赋（{{ selectedIds.size }}/3）</h3>
         <div class="ts-cards">
           <TalentCardComp
             v-for="card in currentCards"
             :key="card.id"
             :card="card"
+            :selected="selectedIds.has(card.id)"
+            @click="toggleCard(card.id)"
           />
         </div>
         <NSpace justify="center" :size="16">
@@ -133,7 +148,7 @@ async function handleConfirm() {
           >
             重新抽取 ({{ 4 - redrawCount }}次)
           </NButton>
-          <NButton type="primary" @click="step = 3">
+          <NButton type="primary" :disabled="selectedIds.size !== 3" @click="step = 3">
             确认天赋，分配属性
           </NButton>
         </NSpace>

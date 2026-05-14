@@ -9,7 +9,8 @@ import {
   getModifierLabel,
 } from '@/core/talents'
 
-const props = defineProps<{ card: TalentCard }>()
+const props = defineProps<{ card: TalentCard; selected?: boolean }>()
+defineEmits<{ click: [] }>()
 
 const attrNameMap: Record<string, string> = {
   root_bone: '根骨',
@@ -73,11 +74,12 @@ const hasEffects = computed(() => displayEffects.value.length > 0)
 <template>
   <div
     class="talent-card"
-    :class="getGradeClass(card.grade)"
+    :class="[getGradeClass(card.grade), { 'talent-card--selected': selected }]"
     :style="{
-      borderColor: getGradeColor(card.grade),
-      background: getGradeBgColor(card.grade),
+      borderColor: selected ? getGradeColor(card.grade) : undefined,
+      background: selected ? getGradeBgColor(card.grade) : undefined,
     }"
+    @click="$emit('click')"
   >
     <span class="tc-grade" :style="{ color: getGradeColor(card.grade) }">
       {{ card.grade }}
@@ -121,6 +123,17 @@ const hasEffects = computed(() => displayEffects.value.length > 0)
 .talent-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 4px 12px rgba(26,24,20,0.08);
+}
+
+.talent-card--selected {
+  transform: translateY(-4px);
+  box-shadow: 0 0 0 3px var(--accent, #b8b3a8), 0 4px 16px rgba(26,24,20,0.12);
+  cursor: pointer;
+}
+
+.talent-card:not(.talent-card--selected) {
+  cursor: pointer;
+  opacity: 0.85;
 }
 
 /* Grade indicator via left border accent */
