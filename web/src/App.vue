@@ -12,10 +12,8 @@ import './styles/mobile.css'
     <NMessageProvider>
       <NDialogProvider>
         <div id="app-root" class="rice-paper">
-          <router-view v-slot="{ Component }">
-            <transition name="fade" mode="out-in">
-              <component :is="Component" />
-            </transition>
+          <router-view v-slot="{ Component, route }">
+            <component :is="Component" :key="route.path" />
           </router-view>
         </div>
       </NDialogProvider>

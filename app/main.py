@@ -41,4 +41,14 @@ def health_check():
 # --------------- 生产模式：静态文件服务 ---------------
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "..", "web", "dist")
 if os.path.isdir(STATIC_DIR) and os.path.exists(os.path.join(STATIC_DIR, "index.html")):
-    app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
+    from starlette.responses import FileResponse
+
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        """SPA fallback: serve index.html for all non-API, non-static routes."""
+        file_path = os.path.join(STATIC_DIR, full_path)
+        if full_path and os.path.isfile(file_path):
+            return FileResponse(file_path)
+        return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+
+    app.mount("/assets", StaticFiles(directory=os.path.join(STATIC_DIR, "assets")), name="static-assets")
