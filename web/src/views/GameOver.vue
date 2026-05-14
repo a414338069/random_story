@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { NButton, ref } from 'naive-ui'
+import { NButton } from 'naive-ui'
+import { ref } from 'vue'
 import { useGameState } from '@/composables/useGameState'
 import LeaderboardModal from '@/components/LeaderboardModal.vue'
 

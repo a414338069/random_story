@@ -47,8 +47,8 @@ const realmColorType: Record<string, 'default' | 'info' | 'success' | 'warning' 
   '渡劫飞升': 'warning',
 }
 
-function getRealmColor(realm: string): string {
-  return realmColorType[realm] ?? 'default'
+function getRealmColor(realm: string): 'info' | 'success' | 'warning' | 'error' | 'default' | 'primary' {
+  return (realmColorType[realm] ?? 'default') as 'info' | 'success' | 'warning' | 'error' | 'default' | 'primary'
 }
 
 // ── attribute progress color ──
